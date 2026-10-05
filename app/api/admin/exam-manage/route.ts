@@ -97,16 +97,14 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true, status });
   }
 
-  const structuralChange =
+  const protectedChange =
     body.category !== undefined ||
     body.startsAt !== undefined ||
     body.endsAt !== undefined ||
-    body.durationMinutes !== undefined ||
     body.attemptsAllowed !== undefined ||
-    body.passingScore !== undefined ||
-    body.sectionDurations !== undefined;
+    body.passingScore !== undefined;
 
-  if (structuralChange) {
+  if (protectedChange) {
     const attempts = await serviceRequest<Array<{ id: string }>>(
       "/rest/v1/intensive_exam_attempts?" + new URLSearchParams({
         select: "id",
@@ -116,7 +114,7 @@ export async function PATCH(request: NextRequest) {
     );
     if (attempts.length) {
       return NextResponse.json(
-        { ok: false, message: "Timing, attempt limits, and passing score cannot be changed after an attempt has started. You can still update descriptive text and the result release policy." },
+        { ok: false, message: "The exam window, attempt limits, category, and passing score cannot be changed after an attempt has started. Section timers can still be changed for sections that have not started yet." },
         { status: 409 },
       );
     }
