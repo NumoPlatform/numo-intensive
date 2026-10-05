@@ -9,6 +9,10 @@ type SelectSectionResult = {
   time_limit_minutes: number;
   section_expires_at: string;
   section_progress: Record<string, unknown>;
+  section_attempt_id: string | null;
+  section_attempt_number: number;
+  attempts_allowed: number;
+  attempts_remaining: number;
   resumed: boolean;
 };
 
@@ -40,8 +44,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const raw = error instanceof Error ? error.message : "";
     const message =
-      raw.includes("SECTION_ALREADY_COMPLETED")
-        ? "This section has already been completed."
+      raw.includes("SECTION_ATTEMPTS_EXHAUSTED")
+        ? "You have used all attempts for this section."
         : raw.includes("SECTION_ALREADY_ACTIVE")
           ? "Finish the active section before opening another section."
           : raw.includes("ATTEMPT_EXPIRED")
