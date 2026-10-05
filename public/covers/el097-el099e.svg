@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
-<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#24356f"/><stop offset=".52" stop-color="#f0a06f"/><stop offset="1" stop-color="#f6d19b"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#1F2B5E"/><stop offset="1" stop-color="#6366F1"/></linearGradient></defs>
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#24356f"/><stop offset=".52" stop-color="#f0a06f"/><stop offset="1" stop-color="#f6d19b"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#04747C"/><stop offset="1" stop-color="#00A8B3"/></linearGradient></defs>
 <rect width="1600" height="900" fill="url(#sky)"/><circle cx="220" cy="235" r="105" fill="#ffd89c" opacity=".9"/>
 <path d="M0 575 C210 520 360 555 520 520 C720 475 905 565 1110 510 C1280 465 1450 500 1600 455 V900 H0Z" fill="#182552" opacity=".9"/>
 <path d="M0 660 C250 620 430 675 610 642 C825 602 995 675 1220 626 C1380 592 1490 604 1600 590 V900 H0Z" fill="url(#sea)" opacity=".82"/>
 <g fill="#101a3f"><rect x="1030" y="345" width="30" height="260" rx="12"/><circle cx="1045" cy="405" r="72"/><rect x="1218" y="260" width="28" height="350" rx="12"/><circle cx="1232" cy="350" r="58"/><rect x="1374" y="390" width="24" height="220" rx="10"/><circle cx="1386" cy="430" r="43"/></g>
 <rect x="75" y="75" width="1450" height="750" rx="48" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
 <g font-family="Arial, sans-serif" fill="#fff"><text x="105" y="150" font-size="34" font-weight="700">NUMO INTENSIVE</text><text x="105" y="675" font-size="112" font-weight="800">EL097_EL099E</text><text x="105" y="738" font-size="36" font-weight="700">English for the 21st Century · Level 1</text></g>
-<rect x="105" y="775" width="300" height="8" rx="4" fill="#B1785C"/></svg>
+<rect x="105" y="775" width="300" height="8" rx="4" fill="#009CA6"/></svg>

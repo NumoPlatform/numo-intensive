@@ -3,4 +3,4 @@
 <rect width="1600" height="900" fill="url(#sky)"/><path d="M0 510 C240 390 430 400 680 530 C890 640 1080 520 1300 420 C1430 360 1530 390 1600 420 V900H0Z" fill="url(#sand)"/><path d="M0 650 C260 540 510 585 760 680 C1010 776 1270 675 1600 560 V900H0Z" fill="#c7681c" opacity=".72"/><g fill="#70501f"><circle cx="1240" cy="615" r="16"/><circle cx="1320" cy="555" r="13"/><circle cx="1165" cy="590" r="12"/></g>
 <rect x="75" y="75" width="1450" height="750" rx="48" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
 <g font-family="Arial, sans-serif" fill="#fff"><text x="105" y="150" font-size="34" font-weight="700">NUMO INTENSIVE</text><text x="105" y="675" font-size="118" font-weight="800">EL112</text><text x="105" y="738" font-size="36" font-weight="700">English for the 21st Century · Level 5</text></g>
-<rect x="105" y="775" width="300" height="8" rx="4" fill="#B1785C"/></svg>
+<rect x="105" y="775" width="300" height="8" rx="4" fill="#F07F00"/></svg>
