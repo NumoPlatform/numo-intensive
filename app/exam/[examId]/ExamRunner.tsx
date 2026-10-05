@@ -1,0 +1,995 @@
+"use client";
+
+import { intensiveFetch } from "@/lib/intensive/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Clock3,
+  Flag,
+  Loader2,
+  Save,
+  Send,
+  ShieldCheck,
+} from "lucide-react";
+
+type ExamInfo = {
+  id: string;
+  course_id: string;
+  title: string;
+  category: string;
+  starts_at: string;
+  ends_at: string;
+  duration_minutes: number;
+  attempts_allowed: number;
+  total_marks: number;
+  status: string;
+};
+
+type QuestionOption = { id: string; label: string; value: string };
+type Question = {
+  id: string;
+  sectionId: string;
+  sectionTitle: string;
+  skill: string;
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
+  prompt: string;
+  marks: number;
+  passage: null | {
+    id: string;
+    title: string;
+    body: string;
+    imageUrl?: string | null;
+  };
+  options: QuestionOption[] | null;
+};
+type SectionState = {
+  id: string;
+  title: string;
+  position: number;
+  timeLimitMinutes: number;
+};
+
+type Attempt = {
+  attempt_id: string;
+  expires_at: string;
+  questions: Question[];
+  resumed: boolean;
+  sections: SectionState[];
+  current_section_id: string | null;
+  current_section_expires_at: string | null;
+  section_finished: boolean;
+};
+type PublishedResult = {
+  final_score: number | null;
+  total_marks: number;
+  percentage: number | null;
+  status: string | null;
+  grading_status: string;
+  is_published: boolean;
+  published_at: string | null;
+};
+
+type SectionScore = {
+  sectionId: string;
+  title: string;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+};
+
+type WrongReviewQuestion = {
+  number: number;
+  questionId: string;
+  sectionTitle: string;
+  skill: string;
+  type: Question["type"];
+  prompt: string;
+  marks: number;
+  earned: number;
+  selectedAnswer: string;
+  correctAnswer: string;
+  passage: null | {
+    title: string;
+    body: string;
+  };
+};
+
+type ReviewPayload = {
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  questionCount: number;
+  correctCount: number;
+  wrongCount: number;
+  wrongQuestions: WrongReviewQuestion[];
+};
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("ar-SA", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Riyadh",
+  }).format(new Date(value));
+}
+
+function formatRemaining(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  return [hours, minutes, seconds].map((item) => String(item).padStart(2, "0")).join(":");
+}
+
+export default function ExamRunner() {
+  const params = useParams<{ examId: string }>();
+  const examId = String(params?.examId ?? "");
+  const [stage, setStage] = useState<"loading" | "intro" | "starting" | "active" | "done">("loading");
+  const [exam, setExam] = useState<ExamInfo | null>(null);
+  const [previewSections, setPreviewSections] = useState<SectionState[]>([]);
+  const [attempt, setAttempt] = useState<Attempt | null>(null);
+  const [answers, setAnswers] = useState<Record<string, unknown>>({});
+  const [flags, setFlags] = useState<Record<string, boolean>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [remaining, setRemaining] = useState(0);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [advancing, setAdvancing] = useState(false);
+  const [publishedResult, setPublishedResult] = useState<PublishedResult | null>(null);
+  const [sectionBreakdown, setSectionBreakdown] = useState<SectionScore[]>([]);
+  const [pendingGrading, setPendingGrading] = useState(false);
+  const [review, setReview] = useState<ReviewPayload | null>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  useEffect(() => {
+    async function loadExam() {
+      const response = await intensiveFetch("/api/dashboard", { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) {
+        window.location.replace("/");
+        return;
+      }
+      const found = (payload.exams as ExamInfo[]).find((item) => item.id === examId);
+      if (!found) {
+        setMessage("الاختبار غير موجود أو غير متاح لحسابك.");
+        setStage("intro");
+        return;
+      }
+      const sections = ((payload.sections ?? []) as Array<{
+        id: string;
+        exam_id: string;
+        title: string;
+        position: number;
+        time_limit_minutes: number;
+      }>)
+        .filter((section) => section.exam_id === examId)
+        .sort((a, b) => a.position - b.position)
+        .map((section) => ({
+          id: section.id,
+          title: section.title,
+          position: section.position,
+          timeLimitMinutes: section.time_limit_minutes,
+        }));
+      setExam(found);
+      setPreviewSections(sections);
+      setStage("intro");
+    }
+    if (examId) loadExam();
+  }, [examId]);
+
+  const saveAnswer = useCallback(async (questionId: string, answer: unknown, flagged: boolean) => {
+    if (!attempt) return;
+    setSaveState("saving");
+    const response = await intensiveFetch("/api/exam/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        attemptId: attempt.attempt_id,
+        questionId,
+        answer,
+        flagged,
+      }),
+    });
+    if (response.ok) {
+      setSaveState("saved");
+      window.setTimeout(() => setSaveState("idle"), 1200);
+    } else {
+      setSaveState("error");
+    }
+  }, [attempt]);
+
+  const queueSave = useCallback((questionId: string, answer: unknown, flagged: boolean) => {
+    if (!attempt) return;
+    if (saveTimers.current[questionId]) clearTimeout(saveTimers.current[questionId]);
+    saveTimers.current[questionId] = setTimeout(() => {
+      void saveAnswer(questionId, answer, flagged);
+    }, 450);
+  }, [attempt, saveAnswer]);
+
+  const flushCurrentSection = useCallback(async () => {
+    if (!attempt?.current_section_id) return;
+
+    const active = attempt.questions.filter(
+      (question) => question.sectionId === attempt.current_section_id,
+    );
+    const pending = active.filter(
+      (question) =>
+        answers[question.id] !== undefined ||
+        Boolean(flags[question.id]),
+    );
+
+    if (!pending.length) return;
+
+    const responses = await Promise.all(
+      pending.map((question) =>
+        intensiveFetch("/api/exam/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            attemptId: attempt.attempt_id,
+            questionId: question.id,
+            answer: answers[question.id] ?? null,
+            flagged: Boolean(flags[question.id]),
+          }),
+        }),
+      ),
+    );
+
+    if (responses.some((response) => !response.ok)) {
+      setSaveState("error");
+      throw new Error("تعذر حفظ بعض الإجابات. تحقق من اتصالك ثم حاول مرة أخرى.");
+    }
+
+    setSaveState("saved");
+  }, [answers, attempt, flags]);
+
+  function updateAnswer(questionId: string, value: unknown) {
+    setAnswers((current) => ({ ...current, [questionId]: value }));
+    queueSave(questionId, value, Boolean(flags[questionId]));
+  }
+
+  function toggleFlag(questionId: string) {
+    const next = !flags[questionId];
+    setFlags((current) => ({ ...current, [questionId]: next }));
+    queueSave(questionId, answers[questionId] ?? null, next);
+  }
+
+  async function loadReview(attemptId: string) {
+    setReviewLoading(true);
+    try {
+      const response = await intensiveFetch(
+        "/api/exam/review?attemptId=" + encodeURIComponent(attemptId),
+        { cache: "no-store" },
+      );
+      const payload = await response.json();
+      if (response.ok) {
+        setReview(payload as ReviewPayload);
+      } else {
+        setReview(null);
+      }
+    } catch {
+      setReview(null);
+    } finally {
+      setReviewLoading(false);
+    }
+  }
+
+  async function startExam() {
+    setMessage("");
+    setStage("starting");
+    const response = await intensiveFetch("/api/exam/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examId }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setMessage(payload.message || "تعذر بدء الاختبار.");
+      setStage("intro");
+      return;
+    }
+
+    const incoming = payload.attempt as Attempt;
+    const restoredAnswers: Record<string, unknown> = {};
+    const restoredFlags: Record<string, boolean> = {};
+    for (const item of payload.answers ?? []) {
+      restoredAnswers[item.question_id] = item.answer;
+      restoredFlags[item.question_id] = Boolean(item.is_flagged);
+    }
+
+    if (payload.completedResult) {
+      setAttempt(incoming);
+      setPublishedResult(payload.completedResult as PublishedResult);
+      setSectionBreakdown((payload.sectionBreakdown ?? []) as SectionScore[]);
+      setPendingGrading(false);
+      void loadReview(incoming.attempt_id);
+      setStage("done");
+      return;
+    }
+
+    if (incoming.section_finished || !incoming.current_section_id || !incoming.current_section_expires_at) {
+      setMessage("لا توجد أقسام متبقية في هذه المحاولة.");
+      setStage("intro");
+      return;
+    }
+
+    setAttempt(incoming);
+    setAnswers(restoredAnswers);
+    setFlags(restoredFlags);
+    setRemaining(Math.max(0, new Date(incoming.current_section_expires_at).getTime() - Date.now()));
+    setCurrentIndex(0);
+    setStage("active");
+  }
+
+  const submitAttempt = useCallback(async (automatic = false, skipFlush = false) => {
+    if (!attempt || submitting) return;
+    if (!automatic && !window.confirm("هل تريد تسليم الاختبار؟ لن تتمكن من تعديل الإجابات بعد التسليم.")) return;
+
+    setSubmitting(true);
+    setMessage("");
+    try {
+      Object.values(saveTimers.current).forEach((timer) => clearTimeout(timer));
+      if (!skipFlush) {
+        await flushCurrentSection();
+      }
+
+      const response = await intensiveFetch("/api/exam/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId: attempt.attempt_id }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "تعذر تسليم الاختبار.");
+
+      setPublishedResult(payload.publishedResult ?? null);
+      setSectionBreakdown((payload.sectionBreakdown ?? []) as SectionScore[]);
+      setPendingGrading(Boolean(payload.result?.pending_grading));
+      if (payload.publishedResult) {
+        void loadReview(attempt.attempt_id);
+      }
+      setStage("done");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "تعذر تسليم الاختبار.");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [attempt, flushCurrentSection, submitting]);
+
+  const advanceSection = useCallback(async (automatic = false) => {
+    if (!attempt || advancing || submitting) return;
+
+    if (!automatic) {
+      const confirmed = window.confirm(
+        "هل تريد إنهاء هذا القسم والمتابعة؟ لن تتمكن من الرجوع إليه بعد الانتقال.",
+      );
+      if (!confirmed) return;
+    }
+
+    setAdvancing(true);
+    setMessage("");
+
+    try {
+      Object.values(saveTimers.current).forEach((timer) => clearTimeout(timer));
+
+      try {
+        await flushCurrentSection();
+      } catch (error) {
+        if (!automatic) throw error;
+        setSaveState("error");
+      }
+
+      const response = await intensiveFetch("/api/exam/section/advance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId: attempt.attempt_id }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "تعذر الانتقال إلى القسم التالي.");
+
+      if (payload.result?.finished) {
+        await submitAttempt(true, true);
+        return;
+      }
+
+      const sectionId = String(payload.result?.section_id || "");
+      const expiresAt = String(payload.result?.section_expires_at || "");
+      if (!sectionId || !expiresAt) throw new Error("تعذر فتح القسم التالي.");
+
+      setAttempt((currentAttempt) =>
+        currentAttempt
+          ? {
+              ...currentAttempt,
+              current_section_id: sectionId,
+              current_section_expires_at: expiresAt,
+              section_finished: false,
+            }
+          : currentAttempt,
+      );
+      setCurrentIndex(0);
+      setRemaining(Math.max(0, new Date(expiresAt).getTime() - Date.now()));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "تعذر الانتقال إلى القسم التالي.");
+    } finally {
+      setAdvancing(false);
+    }
+  }, [advancing, attempt, flushCurrentSection, submitAttempt, submitting]);
+
+  useEffect(() => {
+    if (stage !== "active" || !attempt?.current_section_expires_at) return;
+    const update = () =>
+      setRemaining(Math.max(0, new Date(attempt.current_section_expires_at as string).getTime() - Date.now()));
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, [attempt?.current_section_expires_at, stage]);
+
+  useEffect(() => {
+    if (stage === "active" && remaining === 0 && attempt && !submitting && !advancing) {
+      void advanceSection(true);
+    }
+  }, [advanceSection, advancing, attempt, remaining, stage, submitting]);
+
+  useEffect(() => {
+    if (stage !== "active") return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [stage]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(saveTimers.current).forEach((timer) => clearTimeout(timer));
+    };
+  }, []);
+
+  const questions = attempt?.questions ?? [];
+  const sections = attempt?.sections ?? [];
+  const activeSectionId = attempt?.current_section_id ?? null;
+  const activeQuestions = useMemo(
+    () => questions.filter((question) => question.sectionId === activeSectionId),
+    [activeSectionId, questions],
+  );
+  const current = activeQuestions[currentIndex];
+  const answeredCount = useMemo(
+    () => activeQuestions.filter((question) => {
+      const value = answers[question.id];
+      return value !== undefined && value !== null && String(value).trim() !== "";
+    }).length,
+    [activeQuestions, answers],
+  );
+  const activeSectionIndex = Math.max(
+    0,
+    sections.findIndex((section) => section.id === activeSectionId),
+  );
+  const isLastSection = sections.length > 0 && activeSectionIndex === sections.length - 1;
+
+  if (stage === "loading") {
+    return (
+      <div className="grid min-h-screen place-items-center text-[#1F2B5E]">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-3 animate-spin" />
+          <div className="font-black">Loading the exam...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "intro" || stage === "starting") {
+    const now = Date.now();
+    const beforeStart = exam ? now < new Date(exam.starts_at).getTime() : false;
+    const afterEnd = exam ? now > new Date(exam.ends_at).getTime() : false;
+    const uniformSectionMinutes =
+      previewSections.length > 0 &&
+      previewSections.every((section) => section.timeLimitMinutes === previewSections[0].timeLimitMinutes)
+        ? previewSections[0].timeLimitMinutes
+        : null;
+    const timingSummary = uniformSectionMinutes
+      ? uniformSectionMinutes + " دقيقة لكل قسم"
+      : previewSections.length
+        ? previewSections.map((section) => section.title + ": " + section.timeLimitMinutes + " min").join(" · ")
+        : "أقسام بوقت مستقل";
+    return (
+      <div className="min-h-screen px-4 py-8 text-[#1F2B5E]">
+        <div className="mx-auto max-w-3xl">
+          <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#6f7489]">
+            <ArrowRight size={17} /> العودة للوحة الطالب
+          </Link>
+          <div className="overflow-hidden rounded-[2rem] border border-[#e1dde7] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
+            <div className="bg-gradient-to-l from-[#1F2B5E] via-[#2d3f82] to-[#6366F1] p-7 text-white sm:p-9">
+              <div className="text-sm font-black text-[#e9c1ad]">{exam?.category ?? "NUMO INTENSIVE"}</div>
+              <h1 className="mt-2 text-3xl font-black">{exam?.title ?? "Exam"}</h1>
+            </div>
+            <div className="p-6 sm:p-8">
+              {exam ? (
+                <div className="mb-7 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-[#f7f7fa] p-4">
+                    <Clock3 className="mb-2 text-[#6366F1]" />
+                    <strong className="block">Section timing</strong>
+                    <span className="text-sm text-[#74798d]">{timingSummary}</span>
+                  </div>
+                  <div className="rounded-2xl bg-[#f7f7fa] p-4">
+                    <ShieldCheck className="mb-2 text-[#B1785C]" />
+                    <strong className="block">Attempts & window</strong>
+                    <span className="block text-sm text-[#74798d]">Up to {exam.attempts_allowed} attempts</span>
+                    <span className="mt-1 block text-xs leading-6 text-[#8a8e9e]">{formatDate(exam.starts_at)} — {formatDate(exam.ends_at)}</span>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="rounded-2xl border border-[#e6e2eb] bg-[#fbfafc] p-5">
+                <h2 className="font-black">Before you begin</h2>
+                <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
+                  <li>• Each section has its own independent timer.</li>
+                  <li>• Your answers are saved automatically.</li>
+                  <li>• You can move freely inside the current section.</li>
+                  <li>• When a section is completed or its timer expires, it is locked and the next section opens.</li>
+                  <li>• After the final section, your result is calculated and released immediately when all questions are auto-graded.</li>
+                </ul>
+              </div>
+
+              {message ? <div className="mt-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
+
+              <button
+                onClick={startExam}
+                disabled={stage === "starting" || !exam || beforeStart || afterEnd}
+                className="btn mt-6 w-full"
+              >
+                {stage === "starting" ? <><Loader2 size={18} className="animate-spin" /> Starting exam...</> :
+                  beforeStart ? "The exam is not open yet" :
+                  afterEnd ? "The exam has closed" :
+                  "Start exam"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "done") {
+    return (
+      <div className="grid min-h-screen place-items-center px-4 py-10 text-[#1F2B5E]">
+        <div className="w-full max-w-5xl rounded-[2rem] border border-[#e1dde7] bg-white p-6 text-center shadow-[0_24px_70px_rgba(31,43,94,.12)] sm:p-8">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
+            <CheckCircle2 size={34} />
+          </div>
+          <h1 className="mt-5 text-3xl font-black">تم تسليم الاختبار</h1>
+
+          {publishedResult ? (
+            <>
+              <div className="mt-7 rounded-2xl bg-gradient-to-br from-[#1F2B5E] to-[#4050d0] p-6 text-white">
+                <div className="text-sm text-white/70">نتيجتك</div>
+                <div className="mt-2 text-5xl font-black">{publishedResult.percentage ?? 0}%</div>
+                <div className="mt-2 text-sm text-white/75">
+                  {publishedResult.final_score ?? 0} of {publishedResult.total_marks}
+                </div>
+              </div>
+              {sectionBreakdown.length ? (
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  {sectionBreakdown.map((section) => (
+                    <div key={section.sectionId} className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-4 text-left">
+                      <div className="text-xs font-black text-[#B1785C]">{section.title}</div>
+                      <div className="mt-2 text-2xl font-black text-[#1F2B5E]">{section.percentage}%</div>
+                      <div className="mt-1 text-xs font-bold text-[#73788d]">{section.score} / {section.totalMarks}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="mt-7 rounded-2xl border border-[#e7e2eb] bg-[#faf9fb] p-6">
+              <h2 className="font-black">{pendingGrading ? "Written answers are awaiting grading" : "Your result will be available later"}</h2>
+              <p className="mt-2 text-sm leading-7 text-[#73788d]">
+                Your attempt was saved and submitted. Your result will appear when it is released.
+              </p>
+            </div>
+          )}
+
+          {publishedResult ? (
+            <section className="mt-7 text-right">
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <div className="text-xs font-black tracking-wide text-[#B1785C]">مراجعة المحاولة</div>
+                  <h2 className="mt-1 text-2xl font-black">الأسئلة التي أخطأت فيها</h2>
+                  <p className="mt-1 text-sm leading-7 text-[#73788d]">
+                    تظهر لك إجابتك والإجابة الصحيحة بعد انتهاء المحاولة.
+                  </p>
+                </div>
+                {review ? (
+                  <div className="flex flex-wrap gap-2 text-xs font-black">
+                    <span className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700">
+                      صحيح: {review.correctCount}
+                    </span>
+                    <span className="rounded-full bg-rose-50 px-3 py-2 text-rose-700">
+                      خطأ: {review.wrongCount}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              {reviewLoading ? (
+                <div className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-5 text-center text-sm font-black text-[#73788d]">
+                  <Loader2 className="mx-auto mb-2 animate-spin" size={18} />
+                  جاري تحميل مراجعة الإجابات...
+                </div>
+              ) : review?.wrongCount === 0 ? (
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-6 text-center">
+                  <CheckCircle2 className="mx-auto mb-2 text-emerald-600" size={28} />
+                  <div className="text-lg font-black text-emerald-800">رائع، جميع إجاباتك صحيحة.</div>
+                </div>
+              ) : review?.wrongQuestions?.length ? (
+                <div className="space-y-4">
+                  {review.wrongQuestions.map((item) => (
+                    <article key={item.questionId} className="overflow-hidden rounded-2xl border border-[#e7e2eb] bg-white text-right">
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eeeaf2] bg-[#faf9fb] px-4 py-3">
+                        <div className="text-xs font-black text-[#B1785C]">
+                          السؤال {item.number} · {item.skill}
+                        </div>
+                        <div className="text-xs font-black text-rose-700">
+                          {item.earned} / {item.marks}
+                        </div>
+                      </div>
+
+                      <div className="p-4 sm:p-5">
+                        {item.passage ? (
+                          <div className="mb-4 rounded-xl border border-[#eee7e3] bg-[#fdf9f7] p-3">
+                            <div dir="ltr" className="text-left text-xs font-black text-[#9a6249]">
+                              {item.passage.title}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        <div dir="ltr" className="whitespace-pre-wrap text-left font-black leading-8 text-[#1F2B5E]">
+                          {item.prompt}
+                        </div>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
+                            <div className="text-xs font-black text-rose-700">إجابتك</div>
+                            <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-rose-900">
+                              {item.selectedAnswer}
+                            </div>
+                          </div>
+                          <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                            <div className="text-xs font-black text-emerald-700">الإجابة الصحيحة</div>
+                            <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-emerald-900">
+                              {item.correctAnswer}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-5 text-center text-sm text-[#73788d]">
+                  لا توجد مراجعة متاحة لهذه المحاولة.
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          <div className="mt-7 grid gap-3 sm:grid-cols-2">
+            <Link
+              href={"/results/" + examId}
+              className="inline-flex min-h-[3.1rem] items-center justify-center rounded-xl border border-[#dcd7e4] bg-white px-4 font-black text-[#1F2B5E] shadow-sm"
+            >
+              عرض سجل المحاولات
+            </Link>
+            <Link href="/" className="btn w-full">Back to student dashboard</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!current || !attempt) return null;
+
+  const answer = answers[current.id];
+  const answerLocked = remaining <= 0 || advancing || submitting;
+  const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
+
+  return (
+    <div className="min-h-screen bg-[#f5f6fa] text-[#1F2B5E]">
+      <header className="sticky top-0 z-30 border-b border-[#e0dce6] bg-white/95 shadow-sm backdrop-blur">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div>
+            <div className="text-xs font-black text-[#B1785C]">{exam?.category}</div>
+            <h1 className="font-black">{exam?.title}</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className={
+              "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-black " +
+              (remaining < 5 * 60 * 1000 ? "bg-rose-50 text-rose-700" : "bg-[#f1f2ff] text-[#1F2B5E]")
+            }>
+              <Clock3 size={17} />
+              <span>{sections[activeSectionIndex]?.title ?? "Section"}</span>
+              <span dir="ltr">{formatRemaining(remaining)}</span>
+            </div>
+            <div className="hidden items-center gap-2 text-xs font-bold text-[#74798d] sm:flex">
+              {saveState === "saving" ? <><Loader2 size={14} className="animate-spin" /> Saving...</> : null}
+              {saveState === "saved" ? <><Save size={14} /> Saved</> : null}
+              {saveState === "error" ? <span className="text-rose-600">Save failed</span> : null}
+            </div>
+          </div>
+        </div>
+        <div className="h-1 bg-[#eceaf0]">
+          <div className="h-full bg-gradient-to-l from-[#B1785C] to-[#6366F1] transition-all" style={{ width: progress + "%" }} />
+        </div>
+      </header>
+
+      <div className="mx-auto grid max-w-[1500px] gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[240px_1fr]">
+        <section className="rounded-[1.35rem] border border-[#e3dfe8] bg-white p-3 shadow-sm lg:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-black text-[#B1785C]">{sections[activeSectionIndex]?.title ?? "Section"}</div>
+              <div className="text-sm font-black">Question {currentIndex + 1} of {activeQuestions.length}</div>
+            </div>
+            <div className="rounded-lg bg-[#f4f2f7] px-2.5 py-1.5 text-xs font-black text-[#686e84]">
+              {answeredCount}/{activeQuestions.length} answered
+            </div>
+          </div>
+
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {sections.map((section, index) => (
+              <div
+                key={section.id}
+                className={
+                  "shrink-0 rounded-lg px-3 py-2 text-[11px] font-black " +
+                  (index < activeSectionIndex
+                    ? "bg-emerald-50 text-emerald-700"
+                    : index === activeSectionIndex
+                      ? "bg-[#1F2B5E] text-white"
+                      : "bg-[#f8f7fa] text-[#9a9eac]")
+                }
+              >
+                {section.position}. {section.title}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {activeQuestions.map((question, index) => {
+              const filled =
+                answers[question.id] !== undefined &&
+                answers[question.id] !== null &&
+                String(answers[question.id]).trim() !== "";
+              return (
+                <button
+                  key={question.id}
+                  type="button"
+                  onClick={() => setCurrentIndex(index)}
+                  className={
+                    "relative grid h-10 w-10 shrink-0 place-items-center rounded-lg border text-xs font-black " +
+                    (index === currentIndex
+                      ? "border-[#1F2B5E] bg-[#1F2B5E] text-white"
+                      : filled
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : "border-[#e1dde6] bg-white text-[#686e84]")
+                  }
+                >
+                  {index + 1}
+                  {flags[question.id] ? <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#B1785C]" /> : null}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <aside className="hidden rounded-[1.5rem] border border-[#e3dfe8] bg-white p-4 shadow-sm lg:sticky lg:top-24 lg:block lg:h-fit">
+          <div className="mb-4 flex items-center justify-between">
+            <strong>Questions</strong>
+            <span className="text-xs font-black text-[#74798d]">{answeredCount}/{activeQuestions.length}</span>
+          </div>
+
+          <div className="mb-4 space-y-2">
+            {sections.map((section, index) => (
+              <div
+                key={section.id}
+                className={
+                  "rounded-lg px-3 py-2 text-xs font-black " +
+                  (index < activeSectionIndex
+                    ? "bg-emerald-50 text-emerald-700"
+                    : index === activeSectionIndex
+                      ? "bg-[#1F2B5E] text-white"
+                      : "bg-[#f8f7fa] text-[#9a9eac]")
+                }
+              >
+                {section.position}. {section.title}
+                <span className="ml-2 font-bold opacity-70">
+                  {index < activeSectionIndex ? "Completed" : index === activeSectionIndex ? section.timeLimitMinutes + " min" : "Locked"}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-5 gap-2 lg:grid-cols-4">
+            {activeQuestions.map((question, index) => {
+              const filled = answers[question.id] !== undefined && answers[question.id] !== null && String(answers[question.id]).trim() !== "";
+              return (
+                <button
+                  key={question.id}
+                  onClick={() => setCurrentIndex(index)}
+                  className={
+                    "relative grid aspect-square place-items-center rounded-lg border text-sm font-black transition " +
+                    (index === currentIndex
+                      ? "border-[#1F2B5E] bg-[#1F2B5E] text-white"
+                      : filled
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : "border-[#e1dde6] bg-white text-[#686e84]")
+                  }
+                >
+                  {index + 1}
+                  {flags[question.id] ? <span className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#B1785C]" /> : null}
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+
+        <main className="min-w-0">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e3dfe8] bg-white px-5 py-4 shadow-sm">
+            <div>
+              <div className="text-xs font-black text-[#B1785C]">{current.sectionTitle} · {current.skill}</div>
+              <div className="mt-1 font-black">
+                Question {currentIndex + 1} of {activeQuestions.length} · Section {activeSectionIndex + 1} of {sections.length}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-lg bg-[#f4f2f7] px-3 py-2 text-xs font-black">{current.marks} marks</span>
+              <button
+                disabled={answerLocked}
+                onClick={() => toggleFlag(current.id)}
+                className={
+                  "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-black " +
+                  (flags[current.id] ? "border-[#B1785C] bg-[#fbf3ef] text-[#9a6249]" : "border-[#ded9e4] bg-white text-[#70758a]")
+                }
+              >
+                <Flag size={15} /> Flag for review
+              </button>
+            </div>
+          </div>
+
+          <div className={"grid gap-5 " + (current.passage ? "xl:grid-cols-[.9fr_1.1fr]" : "")}>
+            {current.passage ? (
+              <section className="rounded-[1.5rem] border border-[#e1dde7] bg-white p-6 shadow-sm">
+                <div className="mb-4 flex items-center gap-2 text-[#B1785C]">
+                  <BookOpen size={19} />
+                  <strong>{current.passage.title}</strong>
+                </div>
+                <div dir="ltr" className="whitespace-pre-wrap text-left text-base leading-9 text-[#3e4356]">
+                  {current.passage.body}
+                </div>
+                {current.passage.imageUrl ? (
+                  <img src={current.passage.imageUrl} alt="" className="mt-5 max-h-80 w-full rounded-xl object-contain" />
+                ) : null}
+              </section>
+            ) : null}
+
+            <section className="rounded-[1.5rem] border border-[#e1dde7] bg-white p-6 shadow-sm sm:p-8">
+              <div dir="ltr" className="whitespace-pre-wrap text-left text-lg font-black leading-9 text-[#222b52]">
+                {current.prompt}
+              </div>
+
+              {current.type === "MULTIPLE_CHOICE" ? (
+                <div className="mt-7 space-y-3">
+                  {(current.options ?? []).map((option) => (
+                    <label
+                      key={option.id}
+                      className={
+                        "flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition " +
+                        (answer === option.id
+                          ? "border-[#6366F1] bg-[#f3f3ff] shadow-sm"
+                          : "border-[#e4e0e8] hover:border-[#c8c1d2] hover:bg-[#faf9fb]")
+                      }
+                    >
+                      <input
+                        type="radio"
+                        name={"q-" + current.id}
+                        className="mt-1"
+                        checked={answer === option.id}
+                        disabled={answerLocked}
+                        onChange={() => updateAnswer(current.id, option.id)}
+                      />
+                      <span className="leading-7" dir="auto">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+
+              {current.type === "TRUE_FALSE" ? (
+                <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                  {(current.options ?? []).map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      disabled={answerLocked}
+                      onClick={() => updateAnswer(current.id, option.value)}
+                      className={
+                        "rounded-2xl border p-5 text-lg font-black transition " +
+                        (String(answer ?? "") === option.value
+                          ? "border-[#6366F1] bg-[#f3f3ff] text-[#1F2B5E]"
+                          : "border-[#e4e0e8] bg-white hover:bg-[#faf9fb]")
+                      }
+                    >
+                      {option.value === "true" ? "True" : option.value === "false" ? "False" : option.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {current.type === "SHORT_ANSWER" ? (
+                <textarea
+                  className="field mt-7 min-h-44 text-base leading-8"
+                  placeholder="اكتب إجابتك هنا..."
+                  dir="auto"
+                  value={String(answer ?? "")}
+                  disabled={answerLocked}
+                  onChange={(event) => updateAnswer(current.id, event.target.value)}
+                />
+              ) : null}
+            </section>
+          </div>
+
+          {remaining === 0 && (advancing || submitting) ? (
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#e3dfe8] bg-white p-4 text-sm font-black text-[#1F2B5E]">
+              <Loader2 size={17} className="animate-spin" />
+              Finalizing this section and saving your latest answers...
+            </div>
+          ) : null}
+
+          {message ? <div className="mt-4 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e3dfe8] bg-white p-4 shadow-sm">
+            <button
+              type="button"
+              disabled={currentIndex === 0}
+              onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-4 font-black disabled:opacity-40"
+            >
+              <ArrowRight size={18} /> Previous
+            </button>
+
+            {currentIndex < activeQuestions.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => setCurrentIndex((index) => Math.min(activeQuestions.length - 1, index + 1))}
+                className="btn"
+              >
+                Next <ArrowLeft size={18} />
+              </button>
+            ) : isLastSection ? (
+              <button
+                type="button"
+                onClick={() => void submitAttempt(false)}
+                disabled={submitting || advancing}
+                className="btn"
+              >
+                {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                Submit exam & show result
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void advanceSection(false)}
+                disabled={submitting || advancing}
+                className="btn"
+              >
+                {advancing ? <Loader2 size={18} className="animate-spin" /> : <ArrowLeft size={18} />}
+                Complete section & continue
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
