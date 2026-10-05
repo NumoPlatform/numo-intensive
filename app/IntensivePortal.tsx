@@ -7,13 +7,11 @@ import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowUpLeft,
-  Award,
   BarChart3,
   BookOpen,
   BookOpenCheck,
   CheckCircle2,
   ChevronLeft,
-  Clock3,
   GraduationCap,
   LayoutDashboard,
   Layers3,
@@ -200,6 +198,124 @@ export default function IntensivePortal() {
   const nextAction = useMemo(() => {
     if (!data) return null;
 
+    const now = Date.now();
+    const candidates = data.exams
+      .map((exam) => {
+        const attempts = data.attempts.filter((item) => item.exam_id === exam.id);
+        const inProgress = attempts.find((item) => item.status === "IN_PROGRESS");
+        const isOpen =
+          now >= new Date(exam.starts_at).getTime() &&
+          now <= new Date(exam.ends_at).getTime();
+        return {
+          exam,
+          inProgress,
+          attemptsRemaining: Math.max(0, exam.attempts_allowed - attempts.length),
+          isOpen,
+        };
+      })
+      .filter((item) => item.isOpen);
+
+    return (
+      candidates.find((item) => item.inProgress) ??
+      candidates.find((item) => item.attemptsRemaining > 0) ??
+      null
+    );
+  }, [data]);
+
+  if (stage !== "portal") {
+    return (
+      <div className="min-h-screen px-4 py-8 text-[#1F2B5E] sm:py-12">
+        <div className="mx-auto grid min-h-[82vh] max-w-6xl items-center gap-7 lg:grid-cols-[1.08fr_.92fr]">
+          <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1F2B5E] via-[#2e3f82] to-[#6366F1] p-8 text-white shadow-[0_28px_80px_rgba(31,43,94,.28)] lg:p-12">
+            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/30 blur-3xl" />
+            <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+            <div className="relative">
+              <div className="mb-9 inline-flex rounded-[1.4rem] border border-white/15 bg-white p-2 shadow-2xl shadow-black/15">
+                <NumoBrand className="w-28" priority inverse />
+              </div>
+              <p className="mb-3 text-sm font-black tracking-wide text-[#e9c2ad]">تعلم مركز. استعداد أذكى.</p>
+              <h1 className="max-w-2xl text-4xl font-black leading-[1.35] lg:text-6xl">
+                الدورات المكثفة للغة الإنجليزية
+              </h1>
+              <p className="mt-5 max-w-xl text-lg leading-9 text-white/80">
+                بوابتك الخاصة للدورات المكثفة والتدريب والاختبارات.
+              </p>
+              <div className="mt-9 grid gap-3 sm:grid-cols-2">
+                <div className="intensive-glass rounded-2xl p-4">
+                  <ShieldCheck className="mb-3 text-[#f0c7b2]" />
+                  <strong className="block">جهاز واحد لكل طالب</strong>
+                  <span className="mt-1 block text-sm text-white/70">يرتبط حسابك بأول جهاز موثوق يتم تسجيل الدخول منه.</span>
+                </div>
+                <div className="intensive-glass rounded-2xl p-4">
+                  <LockKeyhole className="mb-3 text-[#f0c7b2]" />
+                  <strong className="block">حسابات تديرها منصة نمو</strong>
+                  <span className="mt-1 block text-sm text-white/70">يتم إنشاء اسم المستخدم وكلمة المرور من خلال إدارة نمو.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <form
+            onSubmit={login}
+            className="rounded-[2rem] border border-[#e4e1eb] bg-white p-7 shadow-[0_24px_70px_rgba(31,43,94,.12)] lg:p-10"
+          >
+            <div className="mb-8">
+              <NumoBrand className="w-24" priority />
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#f8f0ec] px-3 py-1.5 text-sm font-black text-[#9a6249]">
+                <Sparkles size={15} /> منصة نمو
+              </div>
+              <h2 className="mt-4 text-3xl font-black">تسجيل الدخول</h2>
+              <p className="mt-2 leading-7 text-[#68708a]">
+                استخدم بيانات الدخول التي زودتك بها إدارة نمو.
+              </p>
+            </div>
+
+            <label className="mb-5 block">
+              <span className="mb-2 block font-black">اسم المستخدم</span>
+              <input
+                className="field"
+                dir="ltr"
+                autoComplete="username"
+                required
+                value={form.username}
+                onChange={(event) => setForm({ ...form, username: event.target.value })}
+              />
+            </label>
+
+            <label className="mb-5 block">
+              <span className="mb-2 block font-black">كلمة المرور</span>
+              <input
+                className="field"
+                dir="ltr"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={form.password}
+                onChange={(event) => setForm({ ...form, password: event.target.value })}
+              />
+            </label>
+
+            {message ? (
+              <div className="mb-5 rounded-xl border border-rose-100 bg-rose-50 p-3 text-sm font-bold text-rose-700">
+                {message}
+              </div>
+            ) : null}
+
+            <button className="btn w-full" disabled={stage === "loading"}>
+              {stage === "loading" ? "جاري التحقق..." : "تسجيل الدخول"}
+            </button>
+
+            <p className="mt-5 text-center text-xs leading-6 text-[#7c8193]">
+              عند أول تسجيل دخول سيتم ربط الحساب بهذا الجهاز. لتغيير الجهاز تواصل مع الإدارة.
+            </p>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
   const now = Date.now();
   const openExams = data.exams.filter(
     (exam) =>
@@ -279,7 +395,7 @@ export default function IntensivePortal() {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f8f9fc_0%,#f4f5f9_46%,#f7f5f3_100%)] text-[#1F2B5E]">
-      <header className="sticky top-0 z-40 border-b border-[#e9e6ed]/90 bg-white/95 shadow-[0_8px_30px_rgba(31,43,94,.05)] backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-[#e9e6ed]/90 bg-white/[.09]5 shadow-[0_8px_30px_rgba(31,43,94,.05)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 px-3 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <NumoBrand horizontal priority className="w-auto" />
@@ -338,7 +454,7 @@ export default function IntensivePortal() {
           <div className="relative grid gap-7 p-5 sm:p-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(310px,.65fr)] lg:items-stretch lg:p-10">
             <div className="flex min-w-0 flex-col justify-between">
               <div>
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-[11px] font-black text-[#efc5b1]">
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[.08] px-3 py-1.5 text-[11px] font-black text-[#efc5b1]">
                   <Sparkles size={14} /> Academic Dashboard · بوابة الطالب الأكاديمية
                 </div>
 
@@ -353,20 +469,20 @@ export default function IntensivePortal() {
               </div>
 
               <div className="mt-7 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/8 px-3 py-2 text-xs font-black">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[.08] px-3 py-2 text-xs font-black">
                   <ShieldCheck size={15} className="text-emerald-300" /> جهاز موثوق
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/8 px-3 py-2 text-xs font-black">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[.08] px-3 py-2 text-xs font-black">
                   <Layers3 size={15} className="text-[#e5b49b]" /> {totalSections} Sections
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/8 px-3 py-2 text-xs font-black">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[.08] px-3 py-2 text-xs font-black">
                   <Target size={15} className="text-indigo-200" /> {openExams.length} Available Now
                 </span>
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-[1.65rem] border border-white/12 bg-white/9 p-5 backdrop-blur-md">
+              <div className="rounded-[1.65rem] border border-white/12 bg-white/[.09] p-5 backdrop-blur-md">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-xs font-black text-white/55">ACADEMIC PROGRESS</div>
@@ -387,7 +503,7 @@ export default function IntensivePortal() {
                 </div>
               </div>
 
-              <div className="rounded-[1.65rem] border border-white/12 bg-white/9 p-5 backdrop-blur-md">
+              <div className="rounded-[1.65rem] border border-white/12 bg-white/[.09] p-5 backdrop-blur-md">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="text-xs font-black text-white/55">BEST PERFORMANCE</div>
@@ -552,7 +668,7 @@ export default function IntensivePortal() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/35 to-transparent" />
                       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
-                        <span className="rounded-full border border-white/18 bg-white/92 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm">
+                        <span className="rounded-full border border-white/18 bg-white/[.09]2 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm">
                           {visual.level}
                         </span>
                         <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-[#1F2B5E]/75 text-white backdrop-blur">
@@ -662,9 +778,9 @@ export default function IntensivePortal() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/7 p-4">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.07] p-4">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-400/12 text-emerald-200">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-400/[.12] text-emerald-200">
                   <CheckCircle2 size={19} />
                 </div>
                 <div>
