@@ -315,6 +315,7 @@ export default function IntensivePortal() {
   }
 
   if (!data) return null;
+  const portalData = data;
 
   const now = Date.now();
   const openExams = data.exams.filter(
@@ -360,7 +361,7 @@ export default function IntensivePortal() {
   function courseMetrics(courseId: string) {
     const exams = examsByCourse.get(courseId) ?? [];
     const examIds = new Set(exams.map((exam) => exam.id));
-    const sections = data.sections.filter((section) => examIds.has(section.exam_id));
+    const sections = portalData.sections.filter((section) => examIds.has(section.exam_id));
     const completed = sections.filter((section) => completedSectionIds.has(section.id)).length;
     const scores = sections
       .map((section) => sectionBestScores.get(section.id))
@@ -369,7 +370,7 @@ export default function IntensivePortal() {
       ? Math.max(...scores)
       : Math.max(
           0,
-          ...data.results
+          ...portalData.results
             .filter((result) => examIds.has(result.exam_id) && result.percentage !== null)
             .map((result) => Number(result.percentage ?? 0)),
         );
