@@ -698,14 +698,14 @@ export default function ExamRunner() {
   const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] text-[#1F2B5E]">
+    <div className="min-h-screen min-w-0 overflow-x-hidden bg-[#f5f6fa] text-[#1F2B5E]">
       <header className="sticky top-0 z-30 border-b border-[#e0dce6] bg-white/95 shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-stretch gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             <div className="text-xs font-black text-[#B1785C]">{exam?.category}</div>
             <h1 className="font-black">{exam?.title}</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-end sm:gap-3">
             <div className={
               "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-black " +
               (remaining < 5 * 60 * 1000 ? "bg-rose-50 text-rose-700" : "bg-[#f1f2ff] text-[#1F2B5E]")
@@ -726,8 +726,8 @@ export default function ExamRunner() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1500px] gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[240px_1fr]">
-        <section className="rounded-[1.35rem] border border-[#e3dfe8] bg-white p-3 shadow-sm lg:hidden">
+      <div className="mx-auto grid w-full max-w-7xl min-w-0 grid-cols-1 gap-4 px-3 py-4 sm:px-6 sm:py-5 xl:grid-cols-[260px_minmax(0,1fr)]">
+        <section className="min-w-0 overflow-hidden rounded-[1.25rem] border border-[#e3dfe8] bg-white p-3 shadow-sm xl:hidden">
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[11px] font-black text-[#B1785C]">{sections[activeSectionIndex]?.title ?? "Section"}</div>
@@ -784,7 +784,7 @@ export default function ExamRunner() {
           </div>
         </section>
 
-        <aside className="hidden rounded-[1.5rem] border border-[#e3dfe8] bg-white p-4 shadow-sm lg:sticky lg:top-24 lg:block lg:h-fit">
+        <aside className="hidden rounded-[1.5rem] border border-[#e3dfe8] bg-white p-4 shadow-sm xl:sticky xl:top-24 xl:block xl:h-fit">
           <div className="mb-4 flex items-center justify-between">
             <strong>Questions</strong>
             <span className="text-xs font-black text-[#74798d]">{answeredCount}/{activeQuestions.length}</span>
@@ -835,15 +835,15 @@ export default function ExamRunner() {
           </div>
         </aside>
 
-        <main className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e3dfe8] bg-white px-5 py-4 shadow-sm">
+        <main className="min-w-0 w-full overflow-hidden">
+          <div className="mb-4 flex min-w-0 flex-col gap-3 rounded-2xl border border-[#e3dfe8] bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <div>
               <div className="text-xs font-black text-[#B1785C]">{current.sectionTitle} · {current.skill}</div>
               <div className="mt-1 font-black">
                 Question {currentIndex + 1} of {activeQuestions.length} · Section {activeSectionIndex + 1} of {sections.length}
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-lg bg-[#f4f2f7] px-3 py-2 text-xs font-black">{current.marks} marks</span>
               <button
                 disabled={answerLocked}
@@ -858,14 +858,14 @@ export default function ExamRunner() {
             </div>
           </div>
 
-          <div className={"grid gap-5 " + (current.passage ? "xl:grid-cols-[.9fr_1.1fr]" : "")}>
+          <div className={"grid min-w-0 gap-4 sm:gap-5 " + (current.passage ? "2xl:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]" : "")}>
             {current.passage ? (
-              <section className="rounded-[1.5rem] border border-[#e1dde7] bg-white p-6 shadow-sm">
+              <section className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#e1dde7] bg-white p-4 shadow-sm sm:p-6">
                 <div className="mb-4 flex items-center gap-2 text-[#B1785C]">
                   <BookOpen size={19} />
                   <strong>{current.passage.title}</strong>
                 </div>
-                <div dir="ltr" className="whitespace-pre-wrap text-left text-base leading-9 text-[#3e4356]">
+                <div dir="ltr" className="max-h-[52vh] overflow-y-auto whitespace-pre-wrap break-words text-left text-[15px] leading-8 text-[#3e4356] sm:max-h-none sm:text-base sm:leading-9">
                   {current.passage.body}
                 </div>
                 {current.passage.imageUrl ? (
@@ -874,18 +874,19 @@ export default function ExamRunner() {
               </section>
             ) : null}
 
-            <section className="rounded-[1.5rem] border border-[#e1dde7] bg-white p-6 shadow-sm sm:p-8">
-              <div dir="ltr" className="whitespace-pre-wrap text-left text-lg font-black leading-9 text-[#222b52]">
-                {current.prompt}
+            <section className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#dfe2ec] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+              <div className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">Question {currentIndex + 1}</div>
+              <div dir="ltr" className="w-full break-words rounded-2xl border border-[#dfe3f1] bg-[#f7f8fc] px-4 py-5 text-left text-[1.05rem] font-black leading-8 text-[#1F2B5E] shadow-inner sm:px-5 sm:py-6 sm:text-xl sm:leading-9">
+                {current.prompt || "Question text is unavailable. Please contact NUMO support."}
               </div>
 
               {current.type === "MULTIPLE_CHOICE" ? (
-                <div className="mt-7 space-y-3">
+                <div className="mt-5 space-y-3 sm:mt-7">
                   {(current.options ?? []).map((option) => (
                     <label
                       key={option.id}
                       className={
-                        "flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition " +
+                        "flex w-full min-w-0 cursor-pointer items-start gap-3 rounded-2xl border p-4 text-left transition sm:p-5 " +
                         (answer === option.id
                           ? "border-[#6366F1] bg-[#f3f3ff] shadow-sm"
                           : "border-[#e4e0e8] hover:border-[#c8c1d2] hover:bg-[#faf9fb]")
@@ -899,7 +900,7 @@ export default function ExamRunner() {
                         disabled={answerLocked}
                         onChange={() => updateAnswer(current.id, option.id)}
                       />
-                      <span className="leading-7" dir="auto">{option.label}</span>
+                      <span className="min-w-0 flex-1 break-words text-[15px] font-semibold leading-7 text-[#303750] sm:text-base" dir="auto">{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -948,12 +949,12 @@ export default function ExamRunner() {
 
           {message ? <div className="mt-4 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e3dfe8] bg-white p-4 shadow-sm">
+          <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-[#e3dfe8] bg-white p-3 shadow-sm sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:p-4">
             <button
               type="button"
               disabled={currentIndex === 0}
               onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-4 font-black disabled:opacity-40"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-3 text-sm font-black disabled:opacity-40 sm:w-auto sm:px-4 sm:text-base"
             >
               <ArrowRight size={18} /> Previous
             </button>
@@ -962,7 +963,7 @@ export default function ExamRunner() {
               <button
                 type="button"
                 onClick={() => setCurrentIndex((index) => Math.min(activeQuestions.length - 1, index + 1))}
-                className="btn"
+                className="btn w-full px-3 text-sm sm:w-auto sm:px-5 sm:text-base"
               >
                 Next <ArrowLeft size={18} />
               </button>
@@ -971,7 +972,7 @@ export default function ExamRunner() {
                 type="button"
                 onClick={() => void submitAttempt(false)}
                 disabled={submitting || advancing}
-                className="btn"
+                className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
               >
                 {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                 Submit exam & show result
@@ -981,7 +982,7 @@ export default function ExamRunner() {
                 type="button"
                 onClick={() => void advanceSection(false)}
                 disabled={submitting || advancing}
-                className="btn"
+                className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
               >
                 {advancing ? <Loader2 size={18} className="animate-spin" /> : <ArrowLeft size={18} />}
                 Complete section & continue
