@@ -39,6 +39,7 @@ type Section = {
   position: number;
   marks: number;
   question_count: number | null;
+  time_limit_minutes: number;
 };
 type Option = {
   id?: string;
@@ -158,6 +159,7 @@ export default function ExamManager() {
   const [exam, setExam] = useState<Exam | null>(null);
   const [examSettings, setExamSettings] = useState<ExamSettings | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
+  const [sectionTimes, setSectionTimes] = useState<Record<string, string>>({});
   const [questions, setQuestions] = useState<ManagedQuestion[]>([]);
   const [edits, setEdits] = useState<Record<string, EditState>>({});
   const [loading, setLoading] = useState(true);
@@ -185,7 +187,9 @@ export default function ExamManager() {
     const found = (overview.exams as Exam[]).find((item) => item.id === examId) ?? null;
     setExam(found);
     setExamSettings(found ? examToSettings(found) : null);
-    setSections((overview.sections as Section[]).filter((item) => item.exam_id === examId));
+    const examSections = (overview.sections as Section[]).filter((item) => item.exam_id === examId);
+    setSections(examSections);
+    setSectionTimes(Object.fromEntries(examSections.map((section) => [section.id, String(section.time_limit_minutes ?? 30)])));
     const list = (questionPayload.questions ?? []) as ManagedQuestion[];
     setQuestions(list);
     setEdits(Object.fromEntries(list.map((question) => [question.question_id, makeEdit(question)])));
@@ -274,7 +278,16 @@ export default function ExamManager() {
           instructions: examSettings.instructions,
           startsAt: riyadhInputToIso(examSettings.startsAt),
           endsAt: riyadhInputToIso(examSettings.endsAt),
-          durationMinutes: Number(examSettings.durationMinutes),
+          durationMinutes: sections.reduce(
+            (total, section) => total + Number(sectionTimes[section.id] ?? section.time_limit_minutes ?? 0),
+            0,
+          ),
+          sectionDurations: Object.fromEntries(
+            sections.map((section) => [
+              section.id,
+              Number(sectionTimes[section.id] ?? section.time_limit_minutes ?? 30),
+            ]),
+          ),
           attemptsAllowed: Number(examSettings.attemptsAllowed),
           passingScore: examSettings.passingScore === "" ? null : Number(examSettings.passingScore),
           resultRelease: examSettings.resultRelease,
@@ -472,17 +485,16 @@ export default function ExamManager() {
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-black">المدة الإجمالية بالدقائق</span>
-                <input
-                  className="field"
-                  type="number"
-                  min={1}
-                  max={480}
-                  value={examSettings.durationMinutes}
-                  onChange={(e)=>setExamSettings({...examSettings,durationMinutes:e.target.value})}
-                />
-              </label>
+              <div className="block rounded-2xl border border-[#e7e3eb] bg-[#faf9fb] p-4">
+                <span className="mb-2 block text-sm font-black">إجمالي وقت الأقسام</span>
+                <div className="text-2xl font-black">
+                  {sections.reduce(
+                    (total, section) => total + Number(sectionTimes[section.id] ?? section.time_limit_minutes ?? 0),
+                    0,
+                  )} دقيقة
+                </div>
+                <span className="mt-1 block text-xs text-[#7f8496]">يُحسب تلقائيا من توقيت كل Section.</span>
+              </div>
               <label className="block">
                 <span className="mb-2 block text-sm font-black">عدد المحاولات</span>
                 <input
@@ -521,6 +533,34 @@ export default function ExamManager() {
               </label>
             </div>
 
+            <div className="mt-5 rounded-2xl border border-[#e7e3eb] bg-[#faf9fb] p-5">
+              <div className="mb-1 text-sm font-black">توقيت كل Section</div>
+              <p className="mb-4 text-xs leading-6 text-[#7f8496]">
+                حدد الوقت الذي يحصل عليه الطالب داخل كل قسم. يبدأ مؤقت القسم عند اختيار الطالب لذلك القسم فقط.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {sections.map((section) => (
+                  <label key={section.id} className="rounded-2xl border border-[#e3dfe8] bg-white p-4">
+                    <span dir="ltr" className="mb-2 block text-sm font-black">{section.title}</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        className="field"
+                        type="number"
+                        min={1}
+                        max={240}
+                        value={sectionTimes[section.id] ?? String(section.time_limit_minutes ?? 30)}
+                        onChange={(e)=>setSectionTimes((current)=>({
+                          ...current,
+                          [section.id]: e.target.value,
+                        }))}
+                      />
+                      <span className="text-xs font-bold text-[#7f8496]">دقيقة</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
             <label className="mt-4 block">
               <span className="mb-2 block text-sm font-black">الوصف</span>
               <textarea
@@ -556,6 +596,9 @@ export default function ExamManager() {
               <div className="text-xs font-black text-[#B1785C]">القسم {section.position}</div>
               <div className="mt-1 font-black">{section.title}</div>
               <div className="mt-2 text-sm text-[#777b8d]">{section.question_count || 0} سؤال · {section.marks} درجة</div>
+              <div className="mt-2 inline-flex rounded-lg bg-[#f4f2f7] px-2.5 py-1.5 text-xs font-black text-[#6366F1]">
+                {section.time_limit_minutes} دقيقة
+              </div>
             </div>
           ))}
         </section>
