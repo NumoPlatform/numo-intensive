@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { intensiveFetch } from "@/lib/intensive/client";
+import NumoBrand from "@/app/components/NumoBrand";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 
 type Course = {
@@ -134,6 +135,15 @@ export default function CoursePortal() {
     .sort((a, b) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0))[0];
   const completed = new Set(courseResults.map((item) => item.exam_id)).size;
 
+  const courseSections = (data.sections ?? [])
+    .filter((section) => exams.some((exam) => exam.id === section.exam_id))
+    .sort((a, b) => a.position - b.position);
+  const sectionCount = courseSections.length;
+  const primaryExam =
+    exams.find((exam) => courseSections.filter((section) => section.exam_id === exam.id).length > 1) ??
+    exams[0] ??
+    null;
+
   return (
     <main className="min-h-screen bg-[#f5f6fa] px-4 py-6 text-[#1F2B5E] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -141,30 +151,32 @@ export default function CoursePortal() {
           <a href="/" className="inline-flex items-center gap-2 text-sm font-black text-[#6f7488]">
             <ArrowRight size={17} /> العودة للرئيسية
           </a>
-          <div className="flex items-center gap-3">
-            <img src="/icon.svg" alt="شعار منصة نمو" className="h-10 w-10 rounded-xl bg-[#1F2B5E] p-1.5" />
-            <div>
-              <div className="text-sm font-black">منصة نمو</div>
-              <div className="text-[10px] font-bold tracking-[.12em] text-[#B1785C]" dir="ltr">NUMO INTENSIVE</div>
-            </div>
-          </div>
+          <NumoBrand className="w-[9.5rem] sm:w-44" />
         </div>
 
-        <section className="relative overflow-hidden rounded-[2rem] shadow-[0_25px_70px_rgba(31,43,94,.20)]">
-          <img src={cover} alt={"غلاف " + course.code} className="absolute inset-0 h-full w-full object-cover" />
+        <section
+          className="relative overflow-hidden rounded-[1.7rem] shadow-[0_25px_70px_rgba(31,43,94,.20)] sm:rounded-[2rem]"
+          style={{ background: visual.gradient }}
+        >
+          <img
+            src={cover}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 hidden h-full w-full object-cover object-center opacity-55 sm:block"
+          />
           <div className="absolute inset-0 bg-gradient-to-l from-[#1F2B5E]/96 via-[#1F2B5E]/83 to-[#1F2B5E]/44" />
-          <div className="relative grid gap-7 p-7 text-white sm:p-9 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="relative grid gap-6 p-5 text-white sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-3xl">
               <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black text-[#f1c7b1]">{visual.level}</span>
               <div dir="ltr" className="mt-4 text-sm font-black tracking-[.15em] text-white/65">{course.code}</div>
-              <h1 dir="ltr" className="mt-1 text-3xl font-black sm:text-4xl">{course.title}</h1>
+              <h1 dir="ltr" className="mt-1 break-words text-3xl font-black leading-tight sm:text-4xl">{course.title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-8 text-white/74">
                 اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله 30 دقيقة و4 محاولات، وتظهر نتيجتك مباشرة بعد التسليم.
               </p>
             </div>
-            <div className="grid min-w-[270px] grid-cols-3 gap-2">
+            <div className="grid w-full grid-cols-3 gap-2 lg:w-auto lg:min-w-[270px]">
               <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur">
-                <div className="text-2xl font-black">{exams.length}</div>
+                <div className="text-2xl font-black">{sectionCount || exams.length}</div>
                 <div className="text-[11px] text-white/60">الأقسام</div>
               </div>
               <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur">
@@ -180,47 +192,55 @@ export default function CoursePortal() {
         </section>
 
         <section className="mt-6 grid gap-4 md:grid-cols-3">
-          {["Grammar", "Vocabulary", "Reading"].map((name) => {
-            const exam = exams.find((item) => {
-              const section = data.sections.find((entry) => entry.exam_id === item.id);
-              return section?.title === name || item.title.toLowerCase().includes(name.toLowerCase());
-            });
-            if (!exam) {
+          {(["Grammar", "Vocabulary", "Reading"] as const).map((name) => {
+            const section =
+              courseSections.find((item) => item.title.toLowerCase() === name.toLowerCase()) ??
+              null;
+            const exam = section
+              ? exams.find((item) => item.id === section.exam_id) ?? primaryExam
+              : primaryExam;
+
+            if (!exam || !section) {
               return (
                 <article key={name} className="rounded-[1.6rem] border border-dashed border-[#d9d4e2] bg-white p-5 text-center">
                   <div className="text-lg font-black">{name}</div>
-                  <div className="mt-2 text-xs text-[#85899a]">لا يوجد اختبار منشور لهذا القسم حاليا.</div>
+                  <div className="mt-2 text-xs text-[#85899a]">لا يوجد Section منشور لهذا القسم حاليا.</div>
                 </article>
               );
             }
 
-            const section = data.sections.find((item) => item.exam_id === exam.id);
             const attempts = data.attempts.filter((item) => item.exam_id === exam.id);
             const results = data.results.filter((item) => item.exam_id === exam.id);
-            const bestResult = [...results].filter((item) => item.percentage !== null).sort((a,b)=>Number(b.percentage ?? 0)-Number(a.percentage ?? 0))[0];
+            const bestResult = [...results]
+              .filter((item) => item.percentage !== null)
+              .sort((a,b)=>Number(b.percentage ?? 0)-Number(a.percentage ?? 0))[0];
             const inProgress = attempts.find((item) => item.status === "IN_PROGRESS");
-            const remaining = Math.max(0, exam.attempts_allowed - attempts.length);
+            const usedAttempts = Math.max(
+              0,
+              ...attempts.map((item) => Number(item.attempt_number || 0)),
+            );
+            const remaining = Math.max(0, exam.attempts_allowed - usedAttempts);
             const now = Date.now();
             const isOpen = now >= new Date(exam.starts_at).getTime() && now <= new Date(exam.ends_at).getTime();
 
             return (
-              <article key={exam.id} className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
+              <article key={section.id} className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
                 <div className="h-2" style={{ background: visual.accent }} />
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <div className="text-xs font-black text-[#B1785C]">{exam.category}</div>
-                      <h2 className="mt-1 text-2xl font-black">{name}</h2>
+                      <h2 dir="ltr" className="mt-1 break-words text-2xl font-black">{name}</h2>
                     </div>
-                    <div className="grid h-11 w-11 place-items-center rounded-2xl" style={{ background: visual.accentSoft, color: visual.accent }}>
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl" style={{ background: visual.accentSoft, color: visual.accent }}>
                       <BookOpenCheck size={20} />
                     </div>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded-xl bg-[#f8f7fa] p-3">
-                      <div className="flex items-center gap-1 font-black"><Clock3 size={14} /> {section?.time_limit_minutes ?? 30} دقيقة</div>
-                      <div className="mt-1 text-[#868a9b]">{section?.question_count ?? 0} سؤال</div>
+                      <div className="flex items-center gap-1 font-black"><Clock3 size={14} /> {section.time_limit_minutes ?? 30} دقيقة</div>
+                      <div className="mt-1 text-[#868a9b]">{section.question_count ?? 0} سؤال</div>
                     </div>
                     <div className="rounded-xl bg-[#f8f7fa] p-3">
                       <div className="font-black">{remaining} / {exam.attempts_allowed}</div>
@@ -242,15 +262,15 @@ export default function CoursePortal() {
                   )}
 
                   <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-                    <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">4 محاولات</span>
+                    <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">{exam.attempts_allowed} محاولات</span>
                     <span className="rounded-full bg-[#fbf2ed] px-2.5 py-1 text-[#956047]">نتيجة مباشرة</span>
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">مراجعة الأخطاء</span>
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">اختيار حر</span>
                   </div>
 
                   {isOpen && (remaining > 0 || inProgress) ? (
                     <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
                       {inProgress ? <PlayCircle size={17} /> : attempts.length ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
-                      {inProgress ? "متابعة المحاولة" : attempts.length ? "بدء محاولة جديدة" : "بدء القسم"}
+                      {inProgress ? "متابعة واختيار Section" : attempts.length ? "بدء محاولة جديدة" : "اختيار هذا Section"}
                     </a>
                   ) : (
                     <div className="mt-4 rounded-xl bg-[#f0eff4] px-4 py-3 text-center text-xs font-black text-[#7b8092]">
