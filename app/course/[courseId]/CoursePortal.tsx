@@ -151,7 +151,7 @@ export default function CoursePortal() {
           <a href="/" className="inline-flex items-center gap-2 text-sm font-black text-[#6f7488]">
             <ArrowRight size={17} /> العودة للرئيسية
           </a>
-          <NumoBrand className="w-[9.5rem] sm:w-44" />
+          <NumoBrand horizontal className="w-auto" />
         </div>
 
         <section
