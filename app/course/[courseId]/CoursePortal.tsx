@@ -49,6 +49,11 @@ type Attempt = {
   exam_id: string;
   attempt_number: number;
   status: string;
+  section_progress: Record<string, {
+    attempt_count?: number;
+    best_percentage?: number;
+    completed_at?: string | null;
+  }>;
 };
 type Result = {
   attempt_id: string;
@@ -214,12 +219,13 @@ export default function CoursePortal() {
             const bestResult = [...results]
               .filter((item) => item.percentage !== null)
               .sort((a,b)=>Number(b.percentage ?? 0)-Number(a.percentage ?? 0))[0];
+            const activeAttempt = attempts.find((item) => item.status === "IN_PROGRESS") ?? attempts[0];
+            const sectionProgress = activeAttempt?.section_progress?.[section.id] ?? {};
+            const usedSectionAttempts = Number(sectionProgress.attempt_count ?? 0);
+            const remaining = Math.max(0, exam.attempts_allowed - usedSectionAttempts);
+            const bestSectionPercentage = sectionProgress.best_percentage;
             const inProgress = attempts.find((item) => item.status === "IN_PROGRESS");
-            const usedAttempts = Math.max(
-              0,
-              ...attempts.map((item) => Number(item.attempt_number || 0)),
-            );
-            const remaining = Math.max(0, exam.attempts_allowed - usedAttempts);
+            const finalized = attempts.some((item) => item.status === "GRADED" || item.status === "SUBMITTED");
             const now = Date.now();
             const isOpen = now >= new Date(exam.starts_at).getTime() && now <= new Date(exam.ends_at).getTime();
 
@@ -243,15 +249,22 @@ export default function CoursePortal() {
                       <div className="mt-1 text-[#868a9b]">{section.question_count ?? 0} سؤال</div>
                     </div>
                     <div className="rounded-xl bg-[#f8f7fa] p-3">
-                      <div className="font-black">{remaining} / {exam.attempts_allowed}</div>
+                      <div dir="ltr" className="font-black">{remaining} / {exam.attempts_allowed}</div>
                       <div className="mt-1 text-[#868a9b]">محاولات متبقية</div>
                     </div>
                   </div>
 
-                  {bestResult ? (
+                  {bestSectionPercentage !== undefined ? (
                     <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3">
                       <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-1 text-xs font-black text-emerald-700"><Award size={14} /> أفضل درجة</span>
+                        <span className="flex items-center gap-1 text-xs font-black text-emerald-700"><Award size={14} /> أفضل درجة لهذا القسم</span>
+                        <span className="text-xl font-black text-emerald-800">{Number(bestSectionPercentage).toFixed(0)}%</span>
+                      </div>
+                    </div>
+                  ) : bestResult ? (
+                    <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1 text-xs font-black text-emerald-700"><Award size={14} /> النتيجة النهائية</span>
                         <span className="text-xl font-black text-emerald-800">{bestResult.percentage}%</span>
                       </div>
                     </div>
@@ -267,10 +280,14 @@ export default function CoursePortal() {
                     <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">اختيار حر</span>
                   </div>
 
-                  {isOpen && (remaining > 0 || inProgress) ? (
+                  {finalized ? (
                     <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
-                      {inProgress ? <PlayCircle size={17} /> : attempts.length ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
-                      {inProgress ? "متابعة واختيار Section" : attempts.length ? "بدء محاولة جديدة" : "اختيار هذا Section"}
+                      <Award size={17} /> عرض النتيجة النهائية
+                    </a>
+                  ) : isOpen && (remaining > 0 || inProgress) ? (
+                    <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
+                      {usedSectionAttempts > 0 ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
+                      {usedSectionAttempts > 0 ? "عرض النتيجة / إعادة المحاولة" : "اختيار هذا Section"}
                     </a>
                   ) : (
                     <div className="mt-4 rounded-xl bg-[#f0eff4] px-4 py-3 text-center text-xs font-black text-[#7b8092]">
