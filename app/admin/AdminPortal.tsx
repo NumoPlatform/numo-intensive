@@ -1,8 +1,10 @@
 "use client";
 
 import type { FormEvent } from "react";
+import NumoBrand from "@/app/components/NumoBrand";
 import { intensiveFetch } from "@/lib/intensive/client";
-import { courseCover, courseVisual } from "@/lib/intensive/ui";
+import { courseVisual } from "@/lib/intensive/ui";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpenCheck,
@@ -213,10 +215,13 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[1.7rem] border border-[#e4e0e9] bg-white p-5 shadow-[0_14px_42px_rgba(31,43,94,.06)] sm:p-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-black text-[#1F2B5E]">{title}</h2>
-        {subtitle ? <p className="mt-1 text-sm leading-7 text-[#73788d]">{subtitle}</p> : null}
+    <section className="deluxe-panel rounded-[1.65rem] p-5 sm:rounded-[2rem] sm:p-6">
+      <div className="mb-5 flex items-start gap-3 sm:mb-6">
+        <span className="mt-1 h-8 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-[#c48566] to-[#8f573f]" />
+        <div>
+          <h2 className="text-lg font-black text-[#182553] sm:text-xl">{title}</h2>
+          {subtitle ? <p className="mt-1 text-sm leading-7 text-[#73788d]">{subtitle}</p> : null}
+        </div>
       </div>
       {children}
     </section>
@@ -391,10 +396,12 @@ export default function AdminPortal() {
 
   if (loading) {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#f6f7fb] text-[#1F2B5E]">
-        <div className="text-center">
-          <RefreshCw className="mx-auto mb-4 animate-spin" />
-          <div className="font-black">جاري تحميل لوحة تحكم المدير...</div>
+      <div className="deluxe-canvas grid min-h-screen place-items-center px-5 text-[#1F2B5E]">
+        <div className="deluxe-panel w-full max-w-sm rounded-[2rem] p-8 text-center">
+          <NumoBrand className="w-28" priority />
+          <RefreshCw className="mx-auto mb-4 mt-6 animate-spin text-[#b97b5d]" />
+          <div className="font-black">جاري تجهيز مركز التحكم...</div>
+          <div className="mt-1 text-xs font-bold text-[#85899a]">NUMO DELUXE ADMIN</div>
         </div>
       </div>
     );
@@ -420,100 +427,120 @@ export default function AdminPortal() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] text-[#1F2B5E]">
-      <div className="min-h-screen xl:grid xl:grid-cols-[280px_1fr]">
-        <aside className="relative overflow-hidden bg-gradient-to-b from-[#1F2B5E] via-[#263775] to-[#17204b] p-5 text-white xl:min-h-screen xl:p-6">
-          <div className="absolute -left-24 top-20 h-64 w-64 rounded-full bg-[#B1785C]/20 blur-3xl" />
-          <div className="relative">
-            <div className="mb-6 rounded-[1.4rem] border border-white/15 bg-white/10 p-4 shadow-lg shadow-black/10">
-              <div className="flex items-center gap-3">
-                <div className="grid h-13 w-13 place-items-center rounded-2xl bg-white/95 p-2 shadow-lg">
-                  <img src="/icon.svg" alt="شعار منصة نمو" className="h-10 w-10" />
-                </div>
-                <div>
-                  <div className="text-lg font-black">منصة نمو</div>
-                  <div className="text-xs font-bold tracking-[.12em] text-[#e8bca5]" dir="ltr">NUMO INTENSIVE</div>
-                  <div className="mt-1 text-[11px] text-white/55">لوحة تحكم المدير</div>
-                </div>
-              </div>
+    <div className="deluxe-canvas min-h-screen text-[#182553]">
+      <div className="min-h-screen lg:grid lg:grid-cols-[296px_minmax(0,1fr)]">
+        <aside className="deluxe-sidebar relative hidden h-screen overflow-hidden p-5 text-white lg:sticky lg:top-0 lg:flex lg:flex-col lg:p-6">
+          <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-[#c48566]/18 blur-3xl" />
+          <div className="absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#5b6ca7]/18 blur-3xl" />
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            <div className="mb-7 flex justify-center rounded-[1.65rem] border border-white/10 bg-white/[.06] p-4 shadow-2xl shadow-black/10">
+              <NumoBrand className="w-32" priority inverse />
             </div>
 
-            <nav className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-1">
+            <div className="mb-3 px-3 text-[10px] font-black tracking-[.18em] text-white/40">مساحة العمل</div>
+            <nav className="grid gap-2">
               {navItems.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setTab(id)}
                   className={
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-right font-black transition " +
+                    "group flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-right text-sm font-black transition duration-200 " +
                     (tab === id
-                      ? "bg-white text-[#1F2B5E] shadow-lg"
-                      : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10")
+                      ? "bg-white text-[#182553] shadow-[0_14px_32px_rgba(7,12,39,.22)]"
+                      : "border border-white/[.07] bg-white/[.035] text-white/70 hover:border-white/15 hover:bg-white/[.08] hover:text-white")
                   }
                 >
-                  <Icon size={19} />
+                  <span className={"grid h-8 w-8 place-items-center rounded-xl transition " + (tab === id ? "bg-[#f3ece8] text-[#a9684c]" : "bg-white/[.06]")}>
+                    <Icon size={17} />
+                  </span>
                   {label}
                 </button>
               ))}
             </nav>
 
-            <div className="my-5 border-t border-white/10" />
-            <div className="mb-2 px-3 text-[10px] font-black tracking-[.16em] text-white/45">أدوات متقدمة</div>
-            <nav className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-1">
+            <div className="my-5 border-t border-white/[.08]" />
+            <div className="mb-2 px-3 text-[10px] font-black tracking-[.18em] text-white/40">أدوات متقدمة</div>
+            <nav className="deluxe-scrollbar min-h-0 flex-1 space-y-1.5 overflow-y-auto pl-1">
               {adminLinks.map(({ href, label, icon: Icon }) => (
                 <a
                   key={href}
                   href={href}
-                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-right text-sm font-black text-white/80 transition hover:bg-white/10 hover:text-white"
+                  className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-right text-xs font-black text-white/60 transition hover:bg-white/[.07] hover:text-white"
                 >
-                  <Icon size={18} />
+                  <Icon size={16} className="text-[#d59a7e]" />
                   {label}
                 </a>
               ))}
             </nav>
 
-            <div className="mt-8 hidden rounded-2xl border border-white/10 bg-white/5 p-4 xl:block">
-              <div className="text-xs text-white/55">مسجل الدخول باسم</div>
-              <div className="mt-1 font-black">{data.admin.full_name}</div>
-              <div className="mt-1 text-xs text-white/60" dir="ltr">@{data.admin.username}</div>
+            <div className="mt-5 rounded-2xl border border-white/[.08] bg-white/[.04] p-4">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#d9a087] to-[#9b5b40] text-sm font-black text-white">
+                  {data.admin.full_name.trim().slice(0, 1)}
+                </div>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-black">{data.admin.full_name}</div>
+                  <div className="truncate text-[11px] text-white/45" dir="ltr">@{data.admin.username}</div>
+                </div>
+              </div>
             </div>
 
             <button
               onClick={logout}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 font-black text-white/85 transition hover:bg-white/10"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[.08] px-4 py-2.5 text-xs font-black text-white/55 transition hover:bg-white/[.06] hover:text-white"
             >
-              <LogOut size={18} /> تسجيل الخروج
+              <LogOut size={16} /> تسجيل الخروج
             </button>
           </div>
         </aside>
 
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 px-3 pb-28 pt-3 sm:px-6 sm:pt-6 lg:p-8 lg:pb-10">
           <div className="mx-auto max-w-[1500px]">
-            <header className="mb-6 overflow-hidden rounded-[1.7rem] border border-[#e2dee8] bg-white shadow-[0_16px_45px_rgba(31,43,94,.07)]">
-              <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6">
-                <div className="flex items-center gap-4">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[#1F2B5E] shadow-lg shadow-[#1F2B5E]/20">
-                    <img src="/icon.svg" alt="شعار منصة نمو" className="h-10 w-10" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-black tracking-[.14em] text-[#B1785C]">منصة نمو للتعليم والخدمات الطلابية</div>
-                    <h1 className="mt-1 text-2xl font-black sm:text-3xl">لوحة تحكم المدير</h1>
-                    <p className="mt-1 text-xs font-bold text-[#7b8092]">تحكم بالطلاب والمقررات والاختبارات والنتائج من مكان واحد.</p>
-                  </div>
+            <div className="mb-3 flex items-center justify-between rounded-[1.35rem] border border-white/80 bg-white/80 p-3 shadow-[0_12px_35px_rgba(31,43,94,.07)] backdrop-blur-xl lg:hidden">
+              <div className="flex min-w-0 items-center gap-3">
+                <NumoBrand className="w-[4.6rem]" priority />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-black">مركز تحكم نمو</div>
+                  <div className="truncate text-[10px] font-bold tracking-[.12em] text-[#a9684c]" dir="ltr">DELUXE ADMIN</div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <a href="/admin/exams/new" className="inline-flex items-center gap-2 rounded-xl bg-[#1F2B5E] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#1F2B5E]/15">
-                    <Plus size={16} /> إنشاء اختبار
-                  </a>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">
-                    <ShieldCheck size={16} /> إدارة آمنة
+              </div>
+              <button onClick={logout} aria-label="تسجيل الخروج" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f4efec] text-[#8f573f]">
+                <LogOut size={17} />
+              </button>
+            </div>
+
+            <header className="deluxe-hero relative mb-4 overflow-hidden rounded-[1.75rem] p-5 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8">
+              <div className="deluxe-orbit deluxe-orbit-one" />
+              <div className="deluxe-orbit deluxe-orbit-two" />
+              <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                <div>
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3 py-1.5 text-[10px] font-black text-[#efc8b5] backdrop-blur sm:text-xs">
+                    <Sparkles size={14} /> NUMO DELUXE CONTROL CENTER
                   </div>
-                  <div className="rounded-full bg-[#f3f2f8] px-4 py-2 text-xs font-black text-[#1F2B5E]">
-                    {data.admin.full_name}
+                  <p className="text-xs font-bold text-white/55">أهلًا بك، {data.admin.full_name.split(" ")[0]}</p>
+                  <h1 className="mt-1 text-2xl font-black leading-tight sm:text-4xl">كل المنصة. رؤية واحدة.</h1>
+                  <p className="mt-3 max-w-2xl text-xs leading-6 text-white/65 sm:text-sm sm:leading-7">
+                    إدارة ذكية للطلاب والمقررات والاختبارات والنتائج بهوية نمو الرسمية.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+                  <a href="/admin/exams/new" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-black text-[#182553] shadow-xl shadow-black/10 transition hover:-translate-y-0.5">
+                    <Plus size={16} /> اختبار جديد
+                  </a>
+                  <div className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[.08] px-4 py-2.5 text-xs font-black text-white/80 backdrop-blur">
+                    <ShieldCheck size={16} className="text-[#edc1aa]" /> النظام آمن
                   </div>
                 </div>
               </div>
-              <div className="h-1 bg-gradient-to-l from-[#1F2B5E] via-[#6366F1] to-[#B1785C]" />
             </header>
+
+            <div className="deluxe-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+              {adminLinks.map(({ href, label, icon: Icon }) => (
+                <a key={href} href={href} className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#e9e1dc] bg-white/90 px-3.5 text-xs font-black text-[#27335f] shadow-sm">
+                  <Icon size={15} className="text-[#ad6b4e]" /> {label}
+                </a>
+              ))}
+            </div>
 
             {notice ? (
               <div
@@ -531,22 +558,23 @@ export default function AdminPortal() {
 
             {tab === "dashboard" ? (
               <div className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
                   {[
-                    { label: "الطلاب", value: data.students.length, icon: UsersRound },
-                    { label: "المواد", value: data.courses.filter((item) => item.is_active).length, icon: BookOpenCheck },
-                    { label: "الاختبارات", value: data.exams.length, icon: CalendarClock },
-                    { label: "الأسئلة المضافة", value: data.sections.reduce((sum, item) => sum + (item.question_count || 0), 0), icon: ClipboardList },
-                  ].map(({ label, value, icon: Icon }) => (
-                    <div key={label} className="rounded-[1.5rem] border border-[#e2dfe8] bg-white p-5 shadow-sm">
-                      <div className="mb-6 flex items-center justify-between">
-                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#f3f1ff] text-[#6366F1]">
+                    { label: "الطلاب", value: data.students.length, icon: UsersRound, accent: "#0878E8", soft: "#EAF3FF" },
+                    { label: "المقررات", value: data.courses.filter((item) => item.is_active).length, icon: BookOpenCheck, accent: "#009CA6", soft: "#E7F9F9" },
+                    { label: "الاختبارات", value: data.exams.length, icon: CalendarClock, accent: "#BC247D", soft: "#FCEAF5" },
+                    { label: "الأسئلة", value: data.sections.reduce((sum, item) => sum + (item.question_count || 0), 0), icon: ClipboardList, accent: "#F07F00", soft: "#FFF2DF" },
+                  ].map(({ label, value, icon: Icon, accent, soft }) => (
+                    <div key={label} className="deluxe-stat-card relative overflow-hidden rounded-[1.4rem] p-4 sm:rounded-[1.7rem] sm:p-5">
+                      <div className="absolute -left-7 -top-8 h-24 w-24 rounded-full opacity-20 blur-2xl" style={{ backgroundColor: accent }} />
+                      <div className="relative mb-5 flex items-center justify-between sm:mb-6">
+                        <div className="grid h-10 w-10 place-items-center rounded-xl sm:h-11 sm:w-11" style={{ backgroundColor: soft, color: accent }}>
                           <Icon size={21} />
                         </div>
-                        <span className="text-xs font-black text-[#B1785C]">NUMO</span>
+                        <span className="h-1.5 w-8 rounded-full" style={{ backgroundColor: accent }} />
                       </div>
-                      <div className="text-4xl font-black">{value}</div>
-                      <div className="mt-1 text-sm text-[#74798d]">{label}</div>
+                      <div className="relative text-3xl font-black tracking-tight sm:text-4xl">{value}</div>
+                      <div className="relative mt-1 text-xs font-bold text-[#74798d] sm:text-sm">{label}</div>
                     </div>
                   ))}
                 </div>
@@ -555,36 +583,46 @@ export default function AdminPortal() {
                   title="إدارة المقررات"
                   subtitle="كل مقرر يظهر بهويته الخاصة مع وصول سريع إلى الطلاب والاختبارات والغلاف."
                 >
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
                     {data.courses.map((course) => {
                       const visual = courseVisual(course.code);
                       const studentCount = data.enrollments.filter((item) => item.course_id === course.id && item.is_active).length;
                       const examCount = data.exams.filter((exam) => exam.course_id === course.id).length;
                       return (
-                        <article key={course.id} className="group overflow-hidden rounded-[1.35rem] border border-[#e6e2ea] bg-white shadow-[0_10px_30px_rgba(31,43,94,.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(31,43,94,.10)]">
-                          <div className="relative h-32 overflow-hidden">
-                            <img src={courseCover(course.code, course.default_cover_url)} alt={"غلاف " + course.code} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/72 via-transparent to-transparent" />
-                            <span className="absolute bottom-3 right-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-black text-[#1F2B5E]">{visual.level}</span>
+                        <article key={course.id} className="group overflow-hidden rounded-[1.55rem] border border-black/[.06] bg-white shadow-[0_14px_38px_rgba(31,43,94,.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_55px_rgba(31,43,94,.15)]">
+                          <div className="relative h-52 overflow-hidden sm:h-56 2xl:h-48">
+                            <Image
+                              src={visual.cover}
+                              alt={"غلاف " + course.code}
+                              fill
+                              sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, (max-width: 1535px) 33vw, 20vw"
+                              className="object-cover object-top transition duration-500 group-hover:scale-[1.035]"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#111c48]/90 via-transparent to-black/5" />
+                            <div className="absolute inset-x-0 bottom-0 h-1.5" style={{ background: visual.gradient }} />
+                            <span className="absolute bottom-4 right-3 rounded-full border border-white/60 bg-white/95 px-3 py-1 text-[11px] font-black shadow-lg" style={{ color: visual.accentDark }}>{visual.level}</span>
                             <span className={"absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black " + (course.is_active ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600")}>
                               {course.is_active ? "نشط" : "غير نشط"}
                             </span>
                           </div>
                           <div className="p-4">
-                            <div dir="ltr" className="text-lg font-black text-[#1F2B5E]">{course.code}</div>
+                            <div className="flex items-center justify-between gap-2">
+                              <div dir="ltr" className="text-lg font-black text-[#182553]">{course.code}</div>
+                              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: visual.accent, boxShadow: `0 0 0 4px ${visual.accentSoft}` }} />
+                            </div>
                             <div className="mt-1 text-xs font-bold text-[#777c8f]">{visual.label}</div>
                             <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                              <div className="rounded-xl bg-[#f8f7fa] p-2">
+                              <div className="rounded-xl p-2" style={{ backgroundColor: visual.accentSoft }}>
                                 <div className="text-lg font-black text-[#1F2B5E]">{studentCount}</div>
                                 <div className="text-[10px] font-bold text-[#8a8e9f]">طالب</div>
                               </div>
-                              <div className="rounded-xl bg-[#f8f7fa] p-2">
+                              <div className="rounded-xl p-2" style={{ backgroundColor: visual.accentSoft }}>
                                 <div className="text-lg font-black text-[#1F2B5E]">{examCount}</div>
                                 <div className="text-[10px] font-bold text-[#8a8e9f]">اختبار</div>
                               </div>
                             </div>
                             <div className="mt-3 grid grid-cols-2 gap-2">
-                              <a href="/admin/courses" className="rounded-xl bg-[#1F2B5E] px-3 py-2.5 text-center text-xs font-black text-white">إدارة المقرر</a>
+                              <a href="/admin/courses" className="rounded-xl px-3 py-2.5 text-center text-xs font-black text-white shadow-sm" style={{ background: visual.gradient }}>إدارة المقرر</a>
                               <a href="/admin/covers" className="rounded-xl border border-[#ded9e5] bg-white px-3 py-2.5 text-center text-xs font-black text-[#1F2B5E]">الغلاف</a>
                             </div>
                           </div>
@@ -1097,6 +1135,25 @@ export default function AdminPortal() {
           </div>
         </main>
       </div>
+      <nav aria-label="التنقل الرئيسي" className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-4 rounded-[1.4rem] border border-white/70 bg-[#17214d]/95 p-1.5 text-white shadow-[0_20px_55px_rgba(16,27,69,.34)] backdrop-blur-xl lg:hidden">
+        {navItems.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => {
+              setTab(id);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={
+              "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1rem] px-1 text-[10px] font-black transition " +
+              (tab === id ? "bg-white text-[#182553] shadow-lg" : "text-white/55")
+            }
+          >
+            <Icon size={18} className={tab === id ? "text-[#ad6b4e]" : ""} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
