@@ -40,7 +40,23 @@ export async function POST(request: NextRequest) {
         }),
       },
     );
-    return NextResponse.json({ ok: true, result });
+    return NextResponse.json({
+      ok: true,
+      result: {
+        attemptId: result.attempt_id,
+        sectionId: result.section_id,
+        sectionTitle: result.section_title,
+        sectionPosition: Number(result.section_position ?? 0),
+        timeLimitMinutes: Number(result.time_limit_minutes ?? 0),
+        sectionExpiresAt: result.section_expires_at,
+        sectionProgress: result.section_progress ?? {},
+        sectionAttemptId: result.section_attempt_id,
+        sectionAttemptNumber: Number(result.section_attempt_number ?? 1),
+        attemptsAllowed: Number(result.attempts_allowed ?? 1),
+        attemptsRemaining: Number(result.attempts_remaining ?? 0),
+        resumed: Boolean(result.resumed),
+      },
+    });
   } catch (error) {
     const raw = error instanceof Error ? error.message : "";
     const message =
