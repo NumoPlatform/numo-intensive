@@ -1119,25 +1119,15 @@ export default function ExamRunner() {
               >
                 Next <ArrowLeft size={18} />
               </button>
-            ) : isLastSection ? (
-              <button
-                type="button"
-                onClick={() => void submitAttempt(false)}
-                disabled={submitting || advancing}
-                className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
-              >
-                {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                Submit exam & show result
-              </button>
             ) : (
               <button
                 type="button"
-                onClick={() => void advanceSection(false)}
+                onClick={() => void completeSection(false)}
                 disabled={submitting || advancing}
                 className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
               >
-                {advancing ? <Loader2 size={18} className="animate-spin" /> : <ArrowLeft size={18} />}
-                Complete section & continue
+                {advancing || submitting ? <Loader2 size={18} className="animate-spin" /> : isFinalRemainingSection ? <Send size={18} /> : <ArrowLeft size={18} />}
+                {isFinalRemainingSection ? "Complete final section & show result" : "Complete section & choose another"}
               </button>
             )}
           </div>
