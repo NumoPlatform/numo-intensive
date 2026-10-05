@@ -6,18 +6,26 @@ import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowUpLeft,
   Award,
+  BarChart3,
   BookOpen,
+  BookOpenCheck,
   CheckCircle2,
+  ChevronLeft,
   Clock3,
   GraduationCap,
+  LayoutDashboard,
+  Layers3,
   LockKeyhole,
   LogOut,
+  Medal,
   MessageCircle,
   PlayCircle,
-  RotateCcw,
   ShieldCheck,
   Sparkles,
+  Target,
+  Trophy,
 } from "lucide-react";
 
 type Dashboard = {
@@ -63,6 +71,11 @@ type Dashboard = {
     started_at: string;
     expires_at: string;
     submitted_at: string | null;
+    section_progress: Record<string, {
+      attempt_count?: number;
+      best_percentage?: number;
+      completed_at?: string | null;
+    }>;
   }>;
   results: Array<{
     attempt_id: string;
@@ -187,550 +200,512 @@ export default function IntensivePortal() {
   const nextAction = useMemo(() => {
     if (!data) return null;
 
-    const now = Date.now();
-    const candidates = data.exams
-      .map((exam) => {
-        const attempts = data.attempts.filter((item) => item.exam_id === exam.id);
-        const inProgress = attempts.find((item) => item.status === "IN_PROGRESS");
-        const isOpen =
-          now >= new Date(exam.starts_at).getTime() &&
-          now <= new Date(exam.ends_at).getTime();
-        return {
-          exam,
-          inProgress,
-          attemptsRemaining: Math.max(0, exam.attempts_allowed - attempts.length),
-          isOpen,
-        };
-      })
-      .filter((item) => item.isOpen);
+  const now = Date.now();
+  const openExams = data.exams.filter(
+    (exam) =>
+      now >= new Date(exam.starts_at).getTime() &&
+      now <= new Date(exam.ends_at).getTime(),
+  );
 
-    return (
-      candidates.find((item) => item.inProgress) ??
-      candidates.find((item) => item.attemptsRemaining > 0) ??
-      null
-    );
-  }, [data]);
+  const completedSectionIds = new Set<string>();
+  const sectionBestScores = new Map<string, number>();
 
-  if (stage !== "portal") {
-    return (
-      <div className="min-h-screen px-4 py-8 text-[#1F2B5E] sm:py-12">
-        <div className="mx-auto grid min-h-[82vh] max-w-6xl items-center gap-7 lg:grid-cols-[1.08fr_.92fr]">
-          <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1F2B5E] via-[#2e3f82] to-[#6366F1] p-8 text-white shadow-[0_28px_80px_rgba(31,43,94,.28)] lg:p-12">
-            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/30 blur-3xl" />
-            <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
-            <div className="relative">
-              <div className="mb-9 inline-flex rounded-[1.4rem] border border-white/15 bg-white p-2 shadow-2xl shadow-black/15">
-                <NumoBrand className="w-28" priority inverse />
-              </div>
-              <p className="mb-3 text-sm font-black tracking-wide text-[#e9c2ad]">تعلم مركز. استعداد أذكى.</p>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.35] lg:text-6xl">
-                الدورات المكثفة للغة الإنجليزية
-              </h1>
-              <p className="mt-5 max-w-xl text-lg leading-9 text-white/80">
-                بوابتك الخاصة للدورات المكثفة والتدريب والاختبارات.
-              </p>
-              <div className="mt-9 grid gap-3 sm:grid-cols-2">
-                <div className="intensive-glass rounded-2xl p-4">
-                  <ShieldCheck className="mb-3 text-[#f0c7b2]" />
-                  <strong className="block">جهاز واحد لكل طالب</strong>
-                  <span className="mt-1 block text-sm text-white/70">يرتبط حسابك بأول جهاز موثوق يتم تسجيل الدخول منه.</span>
-                </div>
-                <div className="intensive-glass rounded-2xl p-4">
-                  <LockKeyhole className="mb-3 text-[#f0c7b2]" />
-                  <strong className="block">حسابات تديرها منصة نمو</strong>
-                  <span className="mt-1 block text-sm text-white/70">يتم إنشاء اسم المستخدم وكلمة المرور من خلال إدارة نمو.</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <form
-            onSubmit={login}
-            className="rounded-[2rem] border border-[#e4e1eb] bg-white p-7 shadow-[0_24px_70px_rgba(31,43,94,.12)] lg:p-10"
-          >
-            <div className="mb-8">
-              <NumoBrand className="w-24" priority />
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#f8f0ec] px-3 py-1.5 text-sm font-black text-[#9a6249]">
-                <Sparkles size={15} /> منصة نمو
-              </div>
-              <h2 className="mt-4 text-3xl font-black">تسجيل الدخول</h2>
-              <p className="mt-2 leading-7 text-[#68708a]">
-                استخدم بيانات الدخول التي زودتك بها إدارة نمو.
-              </p>
-            </div>
-
-            <label className="mb-5 block">
-              <span className="mb-2 block font-black">اسم المستخدم</span>
-              <input
-                className="field"
-                dir="ltr"
-                autoComplete="username"
-                required
-                value={form.username}
-                onChange={(event) => setForm({ ...form, username: event.target.value })}
-              />
-            </label>
-
-            <label className="mb-5 block">
-              <span className="mb-2 block font-black">كلمة المرور</span>
-              <input
-                className="field"
-                dir="ltr"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={form.password}
-                onChange={(event) => setForm({ ...form, password: event.target.value })}
-              />
-            </label>
-
-            {message ? (
-              <div className="mb-5 rounded-xl border border-rose-100 bg-rose-50 p-3 text-sm font-bold text-rose-700">
-                {message}
-              </div>
-            ) : null}
-
-            <button className="btn w-full" disabled={stage === "loading"}>
-              {stage === "loading" ? "جاري التحقق..." : "تسجيل الدخول"}
-            </button>
-
-            <p className="mt-5 text-center text-xs leading-6 text-[#7c8193]">
-              عند أول تسجيل دخول سيتم ربط الحساب بهذا الجهاز. لتغيير الجهاز تواصل مع الإدارة.
-            </p>
-          </form>
-        </div>
-      </div>
-    );
+  for (const attempt of data.attempts) {
+    for (const [sectionId, progress] of Object.entries(attempt.section_progress ?? {})) {
+      if (progress.completed_at) completedSectionIds.add(sectionId);
+      if (progress.best_percentage !== undefined) {
+        const score = Number(progress.best_percentage ?? 0);
+        sectionBestScores.set(
+          sectionId,
+          Math.max(score, sectionBestScores.get(sectionId) ?? 0),
+        );
+      }
+    }
   }
 
-  if (!data) return null;
+  const bestPublishedResult = [...data.results]
+    .filter((item) => item.percentage !== null)
+    .sort((a, b) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0))[0];
+
+  const firstName = data.profile.full_name.trim().split(/\s+/)[0] || data.profile.full_name;
+  const initials = data.profile.full_name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("");
+
+  const totalSections = data.sections.length;
+  const completedSections = completedSectionIds.size;
+  const overallProgress = totalSections
+    ? Math.round((completedSections / totalSections) * 100)
+    : 0;
+
+  function courseMetrics(courseId: string) {
+    const exams = examsByCourse.get(courseId) ?? [];
+    const examIds = new Set(exams.map((exam) => exam.id));
+    const sections = data.sections.filter((section) => examIds.has(section.exam_id));
+    const completed = sections.filter((section) => completedSectionIds.has(section.id)).length;
+    const scores = sections
+      .map((section) => sectionBestScores.get(section.id))
+      .filter((score): score is number => score !== undefined);
+    const best = scores.length
+      ? Math.max(...scores)
+      : Math.max(
+          0,
+          ...data.results
+            .filter((result) => examIds.has(result.exam_id) && result.percentage !== null)
+            .map((result) => Number(result.percentage ?? 0)),
+        );
+    const open = exams.filter(
+      (exam) =>
+        now >= new Date(exam.starts_at).getTime() &&
+        now <= new Date(exam.ends_at).getTime(),
+    ).length;
+
+    return {
+      exams,
+      sections,
+      completed,
+      best,
+      open,
+      progress: sections.length ? Math.round((completed / sections.length) * 100) : 0,
+    };
+  }
+
+  const recommendedCourse = nextAction
+    ? data.courses.find((course) => course.id === nextAction.exam.course_id) ?? null
+    : data.courses[0] ?? null;
 
   return (
-    <div className="min-h-screen px-4 py-7 text-[#1F2B5E] sm:py-9">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-[1.5rem] border border-[#e3dfE8] bg-white px-5 py-4 shadow-[0_14px_40px_rgba(31,43,94,.07)]">
-          <NumoBrand className="w-24 sm:w-28" priority />
-          <div className="hidden items-center gap-2 text-sm font-black text-[#60667b] md:flex">
-            <span className="rounded-xl bg-[#f4f3fb] px-4 py-2">الرئيسية</span>
-            <span className="rounded-xl px-4 py-2">دوراتي</span>
-            <span className="rounded-xl px-4 py-2">الاختبارات</span>
-            <span className="rounded-xl px-4 py-2">النتائج</span>
-          </div>
-          <button
-            onClick={logout}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#ded9e5] bg-white px-4 py-3 font-black text-[#1F2B5E] transition hover:bg-[#f8f7fb]"
-          >
-            <LogOut size={18} /> تسجيل الخروج
-          </button>
-        </header>
-
-        <section className="relative mb-7 overflow-hidden rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#263775] to-[#6366F1] p-6 text-white shadow-[0_28px_75px_rgba(31,43,94,.22)] sm:p-8 lg:p-10">
-          <div className="absolute -left-20 -top-28 h-80 w-80 rounded-full bg-[#B1785C]/25 blur-3xl" />
-          <div className="absolute -bottom-24 right-1/3 h-72 w-72 rounded-full bg-[#6366F1]/30 blur-3xl" />
-          <div className="relative grid gap-7 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div className="max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black text-[#f4d0bd]">
-                <Sparkles size={15} /> بوابتك الأكاديمية للدورات المكثفة
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f8f9fc_0%,#f4f5f9_46%,#f7f5f3_100%)] text-[#1F2B5E]">
+      <header className="sticky top-0 z-40 border-b border-[#e9e6ed]/90 bg-white/95 shadow-[0_8px_30px_rgba(31,43,94,.05)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 px-3 py-3 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <NumoBrand horizontal priority className="w-auto" />
+            <div className="hidden h-9 w-px bg-[#e6e2e9] lg:block" />
+            <div className="hidden lg:block">
+              <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#B1785C]" dir="ltr">
+                NUMO INTENSIVE
               </div>
-              <h1 className="text-3xl font-black leading-[1.45] sm:text-4xl lg:text-5xl">
-                مرحبا بك، <span className="text-[#d99a79]">{data.profile.full_name}</span>
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-8 text-white/75 sm:text-base">
-                كل مقرراتك واختباراتك ونتائجك في مكان واحد، بتجربة فخمة وواضحة مصممة لتساعدك على التركيز والتقدم.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-xs font-black">
-                <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2">Grammar</span>
-                <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2">Vocabulary</span>
-                <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2">Reading</span>
-                <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2">4 محاولات لكل قسم</span>
+              <div className="mt-0.5 text-xs font-bold text-[#7b8092]">
+                Student Academic Portal
               </div>
             </div>
-            <div className="min-w-[220px] rounded-[1.6rem] border border-white/15 bg-white/10 p-5 backdrop-blur">
-              <div className="flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#B1785C] text-white">
-                  <GraduationCap size={24} />
-                </div>
-                <div>
-                  <div className="font-black">حساب الطالب</div>
-                  <div className="text-xs text-white/60" dir="ltr">@{data.profile.username}</div>
+          </div>
+
+          <nav className="hidden items-center gap-1 rounded-2xl border border-[#e8e4eb] bg-[#faf9fb] p-1.5 xl:flex">
+            <span className="inline-flex items-center gap-2 rounded-xl bg-[#1F2B5E] px-4 py-2.5 text-xs font-black text-white shadow-sm">
+              <LayoutDashboard size={15} /> الرئيسية
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black text-[#6d7287]">
+              <BookOpenCheck size={15} /> مقرراتي
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black text-[#6d7287]">
+              <BarChart3 size={15} /> الأداء
+            </span>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 rounded-2xl border border-[#e6e2e9] bg-white px-3 py-2 sm:flex">
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#1F2B5E] text-xs font-black text-white">
+                {initials || "N"}
+              </div>
+              <div className="max-w-[150px] leading-tight">
+                <div className="truncate text-xs font-black">{data.profile.full_name}</div>
+                <div className="mt-1 truncate text-[10px] font-bold text-[#8b8f9f]" dir="ltr">
+                  @{data.profile.username}
                 </div>
               </div>
-              <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-100">
-                <ShieldCheck size={16} /> الجهاز الحالي موثوق
+            </div>
+            <button
+              onClick={logout}
+              className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e1dde5] bg-white text-[#1F2B5E] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f8f7fa]"
+              aria-label="تسجيل الخروج"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-[1480px] px-3 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#1F2B5E] text-white shadow-[0_30px_90px_rgba(31,43,94,.22)] sm:rounded-[2.35rem]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_15%,rgba(177,120,92,.24),transparent_32%),radial-gradient(circle_at_88%_20%,rgba(99,102,241,.24),transparent_30%)]" />
+          <div className="absolute -left-16 bottom-0 h-40 w-40 rounded-full border border-white/10" />
+          <div className="absolute -left-8 bottom-8 h-24 w-24 rounded-full border border-white/10" />
+
+          <div className="relative grid gap-7 p-5 sm:p-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(310px,.65fr)] lg:items-stretch lg:p-10">
+            <div className="flex min-w-0 flex-col justify-between">
+              <div>
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-[11px] font-black text-[#efc5b1]">
+                  <Sparkles size={14} /> Academic Dashboard · بوابة الطالب الأكاديمية
+                </div>
+
+                <h1 className="max-w-4xl text-3xl font-black leading-[1.35] sm:text-4xl lg:text-[3.2rem]">
+                  أهلا <span className="text-[#d8a084]">{firstName}</span>،
+                  <span className="block">واصل تقدمك بثقة وتركيز.</span>
+                </h1>
+
+                <p className="mt-4 max-w-2xl text-sm font-medium leading-8 text-white/68 sm:text-base">
+                  كل مقرر، Section، نتيجة ومحاولة في تجربة واحدة منظمة. ابدأ من الخطوة التالية أو راجع أداءك ثم أكمل استعدادك.
+                </p>
+              </div>
+
+              <div className="mt-7 flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/8 px-3 py-2 text-xs font-black">
+                  <ShieldCheck size={15} className="text-emerald-300" /> جهاز موثوق
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/8 px-3 py-2 text-xs font-black">
+                  <Layers3 size={15} className="text-[#e5b49b]" /> {totalSections} Sections
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/8 px-3 py-2 text-xs font-black">
+                  <Target size={15} className="text-indigo-200" /> {openExams.length} Available Now
+                </span>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="rounded-[1.65rem] border border-white/12 bg-white/9 p-5 backdrop-blur-md">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-xs font-black text-white/55">ACADEMIC PROGRESS</div>
+                    <div className="mt-2 text-4xl font-black">{overallProgress}%</div>
+                    <div className="mt-1 text-xs font-bold text-white/55">
+                      {completedSections} of {totalSections || 0} sections completed
+                    </div>
+                  </div>
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
+                    <BarChart3 size={23} className="text-[#efc3ad]" />
+                  </div>
+                </div>
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-l from-[#B1785C] to-[#e0ae94]"
+                    style={{ width: overallProgress + "%" }}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-[1.65rem] border border-white/12 bg-white/9 p-5 backdrop-blur-md">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-black text-white/55">BEST PERFORMANCE</div>
+                    <div className="mt-2 text-3xl font-black">
+                      {bestPublishedResult?.percentage ?? "—"}{bestPublishedResult ? "%" : ""}
+                    </div>
+                  </div>
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#B1785C]">
+                    <Trophy size={22} />
+                  </div>
+                </div>
+                <div className="mt-4 text-xs font-bold leading-6 text-white/55">
+                  أفضل نتيجة منشورة في اختباراتك حتى الآن.
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {data.courses.length ? (
-          <section className="mb-7">
-            <div className="mb-4 flex items-end justify-between gap-3">
-              <div>
-                <div className="text-xs font-black tracking-[.14em] text-[#B1785C]">دوراتي</div>
-                <h2 className="mt-1 text-2xl font-black text-[#1F2B5E]">المقررات المسجلة</h2>
+        <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              icon: BookOpen,
+              label: "المقررات المسجلة",
+              value: data.courses.length,
+              note: "Active courses",
+              accent: "#B1785C",
+              soft: "#fbf4f0",
+            },
+            {
+              icon: Layers3,
+              label: "إجمالي الأقسام",
+              value: totalSections,
+              note: "Grammar · Vocabulary · Reading",
+              accent: "#6366F1",
+              soft: "#f1f2ff",
+            },
+            {
+              icon: CheckCircle2,
+              label: "الأقسام المكتملة",
+              value: completedSections,
+              note: overallProgress + "% overall progress",
+              accent: "#16875f",
+              soft: "#eef9f4",
+            },
+            {
+              icon: Medal,
+              label: "أفضل نتيجة",
+              value: bestPublishedResult ? (bestPublishedResult.percentage ?? 0) + "%" : "—",
+              note: "Published best score",
+              accent: "#8e6049",
+              soft: "#faf1ec",
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <article
+                key={item.label}
+                className="group rounded-[1.55rem] border border-[#e6e2e9] bg-white p-4 shadow-[0_12px_36px_rgba(31,43,94,.055)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(31,43,94,.09)] sm:p-5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-black text-[#808496]">{item.label}</div>
+                    <div className="mt-2 text-3xl font-black text-[#1F2B5E]">{item.value}</div>
+                    <div className="mt-1 text-[11px] font-bold text-[#a0a3b0]" dir="ltr">{item.note}</div>
+                  </div>
+                  <div
+                    className="grid h-11 w-11 place-items-center rounded-2xl"
+                    style={{ background: item.soft, color: item.accent }}
+                  >
+                    <Icon size={20} />
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+
+        {nextAction && recommendedCourse ? (
+          <section className="mt-7 overflow-hidden rounded-[1.9rem] border border-[#e1dde6] bg-white shadow-[0_18px_55px_rgba(31,43,94,.07)]">
+            <div className="grid lg:grid-cols-[minmax(0,1fr)_360px]">
+              <div className="p-5 sm:p-7 lg:p-8">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[11px] font-black text-[#9a6249]">
+                  <PlayCircle size={14} /> CONTINUE LEARNING
+                </div>
+                <h2 className="text-2xl font-black sm:text-3xl">خطوتك الأكاديمية التالية</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-7 text-[#74798c]">
+                  {nextAction.inProgress
+                    ? "لديك محاولة قيد التنفيذ. يمكنك العودة مباشرة ومتابعة الـSection من آخر نقطة."
+                    : "يوجد اختبار متاح الآن. اختر الـSection الذي يناسبك وابدأ عندما تكون جاهزا."}
+                </p>
+
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <a
+                    href={"/exam/" + nextAction.exam.id}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(31,43,94,.20)] transition hover:-translate-y-0.5"
+                  >
+                    <PlayCircle size={18} />
+                    {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
+                  </a>
+                  <a
+                    href={"/course/" + recommendedCourse.id}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#ded9e4] bg-white px-5 text-sm font-black"
+                  >
+                    تفاصيل المقرر <ChevronLeft size={17} />
+                  </a>
+                </div>
               </div>
-              <div className="text-xs font-bold text-[#777c8f]">{data.courses.length} مقرر</div>
+
+              <div className="relative min-h-[230px] overflow-hidden bg-[#1F2B5E]">
+                <img
+                  src={courseCover(recommendedCourse.code, recommendedCourse.default_cover_url)}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-cover opacity-65"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <div className="text-xs font-black text-[#efc4ae]" dir="ltr">{recommendedCourse.code}</div>
+                  <div className="mt-1 text-xl font-black" dir="ltr">{recommendedCourse.title}</div>
+                  <div className="mt-2 text-xs font-bold text-white/65" dir="ltr">{nextAction.exam.title}</div>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          </section>
+        ) : null}
+
+        <section className="mt-8">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-[.18em] text-[#B1785C]" dir="ltr">
+                COURSE PORTFOLIO
+              </div>
+              <h2 className="mt-1 text-2xl font-black sm:text-3xl">مقرراتك الأكاديمية</h2>
+              <p className="mt-2 text-sm font-medium text-[#7d8192]">
+                اختر المقرر للوصول إلى Sections والمحاولات والنتائج والمراجعة التفصيلية.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#e4e0e8] bg-white px-3 py-2 text-xs font-black text-[#73788b]">
+              {data.courses.length} Active Courses
+            </div>
+          </div>
+
+          {data.courses.length ? (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {data.courses.map((course) => {
                 const visual = courseVisual(course.code);
-                const exams = examsByCourse.get(course.id) ?? [];
-                const results = data.results.filter((result) => exams.some((exam) => exam.id === result.exam_id));
-                const best = [...results].filter((item) => item.percentage !== null).sort((a,b)=>Number(b.percentage ?? 0)-Number(a.percentage ?? 0))[0];
+                const metrics = courseMetrics(course.id);
+                const cover = courseCover(course.code, course.default_cover_url);
+
                 return (
-                  <a key={course.id} href={"/course/" + course.id} className="group overflow-hidden rounded-[1.4rem] border border-[#e5e1e9] bg-white shadow-[0_12px_34px_rgba(31,43,94,.06)] transition hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(31,43,94,.12)]">
-                    <div className="relative h-32 overflow-hidden">
-                      <img src={courseCover(course.code, course.default_cover_url)} alt={"أيقونة " + course.code} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/65 via-transparent to-transparent" />
-                      <span className="absolute bottom-3 right-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-black text-[#1F2B5E]">{visual.level}</span>
+                  <a
+                    key={course.id}
+                    href={"/course/" + course.id}
+                    className="group relative overflow-hidden rounded-[1.8rem] border border-[#e3dfe7] bg-white shadow-[0_14px_42px_rgba(31,43,94,.065)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)]"
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={cover}
+                        alt={"غلاف " + course.code}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/35 to-transparent" />
+                      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+                        <span className="rounded-full border border-white/18 bg-white/92 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm">
+                          {visual.level}
+                        </span>
+                        <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-[#1F2B5E]/75 text-white backdrop-blur">
+                          <ArrowUpLeft size={17} />
+                        </span>
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                        <div className="text-xs font-black tracking-[.12em] text-[#efc4ae]" dir="ltr">{course.code}</div>
+                        <h3 className="mt-1 text-xl font-black leading-7" dir="ltr">{course.title}</h3>
+                      </div>
                     </div>
-                    <div className="p-4">
-                      <div dir="ltr" className="text-lg font-black text-[#1F2B5E]">{course.code}</div>
-                      <div className="mt-1 text-xs font-bold text-[#7b8092]">{visual.label}</div>
-                      <div className="mt-4 flex items-center justify-between text-xs">
-                        <span className="font-black" style={{color: visual.accent}}>{best ? (best.percentage ?? 0) + "% أفضل درجة" : "ابدأ الآن"}</span>
-                        <span className="text-[#8b8f9f]">{exams.length} أقسام</span>
+
+                    <div className="p-5">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+                          <div className="text-lg font-black">{metrics.sections.length}</div>
+                          <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Sections</div>
+                        </div>
+                        <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+                          <div className="text-lg font-black">{metrics.completed}</div>
+                          <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Completed</div>
+                        </div>
+                        <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+                          <div className="text-lg font-black">{metrics.best ? metrics.best.toFixed(0) + "%" : "—"}</div>
+                          <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Best</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex items-center justify-between text-[11px] font-black">
+                            <span className="text-[#74798b]">التقدم</span>
+                            <span style={{ color: visual.accent }}>{metrics.progress}%</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-[#eeecf1]">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{ width: metrics.progress + "%", background: visual.accent }}
+                            />
+                          </div>
+                        </div>
+                        <div
+                          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+                          style={{ background: visual.accentSoft, color: visual.accent }}
+                        >
+                          <BookOpenCheck size={19} />
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#efedf2] pt-4 text-xs font-black">
+                        <span className={metrics.open ? "text-emerald-700" : "text-[#8d91a0]"}>
+                          {metrics.open ? metrics.open + " اختبار متاح الآن" : "عرض تفاصيل المقرر"}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[#1F2B5E]">
+                          فتح المقرر <ChevronLeft size={15} />
+                        </span>
                       </div>
                     </div>
                   </a>
                 );
               })}
             </div>
-          </section>
-        ) : null}
+          ) : (
+            <div className="rounded-[1.8rem] border border-dashed border-[#ccc7d4] bg-white p-10 text-center shadow-sm">
+              <BookOpen className="mx-auto mb-4 text-[#B1785C]" size={38} />
+              <h3 className="text-xl font-black">لا توجد مقررات مسجلة حتى الآن</h3>
+              <p className="mt-2 text-sm text-[#777c8f]">ستظهر مقرراتك هنا فور إضافتها من الإدارة.</p>
+            </div>
+          )}
+        </section>
 
-        {nextAction ? (
-          <section className="mb-6 overflow-hidden rounded-[1.6rem] border border-[#ded9e6] bg-white shadow-[0_16px_45px_rgba(31,43,94,.07)]">
-            <div className="grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+        <section className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+          <div className="rounded-[1.8rem] border border-[#e2dee6] bg-white p-5 shadow-[0_14px_42px_rgba(31,43,94,.055)] sm:p-6">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-xs font-black tracking-wide text-[#B1785C]">الخطوة التالية المقترحة</div>
-                <h2 dir="ltr" className="mt-1 text-xl font-black text-[#1F2B5E]">{nextAction.exam.title}</h2>
-                <p className="mt-2 text-sm leading-7 text-[#6f7488]">
-                  {nextAction.inProgress
-                    ? "لديك محاولة قيد التنفيذ. أكملها قبل انتهاء الوقت."
-                    : "هذا القسم متاح الآن ويمكنك بدء محاولة جديدة."}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-                  <span className="rounded-full bg-[#f2f1ff] px-3 py-1.5 text-[#5559ca]">
-                    {nextAction.attemptsRemaining} محاولات متبقية
-                  </span>
-                  <span className="rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[#9a6249]">
-                    النتيجة تظهر مباشرة بعد إنهاء القسم
-                  </span>
+                <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#B1785C]" dir="ltr">ACADEMIC EXPERIENCE</div>
+                <h2 className="mt-1 text-xl font-black">كيف تعمل تجربتك في NUMO Intensive؟</h2>
+              </div>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f1f2ff] text-[#6366F1]">
+                <GraduationCap size={21} />
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { n: "01", title: "اختر المقرر", note: "ادخل إلى Course Portfolio ثم اختر الـSection المطلوب." },
+                { n: "02", title: "أكمل المحاولة", note: "كل سؤال إلزامي والإجابات تحفظ تلقائيا أثناء الاختبار." },
+                { n: "03", title: "راجع وتطور", note: "شاهد الدرجة والأخطاء والتصحيح ثم أعد المحاولة إذا رغبت." },
+              ].map((step) => (
+                <div key={step.n} className="rounded-2xl border border-[#ece9ef] bg-[#faf9fb] p-4">
+                  <div className="text-xs font-black text-[#B1785C]" dir="ltr">{step.n}</div>
+                  <div className="mt-3 font-black">{step.title}</div>
+                  <p className="mt-2 text-xs font-medium leading-6 text-[#7d8294]">{step.note}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[1.8rem] bg-[#1F2B5E] p-5 text-white shadow-[0_18px_50px_rgba(31,43,94,.17)] sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#e6b49b]" dir="ltr">SECURE ACCOUNT</div>
+                <h2 className="mt-1 text-xl font-black">حسابك الأكاديمي محمي</h2>
+              </div>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-emerald-200">
+                <ShieldCheck size={21} />
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/7 p-4">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-400/12 text-emerald-200">
+                  <CheckCircle2 size={19} />
+                </div>
+                <div>
+                  <div className="text-sm font-black">Trusted Device Active</div>
+                  <div className="mt-1 text-xs font-bold text-white/50">حساب الطالب مرتبط بهذا الجهاز.</div>
                 </div>
               </div>
-              <a href={"/exam/" + nextAction.exam.id} className="btn min-w-[170px]">
-                <PlayCircle size={17} />
-                {nextAction.inProgress ? "متابعة المحاولة" : "بدء القسم"}
-              </a>
             </div>
-          </section>
-        ) : null}
 
-        <div className="mb-8 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-[#e3e0e9] bg-white p-5 shadow-sm">
-            <BookOpen className="mb-3 text-[#B1785C]" />
-            <div className="text-3xl font-black">{data.courses.length}</div>
-            <div className="text-sm text-[#68708a]">المواد المسجلة</div>
+            <div className="mt-4 flex items-center justify-between gap-3 text-xs font-bold text-white/55">
+              <span dir="ltr">@{data.profile.username}</span>
+              <span>NUMO Student</span>
+            </div>
           </div>
-          <div className="rounded-2xl border border-[#e3e0e9] bg-white p-5 shadow-sm">
-            <Clock3 className="mb-3 text-[#6366F1]" />
-            <div className="text-3xl font-black">{data.exams.length}</div>
-            <div className="text-sm text-[#68708a]">الاختبارات المتاحة</div>
-          </div>
-          <div className="rounded-2xl border border-[#e3e0e9] bg-white p-5 shadow-sm">
-            <ShieldCheck className="mb-3 text-[#B1785C]" />
-            <div className="text-xl font-black">الجهاز الموثوق</div>
-            <div className="text-sm text-[#68708a]">حسابك مرتبط بهذا الجهاز</div>
-          </div>
-        </div>
-
-        {data.courses.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#cfc9d9] bg-white p-10 text-center">
-            <BookOpen className="mx-auto mb-4 text-[#B1785C]" size={38} />
-            <h2 className="text-xl font-black">لا توجد مواد مسجلة حتى الآن</h2>
-            <p className="mt-2 text-[#68708a]">ستظهر موادك هنا بعد إضافتها من قبل الإدارة.</p>
-          </div>
-        ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            {data.courses.map((course) => {
-              const sectionOrder = ["Grammar", "Vocabulary", "Reading"];
-              const exams = [...(examsByCourse.get(course.id) ?? [])].sort((a, b) => {
-                const aName = a.title.split("—").pop()?.trim() ?? "";
-                const bName = b.title.split("—").pop()?.trim() ?? "";
-                const aRank = sectionOrder.indexOf(aName);
-                const bRank = sectionOrder.indexOf(bName);
-                if (aRank !== -1 || bRank !== -1) {
-                  return (aRank === -1 ? 99 : aRank) - (bRank === -1 ? 99 : bRank);
-                }
-                return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
-              });
-
-              const courseAttempts = data.attempts.filter((item) => exams.some((exam) => exam.id === item.exam_id));
-              const courseResults = data.results.filter((item) => exams.some((exam) => exam.id === item.exam_id));
-              const completedSections = new Set(courseResults.map((item) => item.exam_id)).size;
-              const courseBest = [...courseResults]
-                .filter((item) => item.percentage !== null)
-                .sort((a, b) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0))[0];
-              const visual = courseVisual(course.code);
-              const cover = courseCover(course.code, course.default_cover_url);
-
-              return (
-                <section
-                  key={course.id}
-                  className="overflow-hidden rounded-[2rem] border border-[#e2dfeb] bg-white shadow-[0_20px_60px_rgba(31,43,94,.08)] lg:col-span-2"
-                >
-                  <div className="relative overflow-hidden bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-6 text-white sm:p-8">
-                    <img
-                      src={cover}
-                      alt={"غلاف " + course.code}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-l from-[#1F2B5E]/96 via-[#1F2B5E]/78 to-[#1F2B5E]/38" />
-
-                    <div className="relative z-10 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
-                      <div>
-                        <div dir="ltr" className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black">
-                          <GraduationCap size={15} /> {course.code} · {visual.level}
-                        </div>
-                        <h2 dir="ltr" className="max-w-2xl text-2xl font-black sm:text-3xl">{course.title}</h2>
-                        <p className="mt-2 max-w-2xl text-sm leading-7 text-white/72">
-                          اختر القسم الذي تريد التدرب عليه، أجب عن جميع أسئلته، ثم شاهد درجتك والأسئلة التي أخطأت فيها مباشرة.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-                        <div className="rounded-2xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur">
-                          <div className="text-2xl font-black">{exams.length}</div>
-                          <div className="text-[11px] font-bold text-white/65">الأقسام</div>
-                        </div>
-                        <div className="rounded-2xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur">
-                          <div className="text-2xl font-black">{completedSections}</div>
-                          <div className="text-[11px] font-bold text-white/65">المكتمل</div>
-                        </div>
-                        <div className="rounded-2xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur">
-                          <div className="text-2xl font-black">{courseBest?.percentage ?? "—"}{courseBest ? "%" : ""}</div>
-                          <div className="text-[11px] font-bold text-white/65">أفضل درجة</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-5 sm:p-7">
-                    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-black tracking-[.16em] text-[#B1785C]">أقسام الاختبار</div>
-                        <h3 className="mt-1 text-xl font-black text-[#1F2B5E]">Grammar · Vocabulary · Reading</h3>
-                      </div>
-                      <div className="rounded-xl bg-[#f5f3f8] px-3 py-2 text-xs font-black text-[#686e84]">
-                        30 دقيقة لكل قسم · 4 محاولات مستقلة · مراجعة الأخطاء بعد التسليم
-                      </div>
-                    </div>
-
-                    {exams.length ? (
-                      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        {exams.map((exam) => {
-                          const now = Date.now();
-                          const opensAt = new Date(exam.starts_at).getTime();
-                          const closesAt = new Date(exam.ends_at).getTime();
-                          const isOpen = now >= opensAt && now <= closesAt;
-                          const isUpcoming = now < opensAt;
-                          const examAttempts = data.attempts.filter((item) => item.exam_id === exam.id);
-                          const latestAttempt = examAttempts[0];
-                          const examResults = data.results.filter((item) => item.exam_id === exam.id);
-                          const publishedResult = examResults[0];
-                          const bestResult = [...examResults]
-                            .filter((item) => item.percentage !== null)
-                            .sort((a, b) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0))[0];
-                          const attemptsUsed = examAttempts.length;
-                          const attemptsRemaining = Math.max(0, exam.attempts_allowed - attemptsUsed);
-                          const examSections = data.sections.filter((section) => section.exam_id === exam.id);
-                          const primarySection = examSections[0] ?? null;
-                          const uniformSectionTime = examSections.length
-                            ? examSections.every((section) => section.time_limit_minutes === examSections[0].time_limit_minutes)
-                              ? examSections[0].time_limit_minutes
-                              : null
-                            : null;
-                          const inProgress = latestAttempt?.status === "IN_PROGRESS" && isOpen;
-                          const completed = Boolean(publishedResult);
-                          const lockedOut = isOpen && attemptsRemaining === 0 && !inProgress;
-
-                          const stateLabel = inProgress
-                            ? "قيد المحاولة"
-                            : completed
-                              ? "المكتمل"
-                              : isUpcoming
-                                ? "قادم"
-                                : !isOpen
-                                  ? "مغلق"
-                                  : lockedOut
-                                    ? "اكتملت المحاولات"
-                                    : "لم يبدأ";
-
-                          const stateClass = inProgress
-                            ? "bg-amber-50 text-amber-700"
-                            : completed
-                              ? "bg-emerald-50 text-emerald-700"
-                              : isUpcoming
-                                ? "bg-[#f1f2ff] text-[#565bc1]"
-                                : !isOpen || lockedOut
-                                  ? "bg-slate-100 text-slate-500"
-                                  : "bg-[#fbf2ed] text-[#9a6249]";
-
-                          return (
-                            <article
-                              key={exam.id}
-                              className="group relative overflow-hidden rounded-[1.45rem] border border-[#e7e3eb] bg-white p-4 shadow-[0_10px_30px_rgba(31,43,94,.05)] transition hover:-translate-y-1 hover:border-[#cfc8da] hover:shadow-[0_18px_42px_rgba(31,43,94,.1)]"
-                            >
-                              <div className="mb-4 flex items-start justify-between gap-3">
-                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#1F2B5E] to-[#6366F1] text-lg font-black text-white shadow-lg">
-                                  {primarySection?.title?.slice(0, 1) ?? <BookOpen size={20} />}
-                                </div>
-                                <span className={"rounded-full px-2.5 py-1 text-[11px] font-black " + stateClass}>
-                                  {stateLabel}
-                                </span>
-                              </div>
-
-                              <div dir="ltr" className="text-[11px] font-black tracking-[.12em] text-[#B1785C]">{exam.category}</div>
-                              <h4 dir="ltr" className="mt-1 text-lg font-black leading-6 text-[#1F2B5E]">{primarySection?.title ?? exam.title}</h4>
-                              <div dir="ltr" className="mt-1 min-h-[1.5rem] text-xs font-bold text-[#85899a]">{exam.title}</div>
-
-                              <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                                <div className="rounded-xl bg-[#f8f7fa] p-2.5">
-                                  <div className="font-black text-[#1F2B5E]">
-                                    {primarySection?.question_count ?? "—"} سؤال
-                                  </div>
-                                  <div className="mt-0.5 text-[#85899a]">{uniformSectionTime ?? 30} دقيقة</div>
-                                </div>
-                                <div className="rounded-xl bg-[#f8f7fa] p-2.5">
-                                  <div className="font-black text-[#1F2B5E]">{attemptsRemaining} / {exam.attempts_allowed}</div>
-                                  <div className="mt-0.5 text-[#85899a]">المحاولات المتبقية</div>
-                                </div>
-                              </div>
-
-                              {bestResult ? (
-                                <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-1.5 text-xs font-black text-emerald-700">
-                                      <Award size={14} /> أفضل درجة
-                                    </div>
-                                    <div className="text-lg font-black text-emerald-800">{bestResult.percentage ?? 0}%</div>
-                                  </div>
-                                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-emerald-100">
-                                    <div
-                                      className="h-full rounded-full bg-emerald-500"
-                                      style={{ width: Math.max(0, Math.min(100, Number(bestResult.percentage ?? 0))) + "%" }}
-                                    />
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="mt-3 rounded-xl border border-dashed border-[#ddd8e5] bg-[#fbfafc] p-3 text-xs leading-5 text-[#7a7f91]">
-                                  تظهر النتيجة مباشرة بعد إنهاء هذا القسم، مع الأسئلة الخاطئة والإجابات الصحيحة.
-                                </div>
-                              )}
-
-                              <div className="mt-3 grid grid-cols-4 gap-1.5">
-                                {Array.from({ length: exam.attempts_allowed }, (_, slot) => {
-                                  const attemptNumber = slot + 1;
-                                  const attempt = examAttempts.find((item) => item.attempt_number === attemptNumber);
-                                  const result = attempt ? examResults.find((item) => item.attempt_id === attempt.id) : null;
-                                  const isCurrent = attempt?.status === "IN_PROGRESS";
-                                  return (
-                                    <div
-                                      key={attemptNumber}
-                                      className={
-                                        "rounded-lg px-2 py-2 text-center text-[10px] font-black " +
-                                        (result
-                                          ? "bg-emerald-50 text-emerald-700"
-                                          : isCurrent
-                                            ? "bg-amber-50 text-amber-700"
-                                            : attempt
-                                              ? "bg-[#f3f1f7] text-[#767b8e]"
-                                              : "bg-[#faf9fb] text-[#a0a3af]")
-                                      }
-                                    >
-                                      <div>م{attemptNumber}</div>
-                                      <div className="mt-0.5 text-[11px]">
-                                        {result ? (result.percentage ?? 0) + "%" : isCurrent ? "جاري"  : attempt ? "تم" : "—"}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-
-                              {inProgress ? (
-                                <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
-                                  <PlayCircle size={17} /> متابعة المحاولة {latestAttempt?.attempt_number}
-                                </a>
-                              ) : isOpen && attemptsRemaining > 0 ? (
-                                <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
-                                  {attemptsUsed > 0 ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
-                                  {attemptsUsed > 0 ? "بدء محاولة جديدة" : "بدء القسم"}
-                                </a>
-                              ) : (
-                                <div className="mt-4 flex min-h-[3.1rem] items-center justify-center rounded-xl bg-[#f3f1f7] px-3 text-center text-xs font-black text-[#777b8d]">
-                                  {isUpcoming
-                                    ? "يفتح في " + formatDate(exam.starts_at)
-                                    : lockedOut
-                                      ? "تم استخدام جميع المحاولات"
-                                      : "هذا القسم مغلق"}
-                                </div>
-                              )}
-
-                              {completed ? (
-                                <a
-                                  href={"/results/" + exam.id}
-                                  className="mt-3 flex min-h-10 items-center justify-center rounded-xl border border-[#ddd8e5] bg-white px-3 text-xs font-black text-[#1F2B5E] transition hover:bg-[#f8f7fa]"
-                                >
-                                  عرض سجل النتائج
-                                </a>
-                              ) : null}
-
-                              {completed ? (
-                                <div className="mt-3 flex items-center gap-2 text-xs font-black text-emerald-700">
-                                  <CheckCircle2 size={14} />
-                                  الأحدث: {publishedResult?.percentage ?? 0}% · {attemptsUsed} محاولة مستخدمة
-                                </div>
-                              ) : (
-                                <div className="mt-3 text-[11px] font-bold text-[#9396a5]">
-                                  {exam.total_marks} درجة · النتيجة تظهر مباشرة
-                                </div>
-                              )}
-                            </article>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="rounded-2xl bg-[#f7f7fa] p-5 text-[#68708a]">
-                        لا توجد اختبارات منشورة لهذه المادة حاليا.
-                      </div>
-                    )}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        )}
+        </section>
 
         {data.settings?.support_whatsapp || data.settings?.support_website ? (
-          <section className="mt-8 overflow-hidden rounded-[1.6rem] border border-[#e2dfeb] bg-white shadow-sm">
-            <div className="grid gap-5 p-6 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <div className="text-xs font-black text-[#B1785C]">دعم نمو</div>
-                <h2 className="mt-1 text-xl font-black">تحتاج مساعدة في حسابك أو الاختبار؟</h2>
-                <p className="mt-2 text-sm leading-7 text-[#68708a]">
-                  تواصل مع فريق نمو للمساعدة في تسجيل الدخول أو الجهاز الموثوق أو الوصول للاختبارات.
-                </p>
+          <section className="mt-8 overflow-hidden rounded-[1.8rem] border border-[#e2dee6] bg-white shadow-[0_14px_42px_rgba(31,43,94,.055)]">
+            <div className="grid gap-5 p-5 sm:p-6 md:grid-cols-[1fr_auto] md:items-center">
+              <div className="flex items-start gap-4">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#fbf2ed] text-[#B1785C]">
+                  <MessageCircle size={21} />
+                </div>
+                <div>
+                  <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#B1785C]" dir="ltr">NUMO SUPPORT</div>
+                  <h2 className="mt-1 text-xl font-black">تحتاج مساعدة؟ فريق نمو معك.</h2>
+                  <p className="mt-2 text-sm leading-7 text-[#74798c]">
+                    دعم تسجيل الدخول، الجهاز الموثوق، الوصول للمقررات والاختبارات.
+                  </p>
+                </div>
               </div>
+
               <div className="flex flex-wrap gap-2">
                 {data.settings.support_whatsapp ? (
                   <a
                     href={data.settings.support_whatsapp}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white"
                   >
-                    <MessageCircle size={17} /> الدعم عبر واتساب
+                    <MessageCircle size={17} /> واتساب
                   </a>
                 ) : null}
                 {data.settings.support_website ? (
@@ -738,16 +713,21 @@ export default function IntensivePortal() {
                     href={data.settings.support_website}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl border border-[#ddd8e5] bg-white px-4 py-3 text-sm font-black"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-4 text-sm font-black"
                   >
-                    الموقع الرسمي
+                    الموقع الرسمي <ChevronLeft size={15} />
                   </a>
                 ) : null}
               </div>
             </div>
           </section>
         ) : null}
-      </div>
+
+        <footer className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#e4e0e7] py-5 text-center text-xs font-bold text-[#9296a5] sm:flex-row sm:text-right">
+          <div>NUMO Platform for Education & Student Services</div>
+          <div dir="ltr">NUMO INTENSIVE · Student Academic Portal</div>
+        </footer>
+      </main>
     </div>
   );
 }
