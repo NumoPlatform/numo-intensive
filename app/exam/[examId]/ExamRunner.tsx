@@ -15,6 +15,9 @@ import {
   Save,
   Send,
   ShieldCheck,
+  RotateCcw,
+  Target,
+  Lightbulb,
 } from "lucide-react";
 
 type ExamInfo = {
@@ -58,6 +61,12 @@ type SectionProgressItem = {
   started_at?: string | null;
   expires_at?: string | null;
   completed_at?: string | null;
+  attempt_count?: number;
+  best_score?: number;
+  best_percentage?: number;
+  last_score?: number;
+  last_percentage?: number;
+  last_attempt_id?: string | null;
 };
 
 type Attempt = {
@@ -116,6 +125,38 @@ type ReviewPayload = {
   wrongQuestions: WrongReviewQuestion[];
 };
 
+type SectionReviewQuestion = WrongReviewQuestion & {
+  correctionEn: string;
+  correctionAr: string;
+  explanationEn: string;
+  explanationAr: string;
+  tipEn: string;
+  tipAr: string;
+};
+
+type SectionResult = {
+  sectionId: string;
+  sectionTitle: string;
+  sectionAttemptId: string;
+  sectionAttemptNumber: number;
+  attemptsAllowed: number;
+  attemptsRemaining: number;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  correctCount: number;
+  wrongCount: number;
+  questionCount: number;
+  bestScore?: number;
+  bestPercentage?: number;
+  review: SectionReviewQuestion[];
+  completedSections?: number;
+  totalSections?: number;
+  allSectionsCompleted?: boolean;
+  sectionProgress?: Record<string, SectionProgressItem>;
+  completedAt?: string | null;
+};
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ar-SA", {
     dateStyle: "medium",
@@ -135,7 +176,7 @@ function formatRemaining(ms: number) {
 export default function ExamRunner() {
   const params = useParams<{ examId: string }>();
   const examId = String(params?.examId ?? "");
-  const [stage, setStage] = useState<"loading" | "intro" | "starting" | "section-select" | "active" | "done">("loading");
+  const [stage, setStage] = useState<"loading" | "intro" | "starting" | "section-select" | "active" | "section-result" | "done">("loading");
   const [exam, setExam] = useState<ExamInfo | null>(null);
   const [previewSections, setPreviewSections] = useState<SectionState[]>([]);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
@@ -152,6 +193,8 @@ export default function ExamRunner() {
   const [pendingGrading, setPendingGrading] = useState(false);
   const [review, setReview] = useState<ReviewPayload | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [sectionResult, setSectionResult] = useState<SectionResult | null>(null);
+  const [sectionResultLoading, setSectionResultLoading] = useState(false);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
