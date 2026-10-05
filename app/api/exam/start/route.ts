@@ -33,22 +33,31 @@ export async function POST(request: NextRequest) {
   if (!body.examId) return NextResponse.json({ ok: false, message: "Select an exam." }, { status: 400 });
 
   try {
-    const attempt = await userRequest<StartResult>(
+    const finalizedAttempts = await userRequest<Array<{
+      id: string;
+      expires_at: string;
+      question_snapshot: unknown[];
+      section_progress: Record<string, unknown>;
+      status: string;
+    }>>(
       auth.accessToken,
-      "/rest/v1/rpc/intensive_start_exam_sectioned",
-      { method: "POST", body: JSON.stringify({ p_exam_id: body.examId }) },
+      "/rest/v1/intensive_exam_attempts?" +
+        new URLSearchParams({
+          select: "id,expires_at,question_snapshot,section_progress,status",
+          exam_id: "eq." + body.examId,
+          student_id: "eq." + auth.profile.id,
+          status: "in.(GRADED,SUBMITTED)",
+          order: "attempt_number.desc",
+          limit: "1",
+        }).toString(),
+      { method: "GET" },
     );
 
-    if (attempt.section_finished) {
-      await userRequest(
-        auth.accessToken,
-        "/rest/v1/rpc/intensive_submit_attempt_sectioned",
-        { method: "POST", body: JSON.stringify({ p_attempt_id: attempt.attempt_id }) },
-      );
-
+    const finalized = finalizedAttempts[0];
+    if (finalized) {
       const resultQuery = new URLSearchParams({
         select: "final_score,total_marks,percentage,status,grading_status,is_published,published_at",
-        attempt_id: "eq." + attempt.attempt_id,
+        attempt_id: "eq." + finalized.id,
         limit: "1",
       });
       const completedResults = await userRequest<Array<{
@@ -74,17 +83,32 @@ export async function POST(request: NextRequest) {
       }>>(
         auth.accessToken,
         "/rest/v1/rpc/intensive_attempt_score_breakdown",
-        { method: "POST", body: JSON.stringify({ p_attempt_id: attempt.attempt_id }) },
+        { method: "POST", body: JSON.stringify({ p_attempt_id: finalized.id }) },
       );
 
       return NextResponse.json({
         ok: true,
-        attempt,
+        attempt: {
+          attempt_id: finalized.id,
+          expires_at: finalized.expires_at,
+          questions: finalized.question_snapshot ?? [],
+          resumed: true,
+          sections: [],
+          section_progress: finalized.section_progress ?? {},
+          current_section_id: null,
+          current_section_expires_at: null,
+          section_finished: true,
+        },
         answers: [],
         completedResult: completedResults[0] ?? null,
         sectionBreakdown,
       });
     }
+    const attempt = await userRequest<StartResult>(
+      auth.accessToken,
+      "/rest/v1/rpc/intensive_start_exam_sectioned",
+      { method: "POST", body: JSON.stringify({ p_exam_id: body.examId }) },
+    );
 
     const answers = (attempt.answers ?? []).map((item) => ({
       question_id: item.questionId,
