@@ -9,7 +9,7 @@ This source tree is self-contained and is deployed independently.
 - Next.js application at repository root
 - Dedicated Supabase project
 - Dedicated Auth, PostgreSQL database, Storage, RLS, RPCs and Edge Functions
-- Dedicated Vercel project: `numo-intensive-standalone`
+- Dedicated Vercel project: `numo-intensive`
 - Production domain target: `intensive.numo.academy`
 - No imports from Advisor, Observatory, Planner, Track or any previous NUMO/AOU application
 - No legacy `NUMO_SUPABASE_*` environment variables
