@@ -55,6 +55,7 @@ export async function PATCH(request: NextRequest) {
     attemptsAllowed?: number;
     passingScore?: number | null;
     resultRelease?: string;
+    sectionDurations?: Record<string, number>;
   };
 
   const examId = String(body.examId ?? "");
@@ -102,7 +103,8 @@ export async function PATCH(request: NextRequest) {
     body.endsAt !== undefined ||
     body.durationMinutes !== undefined ||
     body.attemptsAllowed !== undefined ||
-    body.passingScore !== undefined;
+    body.passingScore !== undefined ||
+    body.sectionDurations !== undefined;
 
   if (structuralChange) {
     const attempts = await serviceRequest<Array<{ id: string }>>(
@@ -117,6 +119,37 @@ export async function PATCH(request: NextRequest) {
         { ok: false, message: "Timing, attempt limits, and passing score cannot be changed after an attempt has started. You can still update descriptive text and the result release policy." },
         { status: 409 },
       );
+    }
+  }
+
+  let sectionDurationEntries: Array<[string, number]> = [];
+  if (body.sectionDurations !== undefined) {
+    sectionDurationEntries = Object.entries(body.sectionDurations).map(([sectionId, minutes]) => [
+      sectionId,
+      Number(minutes),
+    ]);
+    if (
+      !sectionDurationEntries.length ||
+      sectionDurationEntries.some(([sectionId, minutes]) =>
+        !sectionId || !Number.isInteger(minutes) || minutes < 1 || minutes > 240
+      )
+    ) {
+      return NextResponse.json(
+        { ok: false, message: "Each section duration must be between 1 and 240 minutes." },
+        { status: 400 },
+      );
+    }
+
+    const sectionIds = sectionDurationEntries.map(([sectionId]) => sectionId);
+    const existingSections = await serviceRequest<Array<{ id: string }>>(
+      "/rest/v1/intensive_exam_sections?" + new URLSearchParams({
+        select: "id",
+        exam_id: "eq." + examId,
+      }).toString(),
+    );
+    const allowed = new Set(existingSections.map((item) => item.id));
+    if (sectionIds.some((id) => !allowed.has(id))) {
+      return NextResponse.json({ ok: false, message: "One or more sections do not belong to this exam." }, { status: 400 });
     }
   }
 
@@ -201,22 +234,43 @@ export async function PATCH(request: NextRequest) {
     patch.status = scheduleStatus(String(patch.starts_at ?? exam.starts_at), String(patch.ends_at ?? exam.ends_at));
   }
 
-  if (!Object.keys(patch).length) {
+  if (!Object.keys(patch).length && !sectionDurationEntries.length) {
     return NextResponse.json({ ok: false, message: "There are no changes to save." }, { status: 400 });
   }
 
-  await serviceRequest<unknown>("/rest/v1/intensive_exams?id=eq." + encodeURIComponent(examId), {
-    method: "PATCH",
-    headers: { Prefer: "return=minimal" },
-    body: JSON.stringify(patch),
-  });
+  if (Object.keys(patch).length) {
+    await serviceRequest<unknown>("/rest/v1/intensive_exams?id=eq." + encodeURIComponent(examId), {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify(patch),
+    });
+  }
+
+  for (const [sectionId, timeLimitMinutes] of sectionDurationEntries) {
+    await serviceRequest<unknown>(
+      "/rest/v1/intensive_exam_sections?" + new URLSearchParams({
+        id: "eq." + sectionId,
+        exam_id: "eq." + examId,
+      }).toString(),
+      {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({ time_limit_minutes: timeLimitMinutes }),
+      },
+    );
+  }
 
   await writeIntensiveAudit(
     auth.profile.id,
     "UPDATE_EXAM_SETTINGS",
     "intensive_exams",
     examId,
-    patch,
+    {
+      ...patch,
+      ...(sectionDurationEntries.length
+        ? { sectionDurations: Object.fromEntries(sectionDurationEntries) }
+        : {}),
+    },
   );
 
   return NextResponse.json({ ok: true, status: patch.status ?? exam.status });
