@@ -1,5 +1,6 @@
 "use client";
 
+import NumoBrand from "@/app/components/NumoBrand";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -151,13 +152,7 @@ export default function ExamWizard() {
           <a href="/admin" className="inline-flex items-center gap-2 text-sm font-black text-[#6f7488]">
             <ArrowRight size={17} /> العودة للوحة المدير
           </a>
-          <div className="flex items-center gap-3">
-            <img src="/icon.svg" alt="شعار منصة نمو" className="h-11 w-11 rounded-xl bg-[#1F2B5E] p-1.5" />
-            <div>
-              <div className="font-black">منصة نمو</div>
-              <div className="text-[10px] font-bold tracking-[.12em] text-[#B1785C]" dir="ltr">NUMO INTENSIVE</div>
-            </div>
-          </div>
+          <NumoBrand className="w-24" />
         </div>
 
         <header className="overflow-hidden rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#273976] to-[#6366F1] p-7 text-white shadow-[0_25px_70px_rgba(31,43,94,.22)] sm:p-9">
