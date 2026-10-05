@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   if (!body.examId) return NextResponse.json({ ok: false, message: "Select an exam." }, { status: 400 });
 
   try {
-    const finalizedAttempts = await userRequest<Array<{
+    const latestAttempts = await userRequest<Array<{
       id: string;
       expires_at: string;
       question_snapshot: unknown[];
@@ -46,15 +46,15 @@ export async function POST(request: NextRequest) {
           select: "id,expires_at,question_snapshot,section_progress,status",
           exam_id: "eq." + body.examId,
           student_id: "eq." + auth.profile.id,
-          status: "in.(GRADED,SUBMITTED)",
+          status: "in.(IN_PROGRESS,GRADED,SUBMITTED)",
           order: "attempt_number.desc",
           limit: "1",
         }).toString(),
       { method: "GET" },
     );
 
-    const finalized = finalizedAttempts[0];
-    if (finalized) {
+    const finalized = latestAttempts[0];
+    if (finalized && finalized.status !== "IN_PROGRESS") {
       const resultQuery = new URLSearchParams({
         select: "final_score,total_marks,percentage,status,grading_status,is_published,published_at",
         attempt_id: "eq." + finalized.id,
