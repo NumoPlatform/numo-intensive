@@ -26,6 +26,13 @@ export function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
+  const scriptSources = ["'self'", "'unsafe-inline'"];
+
+  // React Fast Refresh evaluates the development bundle at runtime. Keep that
+  // exception local to `next dev`; the production policy remains strict.
+  if (process.env.NODE_ENV !== "production") {
+    scriptSources.push("'unsafe-eval'");
+  }
 
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
@@ -44,7 +51,7 @@ export function middleware(request: NextRequest) {
       "form-action 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src ${scriptSources.join(" ")}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",

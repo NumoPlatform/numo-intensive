@@ -2,9 +2,13 @@
   "name": "numo-intensive",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "verify": "node scripts/check-isolation.mjs && tsc --noEmit",
-    "prebuild": "npm run verify",
+    "prebuild": "node scripts/check-isolation.mjs && tsc --noEmit",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
