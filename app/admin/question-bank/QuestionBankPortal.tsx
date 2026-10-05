@@ -1,5 +1,6 @@
 "use client";
 
+import NumoBrand from "@/app/components/NumoBrand";
 import { useEffect, useMemo, useState } from "react";
 import { intensiveFetch } from "@/lib/intensive/client";
 import {
@@ -204,7 +205,9 @@ export default function QuestionBankPortal() {
         </div>
 
         <header className="relative mb-7 overflow-hidden rounded-[1.9rem] bg-gradient-to-br from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-7 text-white shadow-[0_24px_70px_rgba(31,43,94,.22)] sm:p-8">
-          <img src="/icon.svg" alt="شعار منصة نمو" className="absolute left-7 top-7 h-14 w-14 rounded-2xl border border-white/15 bg-white/10 p-2" />
+          <div className="absolute left-5 top-5 hidden sm:block">
+            <NumoBrand className="w-20" inverse />
+          </div>
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]">
