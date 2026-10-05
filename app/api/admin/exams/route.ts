@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     attemptsAllowed?: number;
     resultRelease?: "IMMEDIATE" | "AFTER_END" | "MANUAL";
     sectionDurationMinutes?: number;
+    sectionDurations?: Record<string, number>;
     skills?: string[];
   };
 
@@ -37,10 +38,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, message: "الأقسام المطلوبة هي Grammar وVocabulary وReading فقط." }, { status: 400 });
   }
 
+  const fallbackSectionMinutes = Number(body.sectionDurationMinutes ?? 30);
+  const sectionDurations = Object.fromEntries(
+    skills.map((skill) => [
+      skill,
+      Number(body.sectionDurations?.[skill] ?? fallbackSectionMinutes),
+    ]),
+  );
+  if (Object.values(sectionDurations).some((value) => !Number.isInteger(value) || value < 1 || value > 240)) {
+    return NextResponse.json({ ok: false, message: "مدة كل قسم يجب أن تكون بين 1 و240 دقيقة." }, { status: 400 });
+  }
+
   try {
     const result = await userRequest<{ exam_id: string; sections: unknown[] }>(
       auth.accessToken,
-      "/rest/v1/rpc/intensive_admin_create_exam_timed",
+      "/rest/v1/rpc/intensive_admin_create_exam_with_section_times",
       {
         method: "POST",
         body: JSON.stringify({
@@ -54,7 +66,7 @@ export async function POST(request: NextRequest) {
           p_skills: skills,
           p_attempts_allowed: Number(body.attemptsAllowed ?? 1),
           p_result_release: body.resultRelease ?? "MANUAL",
-          p_section_time_minutes: Number(body.sectionDurationMinutes ?? 30),
+          p_section_times: sectionDurations,
         }),
       },
     );
