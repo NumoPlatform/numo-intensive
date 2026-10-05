@@ -39,7 +39,11 @@ const initial = {
   description: "",
   startsAt: "",
   endsAt: "",
-  sectionDurationMinutes: 30,
+  sectionDurations: {
+    Grammar: 30,
+    Vocabulary: 30,
+    Reading: 30,
+  },
   attemptsAllowed: 4,
   resultRelease: "IMMEDIATE",
 };
@@ -82,7 +86,11 @@ export default function ExamWizard() {
           const defaults = (settingsPayload.settings ?? {}) as ExamDefaults;
           setForm((current) => ({
             ...current,
-            sectionDurationMinutes: Number(defaults.default_section_minutes ?? current.sectionDurationMinutes),
+            sectionDurations: {
+              Grammar: Number(defaults.default_section_minutes ?? current.sectionDurations.Grammar),
+              Vocabulary: Number(defaults.default_section_minutes ?? current.sectionDurations.Vocabulary),
+              Reading: Number(defaults.default_section_minutes ?? current.sectionDurations.Reading),
+            },
             attemptsAllowed: Number(defaults.default_attempts ?? current.attemptsAllowed),
             resultRelease: defaults.default_result_release ?? current.resultRelease,
           }));
@@ -119,7 +127,11 @@ export default function ExamWizard() {
           ...form,
           startsAt: riyadhLocalToIso(form.startsAt),
           endsAt: riyadhLocalToIso(form.endsAt),
-          durationMinutes: form.sectionDurationMinutes * 3,
+          durationMinutes:
+            form.sectionDurations.Grammar +
+            form.sectionDurations.Vocabulary +
+            form.sectionDurations.Reading,
+          sectionDurations: form.sectionDurations,
           skills: ["Grammar", "Vocabulary", "Reading"],
         }),
       });
@@ -248,16 +260,39 @@ export default function ExamWizard() {
                 </label>
               </div>
               <div className="mt-5 rounded-2xl border border-[#e8e4ec] bg-[#faf9fb] p-5">
-                <div className="flex items-center gap-2 font-black"><CalendarClock size={19} className="text-[#6366F1]" /> مدة القسم</div>
-                <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-black">الدقائق لكل قسم</span>
-                    <input className="field" type="number" min={1} max={240} value={form.sectionDurationMinutes} onChange={(e)=>setForm({...form,sectionDurationMinutes:Number(e.target.value)})} />
-                  </label>
-                  <div className="rounded-xl bg-white px-5 py-3 text-center shadow-sm">
-                    <div className="text-2xl font-black">{form.sectionDurationMinutes * 3}</div>
-                    <div className="text-[11px] text-[#818596]">دقيقة إجمالية</div>
+                <div className="flex items-center gap-2 font-black"><CalendarClock size={19} className="text-[#6366F1]" /> توقيت الأقسام</div>
+                <p className="mt-2 text-sm leading-7 text-[#777c8f]">
+                  يملك مدير النظام صلاحية تحديد مدة مستقلة لكل Section. يبدأ المؤقت فقط عندما يختار الطالب فتح ذلك القسم.
+                </p>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                  {(["Grammar","Vocabulary","Reading"] as const).map((section) => (
+                    <label key={section} className="block rounded-2xl border border-[#e5e1e9] bg-white p-4">
+                      <span dir="ltr" className="mb-2 block text-sm font-black">{section}</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          className="field"
+                          type="number"
+                          min={1}
+                          max={240}
+                          value={form.sectionDurations[section]}
+                          onChange={(e)=>setForm({
+                            ...form,
+                            sectionDurations: {
+                              ...form.sectionDurations,
+                              [section]: Number(e.target.value),
+                            },
+                          })}
+                        />
+                        <span className="text-xs font-bold text-[#818596]">دقيقة</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-4 rounded-xl bg-white px-5 py-3 text-center shadow-sm">
+                  <div className="text-2xl font-black">
+                    {form.sectionDurations.Grammar + form.sectionDurations.Vocabulary + form.sectionDurations.Reading}
                   </div>
+                  <div className="text-[11px] text-[#818596]">إجمالي وقت الأقسام</div>
                 </div>
               </div>
             </div>
@@ -287,11 +322,11 @@ export default function ExamWizard() {
               <div className="mt-5">
                 <div className="mb-3 text-sm font-black">الأقسام التي ستُنشأ تلقائيا</div>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  {["Grammar","Vocabulary","Reading"].map((item,index)=>(
+                  {(["Grammar","Vocabulary","Reading"] as const).map((item,index)=>(
                     <div key={item} className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-4">
                       <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#1F2B5E] text-xs font-black text-white">{index+1}</div>
                       <div className="mt-3 text-lg font-black" dir="ltr">{item}</div>
-                      <div className="mt-1 text-xs text-[#818596]">{form.sectionDurationMinutes} دقيقة · {form.attemptsAllowed} محاولات</div>
+                      <div className="mt-1 text-xs text-[#818596]">{form.sectionDurations[item]} دقيقة · {form.attemptsAllowed} محاولات</div>
                     </div>
                   ))}
                 </div>
@@ -320,7 +355,7 @@ export default function ExamWizard() {
                     ["وقت البداية", form.startsAt || "—"],
                     ["وقت الإغلاق", form.endsAt || "—"],
                     ["الأقسام", "Grammar · Vocabulary · Reading"],
-                    ["مدة كل قسم", form.sectionDurationMinutes + " دقيقة"],
+                    ["توقيت الأقسام", "Grammar " + form.sectionDurations.Grammar + " · Vocabulary " + form.sectionDurations.Vocabulary + " · Reading " + form.sectionDurations.Reading + " دقيقة"],
                     ["المحاولات", String(form.attemptsAllowed)],
                     ["النتيجة", form.resultRelease === "IMMEDIATE" ? "مباشرة" : form.resultRelease === "AFTER_END" ? "بعد الإغلاق" : "يدوية"],
                   ].map(([label,value])=>(
