@@ -49,8 +49,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       result: {
-        ...result,
+        sectionId: result.section_id,
+        sectionTitle: result.section_title,
+        sectionAttemptId: result.section_attempt_id,
+        sectionAttemptNumber: Number(result.section_attempt_number ?? 1),
+        attemptsAllowed: Number(result.attempts_allowed ?? 1),
+        attemptsRemaining: Number(result.attempts_remaining ?? 0),
+        score: Number(result.score ?? 0),
+        totalMarks: Number(result.total_marks ?? 0),
+        percentage: Number(result.percentage ?? 0),
+        correctCount: Number(result.correct_count ?? 0),
+        wrongCount: Number(result.wrong_count ?? 0),
+        questionCount: Number(result.question_count ?? 0),
+        bestScore: Number(result.best_score ?? 0),
+        bestPercentage: Number(result.best_percentage ?? 0),
         review: (result.review ?? []).map(enrichSectionReview),
+        completedSections: Number(result.completed_sections ?? 0),
+        totalSections: Number(result.total_sections ?? 0),
+        allSectionsCompleted: Boolean(result.finished),
+        sectionProgress: result.section_progress ?? {},
       },
     });
   } catch (error) {
