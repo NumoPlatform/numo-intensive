@@ -525,6 +525,52 @@ export default function ExamRunner() {
     0,
     sections.findIndex((section) => section.id === activeSectionId),
   );
+  const activeSectionTitle = sections[activeSectionIndex]?.title ?? "";
+  const isReadingSection =
+    activeSectionTitle.toLowerCase() === "reading" &&
+    activeQuestions.some((question) => Boolean(question.passage));
+
+  const passageIds = isReadingSection
+    ? activeQuestions.reduce<string[]>((list, question) => {
+        const passageId = question.passage?.id;
+        if (passageId && !list.includes(passageId)) list.push(passageId);
+        return list;
+      }, [])
+    : [];
+
+  const currentPassageId = isReadingSection
+    ? current?.passage?.id ?? passageIds[0] ?? null
+    : null;
+  const currentPassageIndex = currentPassageId ? Math.max(0, passageIds.indexOf(currentPassageId)) : 0;
+
+  const visibleQuestionEntries = activeQuestions
+    .map((question, globalIndex) => ({ question, globalIndex }))
+    .filter(({ question }) => !isReadingSection || question.passage?.id === currentPassageId);
+
+  const localQuestionIndex = Math.max(
+    0,
+    visibleQuestionEntries.findIndex(({ globalIndex }) => globalIndex === currentIndex),
+  );
+
+  const passageAnsweredCount = visibleQuestionEntries.filter(({ question }) => {
+    const value = answers[question.id];
+    return value !== undefined && value !== null && String(value).trim() !== "";
+  }).length;
+
+  const hasNextPassage =
+    isReadingSection && currentPassageIndex < passageIds.length - 1;
+
+  function moveToNextPassage() {
+    if (!hasNextPassage) return;
+    const nextPassageId = passageIds[currentPassageIndex + 1];
+    const nextGlobalIndex = activeQuestions.findIndex(
+      (question) => question.passage?.id === nextPassageId,
+    );
+    if (nextGlobalIndex >= 0) {
+      setCurrentIndex(nextGlobalIndex);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
   const sectionCompleted = (sectionId: string) =>
     Boolean(attempt?.section_progress?.[sectionId]?.completed_at);
   const completedSectionsCount = sections.filter((section) => sectionCompleted(section.id)).length;
@@ -883,10 +929,16 @@ export default function ExamRunner() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[11px] font-black text-[#B1785C]">{sections[activeSectionIndex]?.title ?? "Section"}</div>
-              <div className="text-sm font-black">Question {currentIndex + 1} of {activeQuestions.length}</div>
+              <div className="text-sm font-black">
+                {isReadingSection
+                  ? `Passage ${currentPassageIndex + 1} of ${passageIds.length} · Question ${localQuestionIndex + 1} of ${visibleQuestionEntries.length}`
+                  : `Question ${currentIndex + 1} of ${activeQuestions.length}`}
+              </div>
             </div>
             <div className="rounded-lg bg-[#f4f2f7] px-2.5 py-1.5 text-xs font-black text-[#686e84]">
-              {answeredCount}/{activeQuestions.length} answered
+              {isReadingSection
+                ? passageAnsweredCount + "/" + visibleQuestionEntries.length + " answered"
+                : answeredCount + "/" + activeQuestions.length + " answered"}
             </div>
           </div>
 
@@ -909,7 +961,7 @@ export default function ExamRunner() {
           </div>
 
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-            {activeQuestions.map((question, index) => {
+            {visibleQuestionEntries.map(({ question, globalIndex }, index) => {
               const filled =
                 answers[question.id] !== undefined &&
                 answers[question.id] !== null &&
@@ -918,10 +970,10 @@ export default function ExamRunner() {
                 <button
                   key={question.id}
                   type="button"
-                  onClick={() => setCurrentIndex(index)}
+                  onClick={() => setCurrentIndex(globalIndex)}
                   className={
                     "relative grid h-10 w-10 shrink-0 place-items-center rounded-lg border text-xs font-black " +
-                    (index === currentIndex
+                    (globalIndex === currentIndex
                       ? "border-[#1F2B5E] bg-[#1F2B5E] text-white"
                       : filled
                         ? "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -938,8 +990,12 @@ export default function ExamRunner() {
 
         <aside className="hidden rounded-[1.5rem] border border-[#e3dfe8] bg-white p-4 shadow-sm xl:sticky xl:top-24 xl:block xl:h-fit">
           <div className="mb-4 flex items-center justify-between">
-            <strong>Questions</strong>
-            <span className="text-xs font-black text-[#74798d]">{answeredCount}/{activeQuestions.length}</span>
+            <strong>{isReadingSection ? `Passage ${currentPassageIndex + 1} of ${passageIds.length}` : "Questions"}</strong>
+            <span className="text-xs font-black text-[#74798d]">
+              {isReadingSection
+                ? passageAnsweredCount + "/" + visibleQuestionEntries.length
+                : answeredCount + "/" + activeQuestions.length}
+            </span>
           </div>
 
           <div className="mb-4 space-y-2">
@@ -964,15 +1020,15 @@ export default function ExamRunner() {
           </div>
 
           <div className="grid grid-cols-5 gap-2 lg:grid-cols-4">
-            {activeQuestions.map((question, index) => {
+            {visibleQuestionEntries.map(({ question, globalIndex }, index) => {
               const filled = answers[question.id] !== undefined && answers[question.id] !== null && String(answers[question.id]).trim() !== "";
               return (
                 <button
                   key={question.id}
-                  onClick={() => setCurrentIndex(index)}
+                  onClick={() => setCurrentIndex(globalIndex)}
                   className={
                     "relative grid aspect-square place-items-center rounded-lg border text-sm font-black transition " +
-                    (index === currentIndex
+                    (globalIndex === currentIndex
                       ? "border-[#1F2B5E] bg-[#1F2B5E] text-white"
                       : filled
                         ? "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -992,7 +1048,9 @@ export default function ExamRunner() {
             <div>
               <div className="text-xs font-black text-[#B1785C]">{current.sectionTitle} · {current.skill}</div>
               <div className="mt-1 font-black">
-                Question {currentIndex + 1} of {activeQuestions.length} · Section {activeSectionIndex + 1} of {sections.length}
+                {isReadingSection
+                  ? `Passage ${currentPassageIndex + 1} of ${passageIds.length} · Question ${localQuestionIndex + 1} of ${visibleQuestionEntries.length}`
+                  : `Question ${currentIndex + 1} of ${activeQuestions.length} · Section ${activeSectionIndex + 1} of ${sections.length}`}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -1015,7 +1073,10 @@ export default function ExamRunner() {
               <section className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#e1dde7] bg-white p-4 shadow-sm sm:p-6">
                 <div className="mb-4 flex items-center gap-2 text-[#B1785C]">
                   <BookOpen size={19} />
-                  <strong>{current.passage.title}</strong>
+                  <strong>
+                    {isReadingSection ? `Passage ${currentPassageIndex + 1} of ${passageIds.length} · ` : ""}
+                    {current.passage.title}
+                  </strong>
                 </div>
                 <div dir="ltr" className="max-h-[52vh] overflow-y-auto whitespace-pre-wrap break-words text-left text-[15px] leading-8 text-[#3e4356] sm:max-h-none sm:text-base sm:leading-9">
                   {current.passage.body}
@@ -1027,7 +1088,9 @@ export default function ExamRunner() {
             ) : null}
 
             <section className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#dfe2ec] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
-              <div className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">Question {currentIndex + 1}</div>
+              <div className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">
+                Question {isReadingSection ? localQuestionIndex + 1 : currentIndex + 1}
+              </div>
               <div dir="ltr" className="w-full break-words rounded-2xl border border-[#dfe3f1] bg-[#f7f8fc] px-4 py-5 text-left text-[1.05rem] font-black leading-8 text-[#1F2B5E] shadow-inner sm:px-5 sm:py-6 sm:text-xl sm:leading-9">
                 {current.prompt || "Question text is unavailable. Please contact NUMO support."}
               </div>
@@ -1104,14 +1167,40 @@ export default function ExamRunner() {
           <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-[#e3dfe8] bg-white p-3 shadow-sm sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:p-4">
             <button
               type="button"
-              disabled={currentIndex === 0}
-              onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+              disabled={isReadingSection ? localQuestionIndex === 0 : currentIndex === 0}
+              onClick={() => {
+                if (isReadingSection) {
+                  const previous = visibleQuestionEntries[localQuestionIndex - 1];
+                  if (previous) setCurrentIndex(previous.globalIndex);
+                } else {
+                  setCurrentIndex((index) => Math.max(0, index - 1));
+                }
+              }}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-3 text-sm font-black disabled:opacity-40 sm:w-auto sm:px-4 sm:text-base"
             >
               <ArrowRight size={18} /> Previous
             </button>
 
-            {currentIndex < activeQuestions.length - 1 ? (
+            {isReadingSection && localQuestionIndex < visibleQuestionEntries.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = visibleQuestionEntries[localQuestionIndex + 1];
+                  if (next) setCurrentIndex(next.globalIndex);
+                }}
+                className="btn w-full px-3 text-sm sm:w-auto sm:px-5 sm:text-base"
+              >
+                Next Question <ArrowLeft size={18} />
+              </button>
+            ) : isReadingSection && hasNextPassage ? (
+              <button
+                type="button"
+                onClick={moveToNextPassage}
+                className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
+              >
+                Next Passage <BookOpen size={18} />
+              </button>
+            ) : !isReadingSection && currentIndex < activeQuestions.length - 1 ? (
               <button
                 type="button"
                 onClick={() => setCurrentIndex((index) => Math.min(activeQuestions.length - 1, index + 1))}
