@@ -98,11 +98,12 @@ export async function PATCH(request: NextRequest) {
   }
 
   const protectedChange =
-    body.category !== undefined ||
-    body.startsAt !== undefined ||
-    body.endsAt !== undefined ||
-    body.attemptsAllowed !== undefined ||
-    body.passingScore !== undefined;
+    (body.category !== undefined && body.category !== exam.category) ||
+    (body.startsAt !== undefined && new Date(body.startsAt).getTime() !== new Date(exam.starts_at).getTime()) ||
+    (body.endsAt !== undefined && new Date(body.endsAt).getTime() !== new Date(exam.ends_at).getTime()) ||
+    (body.attemptsAllowed !== undefined && Number(body.attemptsAllowed) !== Number(exam.attempts_allowed)) ||
+    (body.passingScore !== undefined &&
+      (body.passingScore === null ? exam.passing_score !== null : Number(body.passingScore) !== Number(exam.passing_score)));
 
   if (protectedChange) {
     const attempts = await serviceRequest<Array<{ id: string }>>(
