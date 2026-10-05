@@ -1,5 +1,6 @@
 "use client";
 
+import NumoBrand from "@/app/components/NumoBrand";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import {
@@ -374,7 +375,7 @@ export default function ExamManager() {
           <div className="flex items-center gap-2">
             <a href="/admin/question-bank" className="rounded-xl border border-[#ddd8e5] bg-white px-4 py-2 text-xs font-black shadow-sm">بنك الأسئلة</a>
             <a href="/admin/exams/new" className="rounded-xl bg-[#1F2B5E] px-4 py-2 text-xs font-black text-white shadow-sm">اختبار جديد</a>
-            <img src="/icon.svg" alt="شعار منصة نمو" className="h-10 w-10 rounded-xl bg-[#1F2B5E] p-1.5" />
+            <NumoBrand className="w-20" />
           </div>
         </div>
 
