@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import NumoBrand from "@/app/components/NumoBrand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useState } from "react";
@@ -218,9 +219,8 @@ export default function IntensivePortal() {
             <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/30 blur-3xl" />
             <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
             <div className="relative">
-              <div className="mb-10 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black">
-                <GraduationCap size={20} />
-                NUMO INTENSIVE
+              <div className="mb-9 inline-flex rounded-[1.4rem] border border-white/15 bg-white p-2 shadow-2xl shadow-black/15">
+                <NumoBrand className="w-28" priority inverse />
               </div>
               <p className="mb-3 text-sm font-black tracking-wide text-[#e9c2ad]">تعلم مركز. استعداد أذكى.</p>
               <h1 className="max-w-2xl text-4xl font-black leading-[1.35] lg:text-6xl">
@@ -249,6 +249,7 @@ export default function IntensivePortal() {
             className="rounded-[2rem] border border-[#e4e1eb] bg-white p-7 shadow-[0_24px_70px_rgba(31,43,94,.12)] lg:p-10"
           >
             <div className="mb-8">
+              <NumoBrand className="w-24" priority />
               <div className="inline-flex items-center gap-2 rounded-full bg-[#f8f0ec] px-3 py-1.5 text-sm font-black text-[#9a6249]">
                 <Sparkles size={15} /> منصة نمو
               </div>
@@ -308,15 +309,7 @@ export default function IntensivePortal() {
     <div className="min-h-screen px-4 py-7 text-[#1F2B5E] sm:py-9">
       <div className="mx-auto max-w-7xl">
         <header className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-[1.5rem] border border-[#e3dfE8] bg-white px-5 py-4 shadow-[0_14px_40px_rgba(31,43,94,.07)]">
-          <div className="flex items-center gap-3">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[#1F2B5E] shadow-lg shadow-[#1F2B5E]/20">
-              <img src="/icon.svg" alt="شعار منصة نمو" className="h-10 w-10" />
-            </div>
-            <div>
-              <div className="text-lg font-black text-[#1F2B5E]">منصة نمو</div>
-              <div className="text-xs font-bold tracking-[.14em] text-[#B1785C]" dir="ltr">NUMO INTENSIVE</div>
-            </div>
-          </div>
+          <NumoBrand className="w-24 sm:w-28" priority />
           <div className="hidden items-center gap-2 text-sm font-black text-[#60667b] md:flex">
             <span className="rounded-xl bg-[#f4f3fb] px-4 py-2">الرئيسية</span>
             <span className="rounded-xl px-4 py-2">دوراتي</span>
