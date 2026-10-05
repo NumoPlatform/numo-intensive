@@ -50,11 +50,13 @@ export async function GET(request: NextRequest) {
           student_id: "eq." + auth.profile.id,
           status: "in.(GRADED,EXPIRED)",
           order: "attempt_number.desc",
-          limit: "1",
         }).toString(),
     );
 
     const latest = attempts[0];
+    const best = [...attempts].sort(
+      (a, b) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0),
+    )[0];
     if (!latest) {
       return NextResponse.json({ ok: false, message: "No completed result is available for this section yet." }, { status: 404 });
     }
@@ -80,6 +82,29 @@ export async function GET(request: NextRequest) {
     );
     const attemptsAllowed = Number(exams[0]?.attempts_allowed ?? 1);
 
+    const [allSections, completedSectionAttempts] = await Promise.all([
+      serviceRequest<Array<{ id: string }>>(
+        "/rest/v1/intensive_exam_sections?" +
+          new URLSearchParams({
+            select: "id",
+            exam_id: "eq." + section.exam_id,
+            is_enabled: "eq.true",
+          }).toString(),
+      ),
+      serviceRequest<Array<{ section_id: string }>>(
+        "/rest/v1/intensive_section_attempts?" +
+          new URLSearchParams({
+            select: "section_id",
+            exam_attempt_id: "eq." + attemptId,
+            student_id: "eq." + auth.profile.id,
+            status: "in.(GRADED,EXPIRED)",
+          }).toString(),
+      ),
+    ]);
+    const completedSectionIds = new Set(completedSectionAttempts.map((item) => item.section_id));
+    const allSectionsCompleted =
+      allSections.length > 0 && allSections.every((item) => completedSectionIds.has(item.id));
+
     return NextResponse.json({
       ok: true,
       result: {
@@ -92,10 +117,13 @@ export async function GET(request: NextRequest) {
         score: Number(latest.score ?? 0),
         totalMarks: Number(latest.total_marks ?? 0),
         percentage: Number(latest.percentage ?? 0),
+        bestScore: Number(best?.score ?? latest.score ?? 0),
+        bestPercentage: Number(best?.percentage ?? latest.percentage ?? 0),
         correctCount: Number(latest.correct_count ?? 0),
         wrongCount: Number(latest.wrong_count ?? 0),
         questionCount: Number(latest.correct_count ?? 0) + Number(latest.wrong_count ?? 0),
         review: (latest.review_snapshot ?? []).map(enrichSectionReview),
+        allSectionsCompleted,
         completedAt: latest.completed_at,
       },
     });
