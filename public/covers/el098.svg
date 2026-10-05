@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dfe8f7"/><stop offset=".7" stop-color="#9fb6d8"/></linearGradient><linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3d6db3"/><stop offset="1" stop-color="#17335f"/></linearGradient></defs>
+<rect width="1600" height="900" fill="url(#sky)"/><rect y="590" width="1600" height="310" fill="url(#water)"/>
+<path d="M-80 565 C340 420 760 470 1180 535 C1360 560 1510 555 1680 510" fill="none" stroke="#eef3fb" stroke-width="54"/>
+<path d="M-80 565 C340 420 760 470 1180 535 C1360 560 1510 555 1680 510" fill="none" stroke="#4c566f" stroke-width="28"/>
+<g stroke="#56637b" stroke-width="5"><path d="M280 480V640"/><path d="M510 446V640"/><path d="M750 458V650"/><path d="M1010 494V665"/><path d="M1270 530V665"/></g>
+<rect x="75" y="75" width="1450" height="750" rx="48" fill="none" stroke="#1F2B5E" stroke-opacity=".2" stroke-width="2"/>
+<g font-family="Arial, sans-serif" fill="#1F2B5E"><text x="105" y="150" font-size="34" font-weight="700">NUMO INTENSIVE</text><text x="105" y="675" font-size="118" font-weight="800">EL098</text><text x="105" y="738" font-size="36" font-weight="700">English for the 21st Century · Level 2</text></g>
+<rect x="105" y="775" width="300" height="8" rx="4" fill="#6366F1"/></svg>
