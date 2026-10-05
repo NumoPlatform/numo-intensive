@@ -742,7 +742,8 @@ export default function ExamRunner() {
   }
 
   if (stage === "section-select" && attempt) {
-    const availableSections = sections.filter((section) => !sectionCompleted(section.id));
+    const canFinishExam = sections.length > 0 && completedSectionsCount === sections.length;
+
     return (
       <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
         <div className="mx-auto max-w-5xl">
@@ -755,14 +756,14 @@ export default function ExamRunner() {
               <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">Choose your section</div>
               <h1 className="mt-2 text-2xl font-black sm:text-3xl">{exam?.title ?? "Exam"}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">
-                اختر أي قسم تريد البدء به. لا يوجد ترتيب إجباري، ويبدأ مؤقت القسم فقط عند فتحه.
+                اختر أي Section تريد. بعد كل محاولة تظهر الدرجة والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة حتى حد المحاولات المسموح.
               </p>
             </div>
 
             <div className="p-4 sm:p-7">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#f7f7fa] px-4 py-3 text-sm">
                 <span className="font-black">Completed {completedSectionsCount} / {sections.length}</span>
-                <span className="font-bold text-[#72778b]">يمكنك اختيار أي قسم متبق</span>
+                <span className="font-bold text-[#72778b]">أفضل نتيجة لكل Section هي التي تدخل في النتيجة النهائية</span>
               </div>
 
               {message ? (
@@ -775,13 +776,19 @@ export default function ExamRunner() {
                 {sections.map((section) => {
                   const completed = sectionCompleted(section.id);
                   const count = questions.filter((question) => question.sectionId === section.id).length;
+                  const progress = attempt.section_progress?.[section.id] ?? {};
+                  const attemptCount = Number(progress.attempt_count ?? (completed ? 1 : 0));
+                  const allowed = Number(exam?.attempts_allowed ?? 1);
+                  const remainingAttempts = Math.max(0, allowed - attemptCount);
+                  const bestPercentage = progress.best_percentage;
+
                   return (
                     <article
                       key={section.id}
                       className={
                         "rounded-[1.4rem] border p-5 transition " +
                         (completed
-                          ? "border-emerald-100 bg-emerald-50/70"
+                          ? "border-emerald-100 bg-emerald-50/60"
                           : "border-[#e0dce7] bg-white shadow-sm")
                       }
                     >
@@ -796,32 +803,249 @@ export default function ExamRunner() {
                           <Clock3 size={22} className="text-[#6366F1]" />
                         )}
                       </div>
+
                       <div className="mt-5 grid grid-cols-2 gap-2 text-center">
-                        <div className="rounded-xl bg-[#f6f5f8] px-3 py-3">
+                        <div className="rounded-xl bg-white/80 px-3 py-3">
                           <div className="text-lg font-black">{section.timeLimitMinutes}</div>
                           <div className="text-[11px] text-[#7b8092]">minutes</div>
                         </div>
-                        <div className="rounded-xl bg-[#f6f5f8] px-3 py-3">
+                        <div className="rounded-xl bg-white/80 px-3 py-3">
                           <div className="text-lg font-black">{count}</div>
                           <div className="text-[11px] text-[#7b8092]">questions</div>
                         </div>
                       </div>
+
+                      <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-[#e7e3eb] bg-white px-3 py-2 text-xs font-black">
+                        <span>{remainingAttempts} attempts left</span>
+                        {bestPercentage !== undefined ? (
+                          <span className="text-emerald-700">Best {Number(bestPercentage).toFixed(0)}%</span>
+                        ) : (
+                          <span className="text-[#85899a]">Not attempted</span>
+                        )}
+                      </div>
+
                       <button
                         type="button"
-                        disabled={completed || advancing}
+                        disabled={remainingAttempts <= 0 || advancing}
                         onClick={() => void selectSection(section.id)}
-                        className={completed ? "mt-4 w-full rounded-xl bg-emerald-100 px-4 py-3 text-sm font-black text-emerald-800" : "btn mt-4 w-full"}
+                        className="btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {completed ? "Completed" : advancing ? <><Loader2 size={17} className="animate-spin" /> Opening...</> : "Start this section"}
+                        {advancing ? (
+                          <><Loader2 size={17} className="animate-spin" /> Opening...</>
+                        ) : completed ? (
+                          <><RotateCcw size={17} /> Try again</>
+                        ) : (
+                          <><Target size={17} /> Start this section</>
+                        )}
                       </button>
+
+                      {completed ? (
+                        <button
+                          type="button"
+                          disabled={sectionResultLoading}
+                          onClick={() => void loadSectionResult(section.id)}
+                          className="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#dcd8e4] bg-white px-4 text-sm font-black text-[#1F2B5E]"
+                        >
+                          {sectionResultLoading ? <Loader2 size={16} className="animate-spin" /> : <BookOpen size={16} />}
+                          View score & corrections
+                        </button>
+                      ) : null}
+
+                      {remainingAttempts <= 0 ? (
+                        <div className="mt-2 rounded-xl bg-[#f0eff4] px-3 py-2 text-center text-xs font-black text-[#777c8f]">
+                          All attempts used
+                        </div>
+                      ) : null}
                     </article>
                   );
                 })}
               </div>
 
-              {!availableSections.length ? (
-                <button onClick={() => void submitAttempt(true, true)} className="btn mt-6 w-full">
-                  <Send size={18} /> Submit exam & show result
+              {canFinishExam ? (
+                <div className="mt-6 rounded-2xl border border-[#dcd8e5] bg-[#faf9fc] p-4">
+                  <div className="mb-3 text-center text-sm font-bold leading-7 text-[#6f7489]">
+                    أكملت محاولة واحدة على الأقل في جميع الأقسام. يمكنك تحسين أي Section أولا، أو إنهاء الاختبار واعتماد أفضل درجة لكل قسم.
+                  </div>
+                  <button
+                    onClick={() => void submitAttempt(false, true)}
+                    disabled={submitting}
+                    className="btn w-full"
+                  >
+                    {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    Finish exam using best section scores
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "section-result" && attempt && sectionResult) {
+    const hasRetry = sectionResult.attemptsRemaining > 0;
+
+    return (
+      <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
+        <div className="mx-auto max-w-5xl">
+          <section className="overflow-hidden rounded-[2rem] border border-[#dedbe6] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
+            <div className="bg-gradient-to-l from-[#1F2B5E] via-[#304388] to-[#6366F1] p-6 text-white sm:p-8">
+              <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">SECTION RESULT</div>
+              <h1 dir="ltr" className="mt-2 text-3xl font-black">{sectionResult.sectionTitle}</h1>
+              <div className="mt-2 text-sm text-white/75">
+                Attempt {sectionResult.sectionAttemptNumber} of {sectionResult.attemptsAllowed}
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-7">
+              <div className="grid gap-3 sm:grid-cols-4">
+                <div className="rounded-2xl bg-[#1F2B5E] p-5 text-center text-white">
+                  <div className="text-4xl font-black">{sectionResult.percentage.toFixed(0)}%</div>
+                  <div className="mt-1 text-xs text-white/65">Section score</div>
+                </div>
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-center">
+                  <div className="text-3xl font-black text-emerald-700">{sectionResult.correctCount}</div>
+                  <div className="mt-1 text-xs font-bold text-emerald-700">Correct</div>
+                </div>
+                <div className="rounded-2xl border border-rose-100 bg-rose-50 p-5 text-center">
+                  <div className="text-3xl font-black text-rose-700">{sectionResult.wrongCount}</div>
+                  <div className="mt-1 text-xs font-bold text-rose-700">Wrong / unanswered</div>
+                </div>
+                <div className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-5 text-center">
+                  <div className="text-3xl font-black">{sectionResult.attemptsRemaining}</div>
+                  <div className="mt-1 text-xs font-bold text-[#73788d]">Attempts remaining</div>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-[#e7e2eb] bg-[#faf9fb] p-4 text-center">
+                <span className="font-black">{sectionResult.score} / {sectionResult.totalMarks}</span>
+                {sectionResult.bestPercentage !== undefined ? (
+                  <span className="mr-3 text-sm font-bold text-emerald-700">
+                    · Best: {Number(sectionResult.bestPercentage).toFixed(0)}%
+                  </span>
+                ) : null}
+              </div>
+
+              {sectionResult.wrongCount === 0 ? (
+                <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-7 text-center">
+                  <CheckCircle2 className="mx-auto mb-3 text-emerald-600" size={34} />
+                  <div className="text-xl font-black text-emerald-800">Excellent — all answers are correct.</div>
+                  <div className="mt-2 text-sm font-bold text-emerald-700">ممتاز، جميع إجاباتك صحيحة.</div>
+                </div>
+              ) : (
+                <section className="mt-7">
+                  <div className="mb-4">
+                    <div className="text-xs font-black uppercase tracking-[.14em] text-[#B1785C]">SMART REVIEW</div>
+                    <h2 className="mt-1 text-2xl font-black">الأخطاء والتصحيح التفصيلي</h2>
+                    <p className="mt-2 text-sm leading-7 text-[#73788d]">
+                      لكل خطأ ستجد إجابتك، الإجابة الصحيحة، سبب التصحيح بالإنجليزية والعربية، ثم نصيحة للمحاولة التالية.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {sectionResult.review.map((item) => (
+                      <article key={item.questionId} className="overflow-hidden rounded-2xl border border-[#e5e1e9] bg-white shadow-sm">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eeeaf2] bg-[#faf9fb] px-4 py-3">
+                          <div className="text-xs font-black text-[#B1785C]">
+                            Question {item.number} · {item.skill}
+                          </div>
+                          <div className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-700">
+                            {item.earned} / {item.marks}
+                          </div>
+                        </div>
+
+                        <div className="p-4 sm:p-5">
+                          {item.passage?.title ? (
+                            <div className="mb-3 rounded-xl bg-[#fdf8f5] px-3 py-2 text-xs font-black text-[#9a6249]" dir="ltr">
+                              Passage: {item.passage.title}
+                            </div>
+                          ) : null}
+
+                          <div dir="ltr" className="whitespace-pre-wrap text-left text-base font-black leading-8 text-[#1F2B5E]">
+                            {item.prompt}
+                          </div>
+
+                          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
+                              <div className="text-xs font-black text-rose-700">Your answer · إجابتك</div>
+                              <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-rose-900">{item.selectedAnswer}</div>
+                            </div>
+                            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                              <div className="text-xs font-black text-emerald-700">Correct answer · الإجابة الصحيحة</div>
+                              <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-emerald-900">{item.correctAnswer}</div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                            <div className="rounded-xl border border-[#e0e4f2] bg-[#f7f8fc] p-4" dir="ltr">
+                              <div className="flex items-center gap-2 text-sm font-black text-[#1F2B5E]">
+                                <BookOpen size={16} /> English explanation
+                              </div>
+                              <p className="mt-2 text-left text-sm font-semibold leading-7 text-[#4f566d]">{item.correctionEn}</p>
+                              <p className="mt-2 text-left text-sm leading-7 text-[#4f566d]">{item.explanationEn}</p>
+                            </div>
+                            <div className="rounded-xl border border-[#eee1d9] bg-[#fdf8f5] p-4" dir="rtl">
+                              <div className="flex items-center gap-2 text-sm font-black text-[#8d5b45]">
+                                <BookOpen size={16} /> الشرح بالعربية
+                              </div>
+                              <p className="mt-2 text-right text-sm font-semibold leading-7 text-[#5d514c]">{item.correctionAr}</p>
+                              <p className="mt-2 text-right text-sm leading-7 text-[#5d514c]">{item.explanationAr}</p>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 rounded-xl border border-amber-100 bg-amber-50 p-4">
+                            <div className="flex items-center gap-2 text-xs font-black text-amber-800">
+                              <Lightbulb size={16} /> Learning tip · نصيحة للتعلم
+                            </div>
+                            <p dir="ltr" className="mt-2 text-left text-xs leading-6 text-amber-900">{item.tipEn}</p>
+                            <p dir="rtl" className="mt-1 text-right text-xs leading-6 text-amber-900">{item.tipAr}</p>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                {hasRetry ? (
+                  <button
+                    type="button"
+                    onClick={() => void selectSection(sectionResult.sectionId)}
+                    disabled={advancing}
+                    className="btn w-full"
+                  >
+                    {advancing ? <Loader2 size={18} className="animate-spin" /> : <RotateCcw size={18} />}
+                    Try again · إعادة المحاولة
+                  </button>
+                ) : (
+                  <div className="flex min-h-12 items-center justify-center rounded-xl bg-[#f0eff4] px-4 text-sm font-black text-[#74798d]">
+                    تم استخدام جميع المحاولات
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSectionResult(null);
+                    setStage("section-select");
+                  }}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#dcd8e4] bg-white px-4 font-black"
+                >
+                  Choose another Section
+                </button>
+              </div>
+
+              {sectionResult.allSectionsCompleted ? (
+                <button
+                  type="button"
+                  onClick={() => void submitAttempt(false, true)}
+                  disabled={submitting}
+                  className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B1785C] px-4 font-black text-white"
+                >
+                  {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                  Finish exam & calculate overall best score
                 </button>
               ) : null}
             </div>
