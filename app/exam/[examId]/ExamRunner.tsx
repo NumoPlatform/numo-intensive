@@ -387,6 +387,29 @@ export default function ExamRunner() {
     setStage("section-select");
   }
 
+  async function loadSectionResult(sectionId: string) {
+    if (!attempt || sectionResultLoading) return;
+    setSectionResultLoading(true);
+    setMessage("");
+    try {
+      const response = await intensiveFetch(
+        "/api/exam/section/result?attemptId=" +
+          encodeURIComponent(attempt.attempt_id) +
+          "&sectionId=" +
+          encodeURIComponent(sectionId),
+        { cache: "no-store" },
+      );
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "تعذر تحميل نتيجة القسم.");
+      setSectionResult(payload.result as SectionResult);
+      setStage("section-result");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "تعذر تحميل نتيجة القسم.");
+    } finally {
+      setSectionResultLoading(false);
+    }
+  }
+
   async function selectSection(sectionId: string) {
     if (!attempt || advancing || submitting) return;
     setAdvancing(true);
@@ -400,8 +423,9 @@ export default function ExamRunner() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر فتح القسم.");
 
-      const expiresAt = String(payload.result?.section_expires_at || "");
-      const selectedId = String(payload.result?.section_id || "");
+      const expiresAt = String(payload.result?.sectionExpiresAt || "");
+      const selectedId = String(payload.result?.sectionId || "");
+      const resumed = Boolean(payload.result?.resumed);
       if (!selectedId || !expiresAt) throw new Error("تعذر تشغيل مؤقت القسم.");
 
       setAttempt((currentAttempt) =>
@@ -410,11 +434,27 @@ export default function ExamRunner() {
               ...currentAttempt,
               current_section_id: selectedId,
               current_section_expires_at: expiresAt,
-              section_progress: payload.result?.section_progress ?? currentAttempt.section_progress ?? {},
+              section_progress: payload.result?.sectionProgress ?? currentAttempt.section_progress ?? {},
               section_finished: false,
             }
           : currentAttempt,
       );
+
+      if (!resumed) {
+        const sectionQuestionIds = new Set(
+          (attempt.questions ?? [])
+            .filter((question) => question.sectionId === selectedId)
+            .map((question) => question.id),
+        );
+        setAnswers((current) =>
+          Object.fromEntries(Object.entries(current).filter(([id]) => !sectionQuestionIds.has(id))),
+        );
+        setFlags((current) =>
+          Object.fromEntries(Object.entries(current).filter(([id]) => !sectionQuestionIds.has(id))),
+        );
+      }
+
+      setSectionResult(null);
       setCurrentIndex(0);
       setRemaining(Math.max(0, new Date(expiresAt).getTime() - Date.now()));
       setStage("active");
@@ -464,7 +504,7 @@ export default function ExamRunner() {
 
     if (!automatic) {
       const confirmed = window.confirm(
-        "هل تريد إنهاء هذا القسم؟ بعد الإنهاء لن تتمكن من الرجوع إليه، ويمكنك اختيار أي قسم متبق بعد ذلك.",
+        "هل تريد إنهاء هذا القسم؟ ستظهر درجتك والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة إذا بقيت لديك محاولات.",
       );
       if (!confirmed) return;
     }
@@ -490,7 +530,8 @@ export default function ExamRunner() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر إنهاء القسم.");
 
-      const progress = payload.result?.section_progress ?? attempt.section_progress ?? {};
+      const result = payload.result as SectionResult;
+      const progress = result.sectionProgress ?? attempt.section_progress ?? {};
 
       setAttempt((currentAttempt) =>
         currentAttempt
@@ -499,25 +540,20 @@ export default function ExamRunner() {
               current_section_id: null,
               current_section_expires_at: null,
               section_progress: progress,
-              section_finished: Boolean(payload.result?.finished),
+              section_finished: Boolean(result.allSectionsCompleted),
             }
           : currentAttempt,
       );
+      setSectionResult(result);
       setCurrentIndex(0);
       setRemaining(0);
-
-      if (payload.result?.finished) {
-        await submitAttempt(true, true);
-        return;
-      }
-
-      setStage("section-select");
+      setStage("section-result");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "تعذر إنهاء القسم.");
     } finally {
       setAdvancing(false);
     }
-  }, [advancing, attempt, flushCurrentSection, submitAttempt, submitting]);
+  }, [advancing, attempt, flushCurrentSection, submitting]);
 
   useEffect(() => {
     if (stage !== "active" || !attempt?.current_section_expires_at) return;
