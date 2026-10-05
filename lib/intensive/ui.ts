@@ -13,7 +13,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   "EL097_EL099E": {
     level: "Level 1",
     label: "Foundation English",
-    cover: "/covers/official/level-1.png",
+    cover: "/covers/el097-el099e.svg",
     accent: "#009CA6",
     accentDark: "#04747C",
     accentSoft: "#E7F9F9",
@@ -23,7 +23,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   EL098: {
     level: "Level 2",
     label: "Core English Skills",
-    cover: "/covers/official/level-2.png",
+    cover: "/covers/el098.svg",
     accent: "#0878E8",
     accentDark: "#163F9D",
     accentSoft: "#EAF3FF",
@@ -33,7 +33,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   EL099: {
     level: "Level 3",
     label: "Integrated English",
-    cover: "/covers/official/level-3.png",
+    cover: "/covers/el099.svg",
     accent: "#BC247D",
     accentDark: "#801450",
     accentSoft: "#FCEAF5",
@@ -43,7 +43,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   EL111: {
     level: "Level 4",
     label: "Academic English",
-    cover: "/covers/official/level-4.png",
+    cover: "/covers/el111.svg",
     accent: "#E5252A",
     accentDark: "#A91120",
     accentSoft: "#FDEBED",
@@ -53,7 +53,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   EL112: {
     level: "Level 5",
     label: "Advanced English",
-    cover: "/covers/official/level-5.png",
+    cover: "/covers/el112.svg",
     accent: "#F07F00",
     accentDark: "#B94700",
     accentSoft: "#FFF2DF",
