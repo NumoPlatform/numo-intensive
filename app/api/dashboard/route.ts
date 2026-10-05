@@ -40,6 +40,11 @@ type Attempt = {
   started_at: string;
   expires_at: string;
   submitted_at: string | null;
+  section_progress: Record<string, {
+    attempt_count?: number;
+    best_percentage?: number;
+    completed_at?: string | null;
+  }>;
 };
 type Result = {
   attempt_id: string;
@@ -130,7 +135,7 @@ export async function GET(request: NextRequest) {
         order: "position.asc",
       });
       const attemptQuery = new URLSearchParams({
-        select: "id,exam_id,attempt_number,status,started_at,expires_at,submitted_at",
+        select: "id,exam_id,attempt_number,status,started_at,expires_at,submitted_at,section_progress",
         student_id: "eq." + auth.profile.id,
         exam_id: "in.(" + examIds.join(",") + ")",
         order: "started_at.desc",
