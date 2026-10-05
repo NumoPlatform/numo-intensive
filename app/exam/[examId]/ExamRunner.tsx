@@ -54,12 +54,19 @@ type SectionState = {
   timeLimitMinutes: number;
 };
 
+type SectionProgressItem = {
+  started_at?: string | null;
+  expires_at?: string | null;
+  completed_at?: string | null;
+};
+
 type Attempt = {
   attempt_id: string;
   expires_at: string;
   questions: Question[];
   resumed: boolean;
   sections: SectionState[];
+  section_progress: Record<string, SectionProgressItem>;
   current_section_id: string | null;
   current_section_expires_at: string | null;
   section_finished: boolean;
@@ -128,7 +135,7 @@ function formatRemaining(ms: number) {
 export default function ExamRunner() {
   const params = useParams<{ examId: string }>();
   const examId = String(params?.examId ?? "");
-  const [stage, setStage] = useState<"loading" | "intro" | "starting" | "active" | "done">("loading");
+  const [stage, setStage] = useState<"loading" | "intro" | "starting" | "section-select" | "active" | "done">("loading");
   const [exam, setExam] = useState<ExamInfo | null>(null);
   const [previewSections, setPreviewSections] = useState<SectionState[]>([]);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
@@ -313,18 +320,66 @@ export default function ExamRunner() {
       return;
     }
 
-    if (incoming.section_finished || !incoming.current_section_id || !incoming.current_section_expires_at) {
-      setMessage("لا توجد أقسام متبقية في هذه المحاولة.");
-      setStage("intro");
+    setAttempt({
+      ...incoming,
+      section_progress: incoming.section_progress ?? {},
+    });
+    setAnswers(restoredAnswers);
+    setFlags(restoredFlags);
+    setCurrentIndex(0);
+
+    if (incoming.current_section_id && incoming.current_section_expires_at) {
+      setRemaining(Math.max(0, new Date(incoming.current_section_expires_at).getTime() - Date.now()));
+      setStage("active");
       return;
     }
 
-    setAttempt(incoming);
-    setAnswers(restoredAnswers);
-    setFlags(restoredFlags);
-    setRemaining(Math.max(0, new Date(incoming.current_section_expires_at).getTime() - Date.now()));
-    setCurrentIndex(0);
-    setStage("active");
+    if (incoming.section_finished) {
+      setMessage("تم إكمال جميع الأقسام في هذه المحاولة.");
+      setStage("section-select");
+      return;
+    }
+
+    setRemaining(0);
+    setStage("section-select");
+  }
+
+  async function selectSection(sectionId: string) {
+    if (!attempt || advancing || submitting) return;
+    setAdvancing(true);
+    setMessage("");
+    try {
+      const response = await intensiveFetch("/api/exam/section/select", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId: attempt.attempt_id, sectionId }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "تعذر فتح القسم.");
+
+      const expiresAt = String(payload.result?.section_expires_at || "");
+      const selectedId = String(payload.result?.section_id || "");
+      if (!selectedId || !expiresAt) throw new Error("تعذر تشغيل مؤقت القسم.");
+
+      setAttempt((currentAttempt) =>
+        currentAttempt
+          ? {
+              ...currentAttempt,
+              current_section_id: selectedId,
+              current_section_expires_at: expiresAt,
+              section_progress: payload.result?.section_progress ?? currentAttempt.section_progress ?? {},
+              section_finished: false,
+            }
+          : currentAttempt,
+      );
+      setCurrentIndex(0);
+      setRemaining(Math.max(0, new Date(expiresAt).getTime() - Date.now()));
+      setStage("active");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "تعذر فتح القسم.");
+    } finally {
+      setAdvancing(false);
+    }
   }
 
   const submitAttempt = useCallback(async (automatic = false, skipFlush = false) => {
@@ -361,12 +416,12 @@ export default function ExamRunner() {
     }
   }, [attempt, flushCurrentSection, submitting]);
 
-  const advanceSection = useCallback(async (automatic = false) => {
+  const completeSection = useCallback(async (automatic = false) => {
     if (!attempt || advancing || submitting) return;
 
     if (!automatic) {
       const confirmed = window.confirm(
-        "هل تريد إنهاء هذا القسم والمتابعة؟ لن تتمكن من الرجوع إليه بعد الانتقال.",
+        "هل تريد إنهاء هذا القسم؟ بعد الإنهاء لن تتمكن من الرجوع إليه، ويمكنك اختيار أي قسم متبق بعد ذلك.",
       );
       if (!confirmed) return;
     }
@@ -384,37 +439,38 @@ export default function ExamRunner() {
         setSaveState("error");
       }
 
-      const response = await intensiveFetch("/api/exam/section/advance", {
+      const response = await intensiveFetch("/api/exam/section/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ attemptId: attempt.attempt_id }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.message || "تعذر الانتقال إلى القسم التالي.");
+      if (!response.ok) throw new Error(payload.message || "تعذر إنهاء القسم.");
+
+      const progress = payload.result?.section_progress ?? attempt.section_progress ?? {};
+
+      setAttempt((currentAttempt) =>
+        currentAttempt
+          ? {
+              ...currentAttempt,
+              current_section_id: null,
+              current_section_expires_at: null,
+              section_progress: progress,
+              section_finished: Boolean(payload.result?.finished),
+            }
+          : currentAttempt,
+      );
+      setCurrentIndex(0);
+      setRemaining(0);
 
       if (payload.result?.finished) {
         await submitAttempt(true, true);
         return;
       }
 
-      const sectionId = String(payload.result?.section_id || "");
-      const expiresAt = String(payload.result?.section_expires_at || "");
-      if (!sectionId || !expiresAt) throw new Error("تعذر فتح القسم التالي.");
-
-      setAttempt((currentAttempt) =>
-        currentAttempt
-          ? {
-              ...currentAttempt,
-              current_section_id: sectionId,
-              current_section_expires_at: expiresAt,
-              section_finished: false,
-            }
-          : currentAttempt,
-      );
-      setCurrentIndex(0);
-      setRemaining(Math.max(0, new Date(expiresAt).getTime() - Date.now()));
+      setStage("section-select");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "تعذر الانتقال إلى القسم التالي.");
+      setMessage(error instanceof Error ? error.message : "تعذر إنهاء القسم.");
     } finally {
       setAdvancing(false);
     }
@@ -431,9 +487,9 @@ export default function ExamRunner() {
 
   useEffect(() => {
     if (stage === "active" && remaining === 0 && attempt && !submitting && !advancing) {
-      void advanceSection(true);
+      void completeSection(true);
     }
-  }, [advanceSection, advancing, attempt, remaining, stage, submitting]);
+  }, [completeSection, advancing, attempt, remaining, stage, submitting]);
 
   useEffect(() => {
     if (stage !== "active") return;
@@ -469,7 +525,12 @@ export default function ExamRunner() {
     0,
     sections.findIndex((section) => section.id === activeSectionId),
   );
-  const isLastSection = sections.length > 0 && activeSectionIndex === sections.length - 1;
+  const sectionCompleted = (sectionId: string) =>
+    Boolean(attempt?.section_progress?.[sectionId]?.completed_at);
+  const completedSectionsCount = sections.filter((section) => sectionCompleted(section.id)).length;
+  const isFinalRemainingSection =
+    sections.length > 0 &&
+    sections.every((section) => section.id === activeSectionId || sectionCompleted(section.id));
 
   if (stage === "loading") {
     return (
@@ -530,7 +591,8 @@ export default function ExamRunner() {
                   <li>• Each section has its own independent timer.</li>
                   <li>• Your answers are saved automatically.</li>
                   <li>• You can move freely inside the current section.</li>
-                  <li>• When a section is completed or its timer expires, it is locked and the next section opens.</li>
+                  <li>• You choose which section to start. There is no required order.</li>
+                  <li>• When a section is completed or its timer expires, it is locked and you choose another remaining section.</li>
                   <li>• After the final section, your result is calculated and released immediately when all questions are auto-graded.</li>
                 </ul>
               </div>
@@ -545,10 +607,100 @@ export default function ExamRunner() {
                 {stage === "starting" ? <><Loader2 size={18} className="animate-spin" /> Starting exam...</> :
                   beforeStart ? "The exam is not open yet" :
                   afterEnd ? "The exam has closed" :
-                  "Start exam"}
+                  "Start / choose section"}
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "section-select" && attempt) {
+    const availableSections = sections.filter((section) => !sectionCompleted(section.id));
+    return (
+      <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
+        <div className="mx-auto max-w-5xl">
+          <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#6f7489]">
+            <ArrowRight size={17} /> العودة للوحة الطالب
+          </Link>
+
+          <section className="overflow-hidden rounded-[2rem] border border-[#dedbe6] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
+            <div className="bg-gradient-to-l from-[#1F2B5E] via-[#2d3f82] to-[#6366F1] p-6 text-white sm:p-8">
+              <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">Choose your section</div>
+              <h1 className="mt-2 text-2xl font-black sm:text-3xl">{exam?.title ?? "Exam"}</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">
+                اختر أي قسم تريد البدء به. لا يوجد ترتيب إجباري، ويبدأ مؤقت القسم فقط عند فتحه.
+              </p>
+            </div>
+
+            <div className="p-4 sm:p-7">
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#f7f7fa] px-4 py-3 text-sm">
+                <span className="font-black">Completed {completedSectionsCount} / {sections.length}</span>
+                <span className="font-bold text-[#72778b]">يمكنك اختيار أي قسم متبق</span>
+              </div>
+
+              {message ? (
+                <div className="mb-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">
+                  {message}
+                </div>
+              ) : null}
+
+              <div className="grid gap-4 md:grid-cols-3">
+                {sections.map((section) => {
+                  const completed = sectionCompleted(section.id);
+                  const count = questions.filter((question) => question.sectionId === section.id).length;
+                  return (
+                    <article
+                      key={section.id}
+                      className={
+                        "rounded-[1.4rem] border p-5 transition " +
+                        (completed
+                          ? "border-emerald-100 bg-emerald-50/70"
+                          : "border-[#e0dce7] bg-white shadow-sm")
+                      }
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-xs font-black text-[#B1785C]">SECTION {section.position}</div>
+                          <h2 dir="ltr" className="mt-1 text-xl font-black">{section.title}</h2>
+                        </div>
+                        {completed ? (
+                          <CheckCircle2 size={24} className="text-emerald-600" />
+                        ) : (
+                          <Clock3 size={22} className="text-[#6366F1]" />
+                        )}
+                      </div>
+                      <div className="mt-5 grid grid-cols-2 gap-2 text-center">
+                        <div className="rounded-xl bg-[#f6f5f8] px-3 py-3">
+                          <div className="text-lg font-black">{section.timeLimitMinutes}</div>
+                          <div className="text-[11px] text-[#7b8092]">minutes</div>
+                        </div>
+                        <div className="rounded-xl bg-[#f6f5f8] px-3 py-3">
+                          <div className="text-lg font-black">{count}</div>
+                          <div className="text-[11px] text-[#7b8092]">questions</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={completed || advancing}
+                        onClick={() => void selectSection(section.id)}
+                        className={completed ? "mt-4 w-full rounded-xl bg-emerald-100 px-4 py-3 text-sm font-black text-emerald-800" : "btn mt-4 w-full"}
+                      >
+                        {completed ? "Completed" : advancing ? <><Loader2 size={17} className="animate-spin" /> Opening...</> : "Start this section"}
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+
+              {!availableSections.length ? (
+                <button onClick={() => void submitAttempt(true, true)} className="btn mt-6 w-full">
+                  <Send size={18} /> Submit exam & show result
+                </button>
+              ) : null}
+            </div>
+          </section>
         </div>
       </div>
     );
@@ -744,9 +896,9 @@ export default function ExamRunner() {
                 key={section.id}
                 className={
                   "shrink-0 rounded-lg px-3 py-2 text-[11px] font-black " +
-                  (index < activeSectionIndex
+                  (sectionCompleted(section.id)
                     ? "bg-emerald-50 text-emerald-700"
-                    : index === activeSectionIndex
+                    : section.id === activeSectionId
                       ? "bg-[#1F2B5E] text-white"
                       : "bg-[#f8f7fa] text-[#9a9eac]")
                 }
@@ -796,16 +948,16 @@ export default function ExamRunner() {
                 key={section.id}
                 className={
                   "rounded-lg px-3 py-2 text-xs font-black " +
-                  (index < activeSectionIndex
+                  (sectionCompleted(section.id)
                     ? "bg-emerald-50 text-emerald-700"
-                    : index === activeSectionIndex
+                    : section.id === activeSectionId
                       ? "bg-[#1F2B5E] text-white"
                       : "bg-[#f8f7fa] text-[#9a9eac]")
                 }
               >
                 {section.position}. {section.title}
                 <span className="ml-2 font-bold opacity-70">
-                  {index < activeSectionIndex ? "Completed" : index === activeSectionIndex ? section.timeLimitMinutes + " min" : "Locked"}
+                  {sectionCompleted(section.id) ? "Completed" : section.id === activeSectionId ? section.timeLimitMinutes + " min" : "Available"}
                 </span>
               </div>
             ))}
