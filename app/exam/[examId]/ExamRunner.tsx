@@ -173,6 +173,12 @@ function formatRemaining(ms: number) {
   return [hours, minutes, seconds].map((item) => String(item).padStart(2, "0")).join(":");
 }
 
+function hasAnswerValue(value: unknown) {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim().length > 0;
+  return true;
+}
+
 export default function ExamRunner() {
   const params = useParams<{ examId: string }>();
   const examId = String(params?.examId ?? "");
@@ -503,6 +509,20 @@ export default function ExamRunner() {
     if (!attempt || advancing || submitting) return;
 
     if (!automatic) {
+      const active = attempt.questions.filter(
+        (question) => question.sectionId === attempt.current_section_id,
+      );
+      const firstUnansweredIndex = active.findIndex(
+        (question) => !hasAnswerValue(answers[question.id]),
+      );
+
+      if (firstUnansweredIndex >= 0) {
+        setCurrentIndex(firstUnansweredIndex);
+        setMessage("لا يمكن إنهاء الـSection قبل الإجابة عن جميع الأسئلة. تم نقلك إلى أول سؤال بدون إجابة. · Answer all questions before completing this section.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
       const confirmed = window.confirm(
         "هل تريد إنهاء هذا القسم؟ ستظهر درجتك والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة إذا بقيت لديك محاولات.",
       );
@@ -553,7 +573,7 @@ export default function ExamRunner() {
     } finally {
       setAdvancing(false);
     }
-  }, [advancing, attempt, flushCurrentSection, submitting]);
+  }, [advancing, answers, attempt, flushCurrentSection, submitting]);
 
   useEffect(() => {
     if (stage !== "active" || !attempt?.current_section_expires_at) return;
@@ -639,13 +659,31 @@ export default function ExamRunner() {
   const hasNextPassage =
     isReadingSection && currentPassageIndex < passageIds.length - 1;
 
+  const currentHasAnswer = current ? hasAnswerValue(answers[current.id]) : false;
+
+  function requireCurrentAnswer() {
+    if (currentHasAnswer) return true;
+    setMessage("يجب تحديد إجابة للسؤال الحالي قبل الانتقال. · Answer the current question before continuing.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return false;
+  }
+
+  function goToQuestion(targetIndex: number) {
+    if (targetIndex === currentIndex) return;
+    if (!requireCurrentAnswer()) return;
+    setMessage("");
+    setCurrentIndex(targetIndex);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function moveToNextPassage() {
-    if (!hasNextPassage) return;
+    if (!hasNextPassage || !requireCurrentAnswer()) return;
     const nextPassageId = passageIds[currentPassageIndex + 1];
     const nextGlobalIndex = activeQuestions.findIndex(
       (question) => question.passage?.id === nextPassageId,
     );
     if (nextGlobalIndex >= 0) {
+      setMessage("");
       setCurrentIndex(nextGlobalIndex);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -715,7 +753,7 @@ export default function ExamRunner() {
                 <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
                   <li>• Each section has its own independent timer.</li>
                   <li>• Your answers are saved automatically.</li>
-                  <li>• You can move freely inside the current section.</li>
+                  <li>• Every question is required. You must answer the current question before moving to another one.</li>
                   <li>• You choose which section to start. There is no required order.</li>
                   <li>• When a section is completed or its timer expires, it is locked and you choose another remaining section.</li>
                   <li>• After the final section, your result is calculated and released immediately when all questions are auto-graded.</li>
@@ -1273,7 +1311,7 @@ export default function ExamRunner() {
                 <button
                   key={question.id}
                   type="button"
-                  onClick={() => setCurrentIndex(globalIndex)}
+                  onClick={() => goToQuestion(globalIndex)}
                   className={
                     "relative grid h-10 w-10 shrink-0 place-items-center rounded-lg border text-xs font-black " +
                     (globalIndex === currentIndex
@@ -1328,7 +1366,7 @@ export default function ExamRunner() {
               return (
                 <button
                   key={question.id}
-                  onClick={() => setCurrentIndex(globalIndex)}
+                  onClick={() => goToQuestion(globalIndex)}
                   className={
                     "relative grid aspect-square place-items-center rounded-lg border text-sm font-black transition " +
                     (globalIndex === currentIndex
@@ -1467,6 +1505,13 @@ export default function ExamRunner() {
 
           {message ? <div className="mt-4 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
 
+          {!currentHasAnswer ? (
+            <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-black text-amber-800">
+              <ShieldCheck size={17} />
+              Answer required to continue · يجب اختيار إجابة للمتابعة
+            </div>
+          ) : null}
+
           <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-[#e3dfe8] bg-white p-3 shadow-sm sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:p-4">
             <button
               type="button"
@@ -1474,9 +1519,9 @@ export default function ExamRunner() {
               onClick={() => {
                 if (isReadingSection) {
                   const previous = visibleQuestionEntries[localQuestionIndex - 1];
-                  if (previous) setCurrentIndex(previous.globalIndex);
+                  if (previous) goToQuestion(previous.globalIndex);
                 } else {
-                  setCurrentIndex((index) => Math.max(0, index - 1));
+                  goToQuestion(Math.max(0, currentIndex - 1));
                 }
               }}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-3 text-sm font-black disabled:opacity-40 sm:w-auto sm:px-4 sm:text-base"
@@ -1489,7 +1534,7 @@ export default function ExamRunner() {
                 type="button"
                 onClick={() => {
                   const next = visibleQuestionEntries[localQuestionIndex + 1];
-                  if (next) setCurrentIndex(next.globalIndex);
+                  if (next) goToQuestion(next.globalIndex);
                 }}
                 className="btn w-full px-3 text-sm sm:w-auto sm:px-5 sm:text-base"
               >
@@ -1506,7 +1551,7 @@ export default function ExamRunner() {
             ) : !isReadingSection && currentIndex < activeQuestions.length - 1 ? (
               <button
                 type="button"
-                onClick={() => setCurrentIndex((index) => Math.min(activeQuestions.length - 1, index + 1))}
+                onClick={() => goToQuestion(Math.min(activeQuestions.length - 1, currentIndex + 1))}
                 className="btn w-full px-3 text-sm sm:w-auto sm:px-5 sm:text-base"
               >
                 Next <ArrowLeft size={18} />
