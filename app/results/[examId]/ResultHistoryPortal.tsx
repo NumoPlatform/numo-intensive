@@ -145,7 +145,7 @@ export default function ResultHistoryPortal() {
   const canRetry = isOpen && data.attemptsRemaining > 0 && !data.history.some((attempt) => attempt.status === "IN_PROGRESS");
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] px-4 py-6 text-[#1F2B5E] sm:px-6 sm:py-8">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[#f6f7fb] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
         <header className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#17204b] via-[#1F2B5E] to-[#6366F1] p-6 text-white shadow-[0_24px_60px_rgba(31,43,94,.18)] sm:p-8">
           <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/25 blur-3xl" />
