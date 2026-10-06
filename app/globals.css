@@ -259,3 +259,122 @@ textarea:focus-visible {
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Responsive foundation — admin + student portals */
+main,
+section,
+article,
+form,
+fieldset,
+nav,
+header,
+footer,
+div {
+  min-width: 0;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.deluxe-canvas,
+.intensive-app-root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.deluxe-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@supports (padding: max(0px)) {
+  .mobile-safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .field {
+    min-height: 3.15rem;
+    max-width: 100%;
+    padding: 0.76rem 0.85rem;
+    border-radius: 0.9rem;
+    font-size: 16px;
+  }
+
+  .btn {
+    min-height: 3rem;
+    max-width: 100%;
+    border-radius: 0.9rem;
+  }
+
+  .deluxe-panel {
+    border-radius: 1.25rem;
+  }
+
+  .admin-shell {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  .admin-shell table {
+    font-size: 0.78rem;
+  }
+
+  .admin-shell th,
+  .admin-shell td {
+    white-space: nowrap;
+  }
+
+  .admin-shell textarea {
+    resize: vertical;
+  }
+
+  .admin-shell input[type="date"],
+  .admin-shell input[type="datetime-local"],
+  .admin-shell select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-shell input[type="checkbox"],
+  .admin-shell input[type="radio"] {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: 0 0 auto;
+  }
+
+  /* Keep controls visible when the mobile keyboard opens. */
+  .admin-shell:has(input:focus, textarea:focus, select:focus) nav[aria-label="أقسام لوحة التحكم"] {
+    position: static;
+  }
+}
+
+@media (max-width: 420px) {
+  .deluxe-panel {
+    padding: 0.95rem;
+  }
+
+  .field {
+    padding-inline: 0.78rem;
+  }
+
+  .btn {
+    padding-inline: 0.9rem;
+  }
+}
