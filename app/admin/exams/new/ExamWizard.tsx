@@ -377,11 +377,11 @@ export default function ExamWizard() {
               <ChevronRight size={17} /> السابق
             </button>
             {step < 4 ? (
-              <button type="submit" disabled={!stepReady} className="btn min-w-[150px]">
+              <button type="submit" disabled={!stepReady} className="btn w-full min-w-0 sm:w-auto sm:min-w-[150px]">
                 التالي <ChevronLeft size={17} />
               </button>
             ) : (
-              <button type="submit" disabled={submitting} className="btn min-w-[200px]">
+              <button type="submit" disabled={submitting} className="btn w-full min-w-0 sm:w-auto sm:min-w-[200px]">
                 {submitting ? <Loader2 size={17} className="animate-spin" /> : <Rocket size={17} />}
                 {submitting ? "جاري الإنشاء..." : "إنشاء الاختبار"}
               </button>
