@@ -3,8 +3,7 @@
 import type { FormEvent } from "react";
 import NumoBrand from "@/app/components/NumoBrand";
 import { intensiveFetch } from "@/lib/intensive/client";
-import { courseVisual } from "@/lib/intensive/ui";
-import Image from "next/image";
+import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpenCheck,
@@ -591,12 +590,18 @@ export default function AdminPortal() {
                       return (
                         <article key={course.id} className="group overflow-hidden rounded-[1.55rem] border border-black/[.06] bg-white shadow-[0_14px_38px_rgba(31,43,94,.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_55px_rgba(31,43,94,.15)]">
                           <div className="relative h-52 overflow-hidden sm:h-56 2xl:h-48">
-                            <Image
-                              src={visual.cover}
+                            <img
+                              src={courseCover(course.code, course.default_cover_url)}
                               alt={"غلاف " + course.code}
-                              fill
-                              sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, (max-width: 1535px) 33vw, 20vw"
-                              className="object-cover object-top transition duration-500 group-hover:scale-[1.035]"
+                              className="absolute inset-0 h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.035]"
+                              onError={(event) => {
+                                const fallback = courseVisual(course.code).cover;
+                                if (event.currentTarget.src.endsWith(fallback)) {
+                                  event.currentTarget.style.display = "none";
+                                  return;
+                                }
+                                event.currentTarget.src = fallback;
+                              }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#111c48]/90 via-transparent to-black/5" />
                             <div className="absolute inset-x-0 bottom-0 h-1.5" style={{ background: visual.gradient }} />
