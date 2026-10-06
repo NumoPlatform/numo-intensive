@@ -13,7 +13,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   "EL097_EL099E": {
     level: "Level 1",
     label: "Foundation English",
-    cover: "/covers/el097-el099e.svg",
+    cover: "/covers/el097-el099e-premium.svg",
     accent: "#009CA6",
     accentDark: "#04747C",
     accentSoft: "#E7F9F9",
