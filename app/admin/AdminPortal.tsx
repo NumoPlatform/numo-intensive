@@ -214,7 +214,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="deluxe-panel min-w-0 overflow-hidden rounded-[1.4rem] p-4 sm:rounded-[2rem] sm:p-6">
+    <section className="deluxe-panel min-w-0 overflow-hidden rounded-[1.25rem] p-3.5 sm:rounded-[2rem] sm:p-6">
       <div className="mb-5 flex items-start gap-3 sm:mb-6">
         <span className="mt-1 h-8 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-[#c48566] to-[#8f573f]" />
         <div className="min-w-0">
@@ -493,7 +493,7 @@ export default function AdminPortal() {
           </div>
         </aside>
 
-        <main className="min-w-0 max-w-full px-3 pb-8 pt-3 sm:px-5 sm:pb-10 sm:pt-5 lg:p-8 lg:pb-10">
+        <main className="min-w-0 max-w-full px-3 pb-[calc(env(safe-area-inset-bottom)+2rem)] pt-3 sm:px-5 sm:pb-10 sm:pt-5 lg:p-8 lg:pb-10">
           <div className="mx-auto max-w-[1500px]">
             <div className="mb-3 flex items-center justify-between rounded-[1.35rem] border border-white/80 bg-white/80 p-3 shadow-[0_12px_35px_rgba(31,43,94,.07)] backdrop-blur-xl lg:hidden">
               <div className="flex min-w-0 items-center gap-3">
@@ -510,7 +510,7 @@ export default function AdminPortal() {
 
             <nav
               aria-label="أقسام لوحة التحكم"
-              className="sticky top-2 z-40 mb-3 grid grid-cols-4 gap-1 rounded-[1.25rem] border border-white/80 bg-[#17214d]/95 p-1.5 text-white shadow-[0_14px_38px_rgba(16,27,69,.24)] backdrop-blur-xl lg:hidden"
+              className="admin-mobile-tabs sticky top-[max(.5rem,env(safe-area-inset-top))] z-40 mb-3 grid grid-cols-4 gap-1 rounded-[1.25rem] border border-white/80 bg-[#17214d]/95 p-1.5 text-white shadow-[0_14px_38px_rgba(16,27,69,.24)] backdrop-blur-xl lg:hidden"
             >
               {navItems.map(({ id, label, icon: Icon }) => (
                 <button
@@ -531,7 +531,7 @@ export default function AdminPortal() {
               ))}
             </nav>
 
-            <header className="deluxe-hero relative mb-4 overflow-hidden rounded-[1.75rem] p-4 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8">
+            <header className={"deluxe-hero relative mb-4 overflow-hidden rounded-[1.75rem] p-4 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8 " + (tab === "dashboard" ? "" : "hidden lg:block")}>
               <div className="deluxe-orbit deluxe-orbit-one" />
               <div className="deluxe-orbit deluxe-orbit-two" />
               <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -556,7 +556,7 @@ export default function AdminPortal() {
               </div>
             </header>
 
-            <div className="deluxe-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+            <div className={"deluxe-scrollbar mb-4 gap-2 overflow-x-auto pb-1 lg:hidden " + (tab === "dashboard" ? "flex" : "hidden")}>
               {adminLinks.map(({ href, label, icon: Icon }) => (
                 <a key={href} href={href} className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#e9e1dc] bg-white/90 px-3.5 text-xs font-black text-[#27335f] shadow-sm">
                   <Icon size={15} className="text-[#ad6b4e]" /> {label}
@@ -847,14 +847,14 @@ export default function AdminPortal() {
             ) : null}
 
             {tab === "students" ? (
-              <div className="grid min-w-0 gap-5 xl:grid-cols-[.8fr_1.2fr] xl:gap-6">
+              <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(320px,.78fr)_minmax(0,1.22fr)] lg:gap-6">
                 <Panel title="إضافة طالب" subtitle="أنشئ بيانات دخول الطالب وحدد المواد المسجلة له.">
-                  <form onSubmit={createStudent} className="min-w-0 space-y-5">
+                  <form onSubmit={createStudent} className="min-w-0 space-y-4 sm:space-y-5">
                     <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">اسم الطالب</span>
                       <input className="field" required value={studentForm.fullName} onChange={(e)=>setStudentForm({...studentForm,fullName:e.target.value})} />
                     </label>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-2">
                       <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">اسم المستخدم</span>
                         <input className="field" dir="ltr" required value={studentForm.username} onChange={(e)=>setStudentForm({...studentForm,username:e.target.value})} />
@@ -866,7 +866,7 @@ export default function AdminPortal() {
                     </div>
                     <div>
                       <span className="mb-2 block text-sm font-black">المواد</span>
-                      <div className="deluxe-scrollbar grid max-h-[21rem] min-w-0 gap-2 overflow-y-auto rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-2 sm:grid-cols-2 sm:p-3">
+                      <div className="deluxe-scrollbar grid max-h-[18rem] min-w-0 gap-2 overflow-y-auto rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-2 md:grid-cols-2 sm:p-3">
                         {data.courses.filter((course)=>course.is_active).map((course) => (
                           <label key={course.id} className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-[#e5e1e9] bg-white p-3 shadow-sm">
                             <input type="checkbox" checked={studentForm.courseIds.includes(course.id)} onChange={()=>toggleCourse(course.id)} />
@@ -875,7 +875,7 @@ export default function AdminPortal() {
                         ))}
                       </div>
                     </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-2">
                       <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">تاريخ البداية</span>
                         <input className="field" type="date" value={studentForm.startDate} onChange={(e)=>setStudentForm({...studentForm,startDate:e.target.value})} />
@@ -892,7 +892,56 @@ export default function AdminPortal() {
                 </Panel>
 
                 <Panel title="الطلاب المسجلون" subtitle="إدارة الحسابات والمواد المسجلة والأجهزة الموثوقة.">
-                  <div className="-mx-1 overflow-x-auto overscroll-x-contain rounded-2xl border border-[#ece8ef] bg-white p-1 [scrollbar-width:thin]">
+                  <div className="space-y-3 md:hidden">
+                    {data.students.map((student) => (
+                      <article key={student.id} className="rounded-2xl border border-[#e9e5ee] bg-white p-4 shadow-[0_10px_28px_rgba(31,43,94,.055)]">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="break-words text-base font-black text-[#182553]">{student.full_name}</div>
+                            <div className="mt-1 truncate text-xs font-bold text-[#7a7f91]" dir="ltr">@{student.username}</div>
+                          </div>
+                          <span className={
+                            "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black " +
+                            (student.status === "ACTIVE"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : student.status === "SUSPENDED"
+                                ? "bg-amber-50 text-amber-700"
+                                : "bg-rose-50 text-rose-700")
+                          }>
+                            {student.status}
+                          </span>
+                        </div>
+                        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                          <div className="rounded-xl bg-[#f8f7fa] p-3">
+                            <div className="font-black text-[#73788d]">المواد</div>
+                            <div className="mt-1 break-words font-bold text-[#182553]">{enrolledCodes(student.id) || "—"}</div>
+                          </div>
+                          <div className="rounded-xl bg-[#f8f7fa] p-3">
+                            <div className="font-black text-[#73788d]">الانتهاء</div>
+                            <div className="mt-1 font-bold text-[#182553]">{formatDate(student.expiration_date)}</div>
+                          </div>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between gap-2">
+                          <span className={
+                            "rounded-full px-2.5 py-1 text-[10px] font-black " +
+                            (deviceMap.get(student.id)?.status === "ACTIVE"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : deviceMap.get(student.id)?.status === "RESET"
+                                ? "bg-amber-50 text-amber-700"
+                                : "bg-slate-100 text-slate-500")
+                          }>
+                            {deviceMap.get(student.id)?.status ?? "لا يوجد جهاز"}
+                          </span>
+                          <a href={"/admin/students/" + student.id} className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[#1F2B5E] px-4 text-xs font-black text-white">
+                            إدارة الطالب
+                          </a>
+                        </div>
+                      </article>
+                    ))}
+                    {data.students.length === 0 ? <div className="rounded-2xl bg-[#f7f7fa] py-8 text-center text-sm text-[#777b8d]">لم تتم إضافة طلاب حتى الآن.</div> : null}
+                  </div>
+
+                  <div className="-mx-1 hidden overflow-x-auto overscroll-x-contain rounded-2xl border border-[#ece8ef] bg-white p-1 [scrollbar-width:thin] md:block">
                     <table className="w-full min-w-[760px] text-right text-sm">
                       <thead>
                         <tr className="border-b border-[#e8e4ec] text-[#777b8d]">
@@ -961,7 +1010,7 @@ export default function AdminPortal() {
                         {data.courses.filter((course)=>course.is_active).map((course)=><option key={course.id} value={course.id}>{course.code} — {course.title}</option>)}
                       </select>
                     </label>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-2">
                       <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">اسم الاختبار</span>
                         <input className="field" required value={examForm.title} onChange={(e)=>setExamForm({...examForm,title:e.target.value})}/>
@@ -977,7 +1026,7 @@ export default function AdminPortal() {
                       <span className="mb-2 block text-sm font-black">وصف اختياري</span>
                       <textarea className="field min-h-24" value={examForm.description} onChange={(e)=>setExamForm({...examForm,description:e.target.value})}/>
                     </label>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-2">
                       <label className="block min-w-0"><span className="mb-2 block text-sm font-black">يفتح في</span><input className="field" type="datetime-local" required value={examForm.startsAt} onChange={(e)=>setExamForm({...examForm,startsAt:e.target.value})}/></label>
                       <label className="block min-w-0"><span className="mb-2 block text-sm font-black">يغلق في</span><input className="field" type="datetime-local" required value={examForm.endsAt} onChange={(e)=>setExamForm({...examForm,endsAt:e.target.value})}/></label>
                     </div>
