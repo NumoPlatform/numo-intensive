@@ -63,7 +63,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR101: {
     level: "General Studies",
     label: "Self-Learning Skills",
-    cover: "/covers/gr101-v2.webp",
+    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr101-official.png",
     accent: "#B1785C",
     accentDark: "#7E503C",
     accentSoft: "#FBF2ED",
@@ -73,7 +73,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR111: {
     level: "General Studies",
     label: "Islamic Civilization",
-    cover: "/covers/gr111-v2.webp",
+    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr111-official.png",
     accent: "#1F2B5E",
     accentDark: "#152047",
     accentSoft: "#EEF0F7",
@@ -83,7 +83,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR112: {
     level: "General Studies",
     label: "Development Issues in the Arab World",
-    cover: "/covers/gr112-v2.webp",
+    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr112-official.png",
     accent: "#6366F1",
     accentDark: "#4043B4",
     accentSoft: "#F0F0FF",
@@ -93,7 +93,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR118: {
     level: "General Studies",
     label: "Life Skills",
-    cover: "/covers/gr118-v2.webp",
+    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr118-official.png",
     accent: "#B1785C",
     accentDark: "#7E503C",
     accentSoft: "#FBF2ED",
