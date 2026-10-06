@@ -99,7 +99,7 @@ export default function AnalyticsPortal() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] px-4 py-7 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-7 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <a href="/admin" className="inline-flex items-center gap-2 text-sm font-black text-[#73788d]">
@@ -123,13 +123,13 @@ export default function AnalyticsPortal() {
           </div>
         </div>
 
-        <header className="mb-7 overflow-hidden rounded-[1.9rem] bg-gradient-to-br from-[#1F2B5E] via-[#2b3c7c] to-[#6366F1] p-7 text-white shadow-[0_24px_70px_rgba(31,43,94,.22)] sm:p-8">
+        <header className="mb-7 overflow-hidden rounded-[1.9rem] bg-gradient-to-br from-[#1F2B5E] via-[#2b3c7c] to-[#6366F1] p-5 text-white sm:p-7 shadow-[0_24px_70px_rgba(31,43,94,.22)] sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]">
                 <Sparkles size={16} /> NUMO INTENSIVE
               </div>
-              <h1 className="text-3xl font-black sm:text-4xl">النتائج والتحليلات</h1>
+              <h1 className="text-2xl font-black sm:text-3xl sm:text-4xl">النتائج والتحليلات</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">
                 Academic performance, exam participation, and publication status in one control center.
               </p>
@@ -179,7 +179,7 @@ export default function AnalyticsPortal() {
                     <span className="rounded-full bg-[#fbf4f0] px-3 py-1 text-[11px] font-black text-[#9a6249]">LIVE DATA</span>
                   </div>
                   <div className="text-sm font-black text-[#73788d]">{label}</div>
-                  <div className="mt-1 text-4xl font-black tracking-tight">{value}</div>
+                  <div className="mt-1 text-2xl font-black sm:text-4xl tracking-tight">{value}</div>
                   <div className="mt-2 text-xs leading-5 text-[#8a8fa0]">{note}</div>
                 </article>
               ))}
