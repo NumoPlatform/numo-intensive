@@ -15,6 +15,10 @@ export type RawSectionReviewItem = {
     body?: string;
     imageUrl?: string | null;
   };
+  referenceSource?: string | null;
+  referenceUnit?: string | null;
+  referencePage?: string | null;
+  referenceEvidence?: string | null;
 };
 
 function grammarFocus(prompt: string) {
@@ -79,6 +83,23 @@ export function enrichSectionReview(item: RawSectionReviewItem) {
   const skill = (item.skill || "").toLowerCase();
   const selected = item.selectedAnswer || "No answer";
   const correct = item.correctAnswer || "—";
+
+  if (item.referenceEvidence && item.referenceSource) {
+    const unanswered = selected === "No answer" || selected === "لم تتم الإجابة";
+    return {
+      ...item,
+      correctionEn: unanswered
+        ? `No answer was selected. The correct answer is “${correct}”.`
+        : `Your answer was “${selected}”. The correct answer is “${correct}”.`,
+      correctionAr: unanswered
+        ? `لم تتم الإجابة عن هذا السؤال. الإجابة الصحيحة هي «${correct}».`
+        : `إجابتك كانت «${selected}»، والصحيح هو «${correct}».`,
+      explanationEn: item.referenceEvidence,
+      explanationAr: item.referenceEvidence,
+      tipEn: `Reference: ${item.referenceSource}${item.referencePage ? `, p. ${item.referencePage}` : ""}.`,
+      tipAr: `المصدر: ${item.referenceSource}${item.referenceUnit ? `، ${item.referenceUnit}` : ""}${item.referencePage ? `، ص ${item.referencePage}` : ""}.`,
+    };
+  }
 
   if (skill === "grammar") {
     const focus = grammarFocus(item.prompt);
