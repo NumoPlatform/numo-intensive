@@ -414,13 +414,17 @@ export default function IntensivePortal() {
         href={"/course/" + course.id}
         className="group relative overflow-hidden rounded-[1.8rem] border border-[#e3dfe7] bg-white shadow-[0_14px_42px_rgba(31,43,94,.065)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)]"
       >
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative aspect-[16/9] overflow-hidden bg-white">
           <img
             src={cover}
             alt={"غلاف " + course.code}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
+            width={1536}
+            height={864}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-contain"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/35 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/82 via-[#1F2B5E]/10 to-transparent" />
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
             <span className="rounded-full border border-white/30 bg-white/90 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm backdrop-blur">
               {visual.level}
@@ -705,14 +709,16 @@ export default function IntensivePortal() {
                 </div>
               </div>
 
-              <div className="relative min-h-[230px] overflow-hidden bg-[#1F2B5E]">
+              <div className="relative aspect-[16/9] min-h-[230px] overflow-hidden bg-white">
                 <img
                   src={courseCover(recommendedCourse.code, recommendedCourse.default_cover_url)}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover opacity-65"
+                  alt={"غلاف " + recommendedCourse.code}
+                  width={1536}
+                  height={864}
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-contain"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/40 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/84 via-[#1F2B5E]/8 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <div className="text-xs font-black text-[#efc4ae]" dir="ltr">{recommendedCourse.code}</div>
                   <div className="mt-1 text-xl font-black" dir="auto">{recommendedCourse.title}</div>
