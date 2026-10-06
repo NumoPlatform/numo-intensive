@@ -742,28 +742,42 @@ export default function ExamRunner() {
                 <div className="mb-7 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl bg-[#f7f7fa] p-4">
                     <Clock3 className="mb-2 text-[#6366F1]" />
-                    <strong className="block">Section timing</strong>
-                    <span className="text-sm text-[#74798d]">{timingSummary}</span>
+                    <strong className="block">{isArabicGeneralExam ? "مدة الاختبار" : "Section timing"}</strong>
+                    <span dir={isArabicGeneralExam ? "rtl" : "auto"} className="text-sm text-[#74798d]">
+                      {isArabicGeneralExam ? `${exam.duration_minutes} دقيقة` : timingSummary}
+                    </span>
                   </div>
                   <div className="rounded-2xl bg-[#f7f7fa] p-4">
                     <ShieldCheck className="mb-2 text-[#B1785C]" />
-                    <strong className="block">Attempts & window</strong>
-                    <span className="block text-sm text-[#74798d]">Up to {exam.attempts_allowed} attempts</span>
+                    <strong className="block">{isArabicGeneralExam ? "المحاولات والإتاحة" : "Attempts & window"}</strong>
+                    <span className="block text-sm text-[#74798d]">
+                      {isArabicGeneralExam ? `${exam.attempts_allowed} محاولات` : `Up to ${exam.attempts_allowed} attempts`}
+                    </span>
                     <span className="mt-1 block text-xs leading-6 text-[#8a8e9e]">{formatDate(exam.starts_at)} — {formatDate(exam.ends_at)}</span>
                   </div>
                 </div>
               ) : null}
 
-              <div className="rounded-2xl border border-[#e6e2eb] bg-[#fbfafc] p-5">
-                <h2 className="font-black">Before you begin</h2>
-                <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
-                  <li>• Each section has its own independent timer.</li>
-                  <li>• Your answers are saved automatically.</li>
-                  <li>• Every question is required. You must answer the current question before moving to another one.</li>
-                  <li>• You choose which section to start. There is no required order.</li>
-                  <li>• When a section is completed or its timer expires, it is locked and you choose another remaining section.</li>
-                  <li>• After the final section, your result is calculated and released immediately when all questions are auto-graded.</li>
-                </ul>
+              <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"rounded-2xl border border-[#e6e2eb] bg-[#fbfafc] p-5 " + (isArabicGeneralExam ? "text-right" : "text-left")}>
+                <h2 className="font-black">{isArabicGeneralExam ? "قبل البدء" : "Before you begin"}</h2>
+                {isArabicGeneralExam ? (
+                  <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
+                    <li>• مدة الميد ترم 60 دقيقة.</li>
+                    <li>• لديك 4 محاولات مستقلة.</li>
+                    <li>• تُحفظ إجاباتك تلقائيًا أثناء الحل.</li>
+                    <li>• يجب اختيار إجابة قبل الانتقال إلى السؤال التالي.</li>
+                    <li>• تظهر الدرجة والمراجعة بعد إنهاء المحاولة.</li>
+                  </ul>
+                ) : (
+                  <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
+                    <li>• Each section has its own independent timer.</li>
+                    <li>• Your answers are saved automatically.</li>
+                    <li>• Every question is required. You must answer the current question before moving to another one.</li>
+                    <li>• You choose which section to start. There is no required order.</li>
+                    <li>• When a section is completed or its timer expires, it is locked and you choose another remaining section.</li>
+                    <li>• After the final section, your result is calculated and released immediately when all questions are auto-graded.</li>
+                  </ul>
+                )}
               </div>
 
               {message ? <div className="mt-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
@@ -773,10 +787,10 @@ export default function ExamRunner() {
                 disabled={stage === "starting" || !exam || beforeStart || afterEnd}
                 className="btn mt-6 w-full"
               >
-                {stage === "starting" ? <><Loader2 size={18} className="animate-spin" /> Starting exam...</> :
-                  beforeStart ? "The exam is not open yet" :
-                  afterEnd ? "The exam has closed" :
-                  "Start / choose section"}
+                {stage === "starting" ? <><Loader2 size={18} className="animate-spin" /> {isArabicGeneralExam ? "جاري تجهيز الاختبار..." : "Starting exam..."}</> :
+                  beforeStart ? (isArabicGeneralExam ? "الاختبار لم يبدأ بعد" : "The exam is not open yet") :
+                  afterEnd ? (isArabicGeneralExam ? "انتهى وقت إتاحة الاختبار" : "The exam has closed") :
+                  (isArabicGeneralExam ? "دخول قسم الميد ترم" : "Start / choose section")}
               </button>
             </div>
           </div>
@@ -953,10 +967,16 @@ export default function ExamRunner() {
         <div className="mx-auto max-w-5xl">
           <section className="overflow-hidden rounded-[2rem] border border-[#dedbe6] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
             <div className="bg-gradient-to-l from-[#1F2B5E] via-[#304388] to-[#6366F1] p-6 text-white sm:p-8">
-              <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">SECTION RESULT</div>
-              <h1 dir="ltr" className="mt-2 text-3xl font-black">{sectionResult.sectionTitle}</h1>
+              <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">
+                {isArabicGeneralExam ? "نتيجة المحاولة" : "SECTION RESULT"}
+              </div>
+              <h1 dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 text-3xl font-black " + (isArabicGeneralExam ? "text-right" : "")}>
+                {sectionResult.sectionTitle}
+              </h1>
               <div className="mt-2 text-sm text-white/75">
-                Attempt {sectionResult.sectionAttemptNumber} of {sectionResult.attemptsAllowed}
+                {isArabicGeneralExam
+                  ? `المحاولة ${sectionResult.sectionAttemptNumber} من ${sectionResult.attemptsAllowed}`
+                  : `Attempt ${sectionResult.sectionAttemptNumber} of ${sectionResult.attemptsAllowed}`}
               </div>
             </div>
 
@@ -964,19 +984,19 @@ export default function ExamRunner() {
               <div className="grid gap-3 sm:grid-cols-4">
                 <div className="rounded-2xl bg-[#1F2B5E] p-5 text-center text-white">
                   <div className="text-4xl font-black">{sectionResult.percentage.toFixed(0)}%</div>
-                  <div className="mt-1 text-xs text-white/65">Section score</div>
+                  <div className="mt-1 text-xs text-white/65">{isArabicGeneralExam ? "الدرجة" : "Section score"}</div>
                 </div>
                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-center">
                   <div className="text-3xl font-black text-emerald-700">{sectionResult.correctCount}</div>
-                  <div className="mt-1 text-xs font-bold text-emerald-700">Correct</div>
+                  <div className="mt-1 text-xs font-bold text-emerald-700">{isArabicGeneralExam ? "صحيح" : "Correct"}</div>
                 </div>
                 <div className="rounded-2xl border border-rose-100 bg-rose-50 p-5 text-center">
                   <div className="text-3xl font-black text-rose-700">{sectionResult.wrongCount}</div>
-                  <div className="mt-1 text-xs font-bold text-rose-700">Wrong / unanswered</div>
+                  <div className="mt-1 text-xs font-bold text-rose-700">{isArabicGeneralExam ? "خطأ / غير مجاب" : "Wrong / unanswered"}</div>
                 </div>
                 <div className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-5 text-center">
                   <div className="text-3xl font-black">{sectionResult.attemptsRemaining}</div>
-                  <div className="mt-1 text-xs font-bold text-[#73788d]">Attempts remaining</div>
+                  <div className="mt-1 text-xs font-bold text-[#73788d]">{isArabicGeneralExam ? "المحاولات المتبقية" : "Attempts remaining"}</div>
                 </div>
               </div>
 
@@ -984,7 +1004,7 @@ export default function ExamRunner() {
                 <span className="font-black">{sectionResult.score} / {sectionResult.totalMarks}</span>
                 {sectionResult.bestPercentage !== undefined ? (
                   <span className="mr-3 text-sm font-bold text-emerald-700">
-                    · Best: {Number(sectionResult.bestPercentage).toFixed(0)}%
+                    · {isArabicGeneralExam ? "الأفضل" : "Best"}: {Number(sectionResult.bestPercentage).toFixed(0)}%
                   </span>
                 ) : null}
               </div>
@@ -1010,7 +1030,7 @@ export default function ExamRunner() {
                       <article key={item.questionId} className="overflow-hidden rounded-2xl border border-[#e5e1e9] bg-white shadow-sm">
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eeeaf2] bg-[#faf9fb] px-4 py-3">
                           <div className="text-xs font-black text-[#B1785C]">
-                            Question {item.number} · {item.skill}
+                            {isArabicGeneralExam ? `السؤال ${item.number}` : `Question ${item.number}`} · {item.skill}
                           </div>
                           <div className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-700">
                             {item.earned} / {item.marks}
@@ -1024,7 +1044,7 @@ export default function ExamRunner() {
                             </div>
                           ) : null}
 
-                          <div dir="ltr" className="whitespace-pre-wrap text-left text-base font-black leading-8 text-[#1F2B5E]">
+                          <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"whitespace-pre-wrap text-base font-black leading-8 text-[#1F2B5E] " + (isArabicGeneralExam ? "text-right" : "text-left")}>
                             {item.prompt}
                           </div>
 
@@ -1079,7 +1099,7 @@ export default function ExamRunner() {
                     className="btn w-full"
                   >
                     {advancing ? <Loader2 size={18} className="animate-spin" /> : <RotateCcw size={18} />}
-                    Try again · إعادة المحاولة
+                    {isArabicGeneralExam ? "إعادة المحاولة" : "Try again · إعادة المحاولة"}
                   </button>
                 ) : (
                   <div className="flex min-h-12 items-center justify-center rounded-xl bg-[#f0eff4] px-4 text-sm font-black text-[#74798d]">
@@ -1095,7 +1115,7 @@ export default function ExamRunner() {
                   }}
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#dcd8e4] bg-white px-4 font-black"
                 >
-                  Choose another Section
+                  {isArabicGeneralExam ? "العودة إلى قسم الاختبار" : "Choose another Section"}
                 </button>
               </div>
 
@@ -1107,7 +1127,7 @@ export default function ExamRunner() {
                   className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B1785C] px-4 font-black text-white"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                  Finish exam & calculate overall best score
+                  {isArabicGeneralExam ? "إنهاء الاختبار واعتماد أفضل نتيجة" : "Finish exam & calculate overall best score"}
                 </button>
               ) : null}
             </div>
@@ -1278,9 +1298,9 @@ export default function ExamRunner() {
               <span dir="ltr">{formatRemaining(remaining)}</span>
             </div>
             <div className="hidden items-center gap-2 text-xs font-bold text-[#74798d] sm:flex">
-              {saveState === "saving" ? <><Loader2 size={14} className="animate-spin" /> Saving...</> : null}
-              {saveState === "saved" ? <><Save size={14} /> Saved</> : null}
-              {saveState === "error" ? <span className="text-rose-600">Save failed</span> : null}
+              {saveState === "saving" ? <><Loader2 size={14} className="animate-spin" /> {isArabicGeneralExam ? "جاري الحفظ..." : "Saving..."}</> : null}
+              {saveState === "saved" ? <><Save size={14} /> {isArabicGeneralExam ? "تم الحفظ" : "Saved"}</> : null}
+              {saveState === "error" ? <span className="text-rose-600">{isArabicGeneralExam ? "تعذر الحفظ" : "Save failed"}</span> : null}
             </div>
           </div>
         </div>
@@ -1359,7 +1379,7 @@ export default function ExamRunner() {
 
         <aside className="hidden rounded-[1.5rem] border border-[#e3dfe8] bg-white p-4 shadow-sm xl:sticky xl:top-24 xl:block xl:h-fit">
           <div className="mb-4 flex items-center justify-between">
-            <strong>{isReadingSection ? `Passage ${currentPassageIndex + 1} of ${passageIds.length}` : "Questions"}</strong>
+            <strong>{isReadingSection ? `Passage ${currentPassageIndex + 1} of ${passageIds.length}` : (isArabicGeneralExam ? "الأسئلة" : "Questions")}</strong>
             <span className="text-xs font-black text-[#74798d]">
               {isReadingSection
                 ? passageAnsweredCount + "/" + visibleQuestionEntries.length
@@ -1382,7 +1402,11 @@ export default function ExamRunner() {
               >
                 {section.position}. {section.title}
                 <span className="ml-2 font-bold opacity-70">
-                  {sectionCompleted(section.id) ? "Completed" : section.id === activeSectionId ? section.timeLimitMinutes + " min" : "Available"}
+                  {sectionCompleted(section.id)
+                    ? (isArabicGeneralExam ? "مكتمل" : "Completed")
+                    : section.id === activeSectionId
+                      ? (isArabicGeneralExam ? section.timeLimitMinutes + " دقيقة" : section.timeLimitMinutes + " min")
+                      : (isArabicGeneralExam ? "متاح" : "Available")}
                 </span>
               </div>
             ))}
@@ -1600,7 +1624,7 @@ export default function ExamRunner() {
               }}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#ddd8e4] bg-white px-3 text-sm font-black disabled:opacity-40 sm:w-auto sm:px-4 sm:text-base"
             >
-              <ArrowRight size={18} /> Previous
+              <ArrowRight size={18} /> {isArabicGeneralExam ? "السابق" : "Previous"}
             </button>
 
             {isReadingSection && localQuestionIndex < visibleQuestionEntries.length - 1 ? (
@@ -1628,7 +1652,7 @@ export default function ExamRunner() {
                 onClick={() => goToQuestion(Math.min(activeQuestions.length - 1, currentIndex + 1))}
                 className="btn w-full px-3 text-sm sm:w-auto sm:px-5 sm:text-base"
               >
-                Next <ArrowLeft size={18} />
+                {isArabicGeneralExam ? "التالي" : "Next"} <ArrowLeft size={18} />
               </button>
             ) : (
               <button
@@ -1638,7 +1662,9 @@ export default function ExamRunner() {
                 className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
               >
                 {advancing || submitting ? <Loader2 size={18} className="animate-spin" /> : isFinalRemainingSection ? <Send size={18} /> : <ArrowLeft size={18} />}
-                {isFinalRemainingSection ? "Complete final section & show result" : "Complete section & choose another"}
+                {isArabicGeneralExam
+                  ? (isFinalRemainingSection ? "إنهاء الاختبار وعرض النتيجة" : "إنهاء القسم")
+                  : (isFinalRemainingSection ? "Complete final section & show result" : "Complete section & choose another")}
               </button>
             )}
           </div>
