@@ -401,7 +401,7 @@ export default function IntensivePortal() {
     (course) => !course.code.trim().toUpperCase().startsWith("GR"),
   );
 
-  function renderCourseCard(course: Course) {
+  function renderCourseCard(course: Dashboard["courses"][number]) {
     const visual = courseVisual(course.code);
     const metrics = courseMetrics(course.id);
     const cover = courseCover(course.code, course.default_cover_url);
