@@ -66,16 +66,16 @@ export default function SettingsPortal(){
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6fa] px-4 py-6 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <main className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <a href="/admin" className="inline-flex items-center gap-2 text-sm font-black text-[#73788d]"><ArrowRight size={17}/> العودة للوحة المدير</a>
           <NumoBrand className="w-24" />
         </div>
 
-        <header className="overflow-hidden rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7c] to-[#6366F1] p-8 text-white shadow-[0_25px_70px_rgba(31,43,94,.22)]">
+        <header className="overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7c] to-[#6366F1] p-5 text-white sm:p-8 shadow-[0_25px_70px_rgba(31,43,94,.22)]">
           <div className="flex flex-wrap items-end justify-between gap-5">
-            <div><div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]"><Sparkles size={16}/> إعدادات النظام</div><h1 className="mt-2 text-4xl font-black">إعدادات NUMO INTENSIVE</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">تحكم ببيانات الدعم والمنطقة الزمنية، وراجع السياسات الأساسية التي تحكم تجربة الطالب والاختبارات.</p></div>
+            <div><div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]"><Sparkles size={16}/> إعدادات النظام</div><h1 className="mt-2 text-2xl font-black sm:text-4xl">إعدادات NUMO INTENSIVE</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">تحكم ببيانات الدعم والمنطقة الزمنية، وراجع السياسات الأساسية التي تحكم تجربة الطالب والاختبارات.</p></div>
             <div className="rounded-2xl border border-white/15 bg-white/10 p-5"><ShieldCheck className="text-emerald-300"/><div className="mt-2 font-black">سياسات الأمان مفعلة</div><div className="mt-1 text-xs text-white/55">جهاز موثوق واحد لكل طالب</div></div>
           </div>
         </header>
