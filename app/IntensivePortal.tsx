@@ -490,7 +490,7 @@ export default function IntensivePortal() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_12%_8%,rgba(99,102,241,.08),transparent_24%),radial-gradient(circle_at_88%_18%,rgba(177,120,92,.10),transparent_26%),linear-gradient(180deg,#fbfbfd_0%,#f5f6fa_46%,#f8f5f3_100%)] text-[#1F2B5E]">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[radial-gradient(circle_at_12%_8%,rgba(99,102,241,.08),transparent_24%),radial-gradient(circle_at_88%_18%,rgba(177,120,92,.10),transparent_26%),linear-gradient(180deg,#fbfbfd_0%,#f5f6fa_46%,#f8f5f3_100%)] text-[#1F2B5E]">
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 shadow-[0_10px_35px_rgba(31,43,94,.07)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 px-3 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
@@ -541,7 +541,7 @@ export default function IntensivePortal() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1480px] px-3 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+      <main className="mx-auto w-full max-w-[1480px] overflow-x-clip px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
         <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#253574_48%,#6366F1_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
           <div className="absolute inset-0 opacity-[.16] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:42px_42px]" />
           <div className="absolute -right-24 -top-20 h-80 w-80 rounded-full bg-[#B1785C]/28 blur-3xl" />
