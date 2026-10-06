@@ -305,7 +305,7 @@ export default function CoursePortal() {
                   className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]"
                 >
                   <div className="h-2" style={{ background: definition.accent }} />
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#B1785C]" dir="ltr">
@@ -437,7 +437,7 @@ export default function CoursePortal() {
               return (
                 <article key={section.id} className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
                   <div className="h-2" style={{ background: visual.accent }} />
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-xs font-black text-[#B1785C]">{exam.category}</div>
