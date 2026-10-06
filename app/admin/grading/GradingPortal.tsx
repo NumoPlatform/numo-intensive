@@ -119,23 +119,23 @@ export default function GradingPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] px-4 py-7 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-7 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <a href="/admin" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#73788d]">
           <ArrowRight size={17} /> Back to admin dashboard
         </a>
 
-        <header className="mb-7 overflow-hidden rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-7 text-white shadow-xl">
+        <header className="mb-7 overflow-hidden rounded-[1.5rem] sm:rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-5 text-white sm:p-7 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#e9c0ab]">
                 <Sparkles size={16} /> NUMO INTENSIVE
               </div>
-              <h1 className="text-3xl font-black">Grading & Results</h1>
+              <h1 className="text-2xl font-black sm:text-3xl">Grading & Results</h1>
               <p className="mt-2 text-sm leading-7 text-white/70">Grade written answers and publish completed results.</p>
             </div>
             <div className="rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-center">
-              <div className="text-3xl font-black">{pending.length}</div>
+              <div className="text-2xl font-black sm:text-3xl">{pending.length}</div>
               <div className="text-xs text-white/65">Answers awaiting grading</div>
             </div>
           </div>
