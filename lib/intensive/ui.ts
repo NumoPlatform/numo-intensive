@@ -59,7 +59,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
     accentSoft: "#FFF2DF",
     gradient: "linear-gradient(135deg, #B94700 0%, #F58B00 100%)",
     scene: "Dunes",
-  },,
+  },
   GR101: {
     level: "General Studies",
     label: "Self-Learning Skills",
@@ -99,7 +99,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
     accentSoft: "#FBF2ED",
     gradient: "linear-gradient(135deg, #6366F1 0%, #1F2B5E 58%, #B1785C 100%)",
     scene: "Life Skills",
-  }
+  },
 };
 
 export function courseVisual(code: string): CourseVisual {
