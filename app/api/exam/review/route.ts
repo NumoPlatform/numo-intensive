@@ -62,6 +62,14 @@ type AttemptKey = {
   acceptableAnswers: string[];
 };
 
+type QuestionReferenceRow = {
+  id: string;
+  reference_source: string | null;
+  reference_unit: string | null;
+  reference_page: string | null;
+  reference_evidence: string | null;
+};
+
 function scalar(value: unknown) {
   if (typeof value === "string" || typeof value === "boolean" || typeof value === "number") {
     return String(value);
@@ -170,8 +178,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const questionIds = (attempt.question_snapshot ?? []).map((question) => question.id).filter(Boolean);
+    const referenceRows = questionIds.length
+      ? await serviceRequest<QuestionReferenceRow[]>(
+          "/rest/v1/intensive_questions?" +
+            new URLSearchParams({
+              select: "id,reference_source,reference_unit,reference_page,reference_evidence",
+              id: "in.(" + questionIds.join(",") + ")",
+            }).toString(),
+        )
+      : [];
+
     const answerMap = new Map(answers.map((answer) => [answer.question_id, answer]));
     const keyMap = new Map((keyRows[0]?.key_data ?? []).map((key) => [key.questionId, key]));
+    const referenceMap = new Map(referenceRows.map((row) => [row.id, row]));
 
     const wrongQuestions = (attempt.question_snapshot ?? []).flatMap((question, index) => {
       const answer = answerMap.get(question.id);
@@ -199,6 +219,7 @@ export async function GET(request: NextRequest) {
         correctAnswer = (key?.acceptableAnswers ?? []).join(" / ");
       }
 
+      const reference = referenceMap.get(question.id);
       return [{
         number: index + 1,
         questionId: question.id,
@@ -216,6 +237,10 @@ export async function GET(request: NextRequest) {
               body: question.passage.body,
             }
           : null,
+        referenceSource: reference?.reference_source ?? null,
+        referenceUnit: reference?.reference_unit ?? null,
+        referencePage: reference?.reference_page ?? null,
+        referenceEvidence: reference?.reference_evidence ?? null,
       }];
     });
 
