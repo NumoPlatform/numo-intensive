@@ -616,7 +616,9 @@ export default function ExamRunner() {
 
   const questions = attempt?.questions ?? [];
   const sections = attempt?.sections ?? [];
-  const isArabicGeneralExam = /^(AR|GR)/.test(courseCode.trim().toUpperCase());
+  const normalizedCourseCode = courseCode.trim().toUpperCase();
+  const isArabicGeneralExam = /^(AR|GR)/.test(normalizedCourseCode);
+  const isTextbookReferencedExam = normalizedCourseCode === "AR112";
   const activeSectionId = attempt?.current_section_id ?? null;
   const activeQuestions = useMemo(
     () => questions.filter((question) => question.sectionId === activeSectionId),
@@ -871,7 +873,7 @@ export default function ExamRunner() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="text-xs font-black text-[#B1785C]">
-                            {isArabicGeneralExam ? `AR112 · MIDTERM` : `SECTION ${section.position}`}
+                            {isArabicGeneralExam ? `${courseCode || "GENERAL"} · MIDTERM` : `SECTION ${section.position}`}
                           </div>
                           <h2 dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-1 text-xl font-black " + (isArabicGeneralExam ? "text-right" : "")}>
                             {section.title}
@@ -1023,13 +1025,15 @@ export default function ExamRunner() {
                 <section className="mt-7">
                   <div className="mb-4">
                     <div className="text-xs font-black uppercase tracking-[.14em] text-[#B1785C]">
-                      {isArabicGeneralExam ? "مراجعة موثقة من المرجع" : "SMART REVIEW"}
+                      {isTextbookReferencedExam ? "مراجعة موثقة من المرجع" : (isArabicGeneralExam ? "مراجعة الإجابات" : "SMART REVIEW")}
                     </div>
                     <h2 className="mt-1 text-2xl font-black">الأخطاء والتصحيح التفصيلي</h2>
                     <p className="mt-2 text-sm leading-7 text-[#73788d]">
-                      {isArabicGeneralExam
+                      {isTextbookReferencedExam
                         ? "لكل خطأ ستظهر إجابتك، والإجابة الصحيحة، والدليل من كتاب المقرر، ثم الوحدة ورقم الصفحة."
-                        : "لكل خطأ ستجد إجابتك، الإجابة الصحيحة، سبب التصحيح بالإنجليزية والعربية، ثم نصيحة للمحاولة التالية."}
+                        : isArabicGeneralExam
+                          ? "تظهر هنا إجابتك والإجابة الصحيحة لكل سؤال أخطأت فيه."
+                          : "لكل خطأ ستجد إجابتك، الإجابة الصحيحة، سبب التصحيح بالإنجليزية والعربية، ثم نصيحة للمحاولة التالية."}
                     </p>
                   </div>
 
