@@ -88,7 +88,7 @@
   <!-- course copy -->
   <text x="305" y="205" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#1F2B5E">English Intensive Course</text>
   <text x="305" y="338" font-family="Georgia, serif" font-size="106" font-weight="700" fill="#1F2B5E">EL097_EL099E</text>
-  <text x="305" y="405" font-family="Arial, sans-serif" font-size="35" font-weight="700" fill="#B1785C">Foundation & Pre-Intermediate Levels</text>
+  <text x="305" y="405" font-family="Arial, sans-serif" font-size="35" font-weight="700" fill="#B1785C">Foundation &amp; Pre-Intermediate Levels</text>
   <rect x="305" y="438" width="500" height="54" rx="27" fill="#B1785C"/>
   <text x="555" y="474" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="800" fill="#fff">SEMESTER 2026 - 2027</text>
   <text x="305" y="535" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#6E748C">Your academic path to confident English learning</text>
