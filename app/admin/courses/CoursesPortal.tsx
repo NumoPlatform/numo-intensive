@@ -73,17 +73,17 @@ export default function CoursesPortal(){
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6fa] px-4 py-6 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <main className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <a href="/admin" className="inline-flex items-center gap-2 text-sm font-black text-[#73788d]"><ArrowRight size={17}/> العودة للوحة المدير</a>
           <NumoBrand className="w-24" />
         </div>
 
-        <header className="overflow-hidden rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#2d3e7d] to-[#6366F1] p-8 text-white shadow-[0_25px_70px_rgba(31,43,94,.22)]">
+        <header className="overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#2d3e7d] to-[#6366F1] p-5 text-white sm:p-8 shadow-[0_25px_70px_rgba(31,43,94,.22)]">
           <div className="flex flex-wrap items-end justify-between gap-5">
-            <div><div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]"><Sparkles size={16}/> إدارة المقررات</div><h1 className="mt-2 text-4xl font-black">تحكم كامل بالمقررات</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">عدّل اسم المقرر ووصفه وحالة التفعيل، وادخل مباشرة إلى الاختبارات والأغلفة.</p></div>
-            <div className="rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-center"><div className="text-3xl font-black">{activeCount}</div><div className="text-xs text-white/60">مقررات نشطة</div></div>
+            <div><div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]"><Sparkles size={16}/> إدارة المقررات</div><h1 className="mt-2 text-2xl font-black sm:text-4xl">تحكم كامل بالمقررات</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">عدّل اسم المقرر ووصفه وحالة التفعيل، وادخل مباشرة إلى الاختبارات والأغلفة.</p></div>
+            <div className="rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-center"><div className="text-2xl font-black sm:text-3xl">{activeCount}</div><div className="text-xs text-white/60">مقررات نشطة</div></div>
           </div>
         </header>
 
