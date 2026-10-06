@@ -113,6 +113,10 @@ type WrongReviewQuestion = {
     title: string;
     body: string;
   };
+  referenceSource?: string | null;
+  referenceUnit?: string | null;
+  referencePage?: string | null;
+  referenceEvidence?: string | null;
 };
 
 type ReviewPayload = {
@@ -1018,10 +1022,14 @@ export default function ExamRunner() {
               ) : (
                 <section className="mt-7">
                   <div className="mb-4">
-                    <div className="text-xs font-black uppercase tracking-[.14em] text-[#B1785C]">SMART REVIEW</div>
+                    <div className="text-xs font-black uppercase tracking-[.14em] text-[#B1785C]">
+                      {isArabicGeneralExam ? "مراجعة موثقة من المرجع" : "SMART REVIEW"}
+                    </div>
                     <h2 className="mt-1 text-2xl font-black">الأخطاء والتصحيح التفصيلي</h2>
                     <p className="mt-2 text-sm leading-7 text-[#73788d]">
-                      لكل خطأ ستجد إجابتك، الإجابة الصحيحة، سبب التصحيح بالإنجليزية والعربية، ثم نصيحة للمحاولة التالية.
+                      {isArabicGeneralExam
+                        ? "لكل خطأ ستظهر إجابتك، والإجابة الصحيحة، والدليل من كتاب المقرر، ثم الوحدة ورقم الصفحة."
+                        : "لكل خطأ ستجد إجابتك، الإجابة الصحيحة، سبب التصحيح بالإنجليزية والعربية، ثم نصيحة للمحاولة التالية."}
                     </p>
                   </div>
 
@@ -1059,30 +1067,60 @@ export default function ExamRunner() {
                             </div>
                           </div>
 
-                          <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                            <div className="rounded-xl border border-[#e0e4f2] bg-[#f7f8fc] p-4" dir="ltr">
-                              <div className="flex items-center gap-2 text-sm font-black text-[#1F2B5E]">
-                                <BookOpen size={16} /> English explanation
+                          {isArabicGeneralExam && item.referenceEvidence ? (
+                            <div dir="rtl" className="mt-4 space-y-3 text-right">
+                              <div className="rounded-xl border border-[#e8ddd7] bg-[#fdf8f5] p-4">
+                                <div className="flex items-center justify-end gap-2 text-sm font-black text-[#8d5b45]">
+                                  <span>التصحيح</span><CheckCircle2 size={17} />
+                                </div>
+                                <p className="mt-2 text-sm font-bold leading-7 text-[#5d514c]">{item.correctionAr}</p>
                               </div>
-                              <p className="mt-2 text-left text-sm font-semibold leading-7 text-[#4f566d]">{item.correctionEn}</p>
-                              <p className="mt-2 text-left text-sm leading-7 text-[#4f566d]">{item.explanationEn}</p>
-                            </div>
-                            <div className="rounded-xl border border-[#eee1d9] bg-[#fdf8f5] p-4" dir="rtl">
-                              <div className="flex items-center gap-2 text-sm font-black text-[#8d5b45]">
-                                <BookOpen size={16} /> الشرح بالعربية
+                              <div className="rounded-xl border border-[#dfe4f2] bg-[#f7f8fc] p-4">
+                                <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
+                                  <span>الدليل من الكتاب</span><BookOpen size={17} />
+                                </div>
+                                <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
+                                  {item.referenceEvidence}
+                                </p>
                               </div>
-                              <p className="mt-2 text-right text-sm font-semibold leading-7 text-[#5d514c]">{item.correctionAr}</p>
-                              <p className="mt-2 text-right text-sm leading-7 text-[#5d514c]">{item.explanationAr}</p>
+                              <div className="rounded-xl border border-[#eadfd8] bg-white p-4 shadow-sm">
+                                <div className="text-xs font-black text-[#B1785C]">المصدر المعتمد</div>
+                                <div className="mt-2 text-sm font-black leading-7 text-[#1F2B5E]">
+                                  {item.referenceSource}
+                                </div>
+                                <div className="mt-1 text-sm font-bold leading-7 text-[#62687d]">
+                                  {item.referenceUnit ? item.referenceUnit + " · " : ""}
+                                  {item.referencePage ? "صفحة " + item.referencePage : ""}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-
-                          <div className="mt-3 rounded-xl border border-amber-100 bg-amber-50 p-4">
-                            <div className="flex items-center gap-2 text-xs font-black text-amber-800">
-                              <Lightbulb size={16} /> Learning tip · نصيحة للتعلم
-                            </div>
-                            <p dir="ltr" className="mt-2 text-left text-xs leading-6 text-amber-900">{item.tipEn}</p>
-                            <p dir="rtl" className="mt-1 text-right text-xs leading-6 text-amber-900">{item.tipAr}</p>
-                          </div>
+                          ) : (
+                            <>
+                              <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                                <div className="rounded-xl border border-[#e0e4f2] bg-[#f7f8fc] p-4" dir="ltr">
+                                  <div className="flex items-center gap-2 text-sm font-black text-[#1F2B5E]">
+                                    <BookOpen size={16} /> English explanation
+                                  </div>
+                                  <p className="mt-2 text-left text-sm font-semibold leading-7 text-[#4f566d]">{item.correctionEn}</p>
+                                  <p className="mt-2 text-left text-sm leading-7 text-[#4f566d]">{item.explanationEn}</p>
+                                </div>
+                                <div className="rounded-xl border border-[#eee1d9] bg-[#fdf8f5] p-4" dir="rtl">
+                                  <div className="flex items-center gap-2 text-sm font-black text-[#8d5b45]">
+                                    <BookOpen size={16} /> الشرح بالعربية
+                                  </div>
+                                  <p className="mt-2 text-right text-sm font-semibold leading-7 text-[#5d514c]">{item.correctionAr}</p>
+                                  <p className="mt-2 text-right text-sm leading-7 text-[#5d514c]">{item.explanationAr}</p>
+                                </div>
+                              </div>
+                              <div className="mt-3 rounded-xl border border-amber-100 bg-amber-50 p-4">
+                                <div className="flex items-center gap-2 text-xs font-black text-amber-800">
+                                  <Lightbulb size={16} /> Learning tip · نصيحة للتعلم
+                                </div>
+                                <p dir="ltr" className="mt-2 text-left text-xs leading-6 text-amber-900">{item.tipEn}</p>
+                                <p dir="rtl" className="mt-1 text-right text-xs leading-6 text-amber-900">{item.tipAr}</p>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </article>
                     ))}
@@ -1248,6 +1286,24 @@ export default function ExamRunner() {
                             </div>
                           </div>
                         </div>
+                        {isArabicGeneralExam && item.referenceEvidence ? (
+                          <div dir="rtl" className="mt-4 space-y-3 text-right">
+                            <div className="rounded-xl border border-[#dfe4f2] bg-[#f7f8fc] p-4">
+                              <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
+                                <span>الدليل من الكتاب</span><BookOpen size={17} />
+                              </div>
+                              <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{item.referenceEvidence}</p>
+                            </div>
+                            <div className="rounded-xl border border-[#eadfd8] bg-white p-4">
+                              <div className="text-xs font-black text-[#B1785C]">المصدر</div>
+                              <div className="mt-2 text-sm font-black leading-7 text-[#1F2B5E]">{item.referenceSource}</div>
+                              <div className="mt-1 text-sm font-bold text-[#62687d]">
+                                {item.referenceUnit ? item.referenceUnit + " · " : ""}
+                                {item.referencePage ? "صفحة " + item.referencePage : ""}
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </article>
                   ))}
