@@ -139,7 +139,7 @@ export default function StudentAccountEditor() {
 
   if (!student) {
     return (
-      <div className="min-h-screen bg-[#f5f6fa] px-4 py-10 text-[#1F2B5E]">
+      <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-4 py-10 text-[#1F2B5E]">
         <div className="mx-auto max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm">
           <div className="font-black">{notice || "حساب الطالب غير موجود."}</div>
           <a href="/admin" className="btn mt-5">العودة للوحة المدير</a>
@@ -149,17 +149,17 @@ export default function StudentAccountEditor() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] px-4 py-7 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-7 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <a href="/admin" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#73788d]">
           <ArrowRight size={17} /> Back to admin dashboard
         </a>
 
-        <header className="mb-6 rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-7 text-white shadow-xl">
+        <header className="mb-6 rounded-[1.5rem] sm:rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-5 text-white sm:p-7 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="text-sm font-black text-[#e9c0ab]">إدارة حساب الطالب</div>
-              <h1 className="mt-1 text-3xl font-black">{student.full_name}</h1>
+              <h1 className="mt-1 text-2xl font-black sm:text-3xl">{student.full_name}</h1>
               <div className="mt-2 text-sm text-white/65" dir="ltr">@{student.username}</div>
             </div>
             <div className="grid h-16 w-16 place-items-center rounded-2xl border border-white/15 bg-white/10">
