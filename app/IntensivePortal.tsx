@@ -412,9 +412,9 @@ export default function IntensivePortal() {
       <a
         key={course.id}
         href={"/course/" + course.id}
-        className="group relative overflow-hidden rounded-[1.8rem] border border-[#e3dfe7] bg-white shadow-[0_14px_42px_rgba(31,43,94,.065)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)]"
+        className="group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_70px_rgba(31,43,94,.14)]"
       >
-        <div className="relative aspect-[16/9] overflow-hidden bg-white">
+        <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f7f6fa)]">
           <img
             src={cover}
             alt={"غلاف " + course.code}
@@ -490,8 +490,8 @@ export default function IntensivePortal() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8f9fc_0%,#f4f5f9_46%,#f7f5f3_100%)] text-[#1F2B5E]">
-      <header className="sticky top-0 z-40 border-b border-[#e9e6ed]/90 bg-white/[.09]5 shadow-[0_8px_30px_rgba(31,43,94,.05)] backdrop-blur-xl">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_12%_8%,rgba(99,102,241,.08),transparent_24%),radial-gradient(circle_at_88%_18%,rgba(177,120,92,.10),transparent_26%),linear-gradient(180deg,#fbfbfd_0%,#f5f6fa_46%,#f8f5f3_100%)] text-[#1F2B5E]">
+      <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 shadow-[0_10px_35px_rgba(31,43,94,.07)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 px-3 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <NumoBrand horizontal priority className="w-auto" />
@@ -506,13 +506,13 @@ export default function IntensivePortal() {
             </div>
           </div>
 
-          <nav className="hidden items-center gap-1 rounded-2xl border border-[#e8e4eb] bg-[#faf9fb] p-1.5 xl:flex">
-            <span className="inline-flex items-center gap-2 rounded-xl bg-[#1F2B5E] px-4 py-2.5 text-xs font-black text-white shadow-sm">
+          <nav className="hidden items-center gap-1 rounded-2xl border border-[#e6e2ea] bg-white/90 p-1.5 shadow-[0_10px_28px_rgba(31,43,94,.05)] xl:flex">
+            <span className="inline-flex items-center gap-2 rounded-xl bg-[linear-gradient(135deg,#1F2B5E,#303f86)] px-4 py-2.5 text-xs font-black text-white shadow-[0_8px_20px_rgba(31,43,94,.18)]">
               <LayoutDashboard size={15} /> الرئيسية
             </span>
-            <span className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black text-[#6d7287]">
+            <a href="#course-portfolio" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black text-[#6d7287] transition hover:bg-[#f6f4f8] hover:text-[#1F2B5E]">
               <BookOpenCheck size={15} /> مقرراتي
-            </span>
+            </a>
             <span className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black text-[#6d7287]">
               <BarChart3 size={15} /> الأداء
             </span>
@@ -542,26 +542,44 @@ export default function IntensivePortal() {
       </header>
 
       <main className="mx-auto max-w-[1480px] px-3 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#1F2B5E] text-white shadow-[0_30px_90px_rgba(31,43,94,.22)] sm:rounded-[2.35rem]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_15%,rgba(177,120,92,.24),transparent_32%),radial-gradient(circle_at_88%_20%,rgba(99,102,241,.24),transparent_30%)]" />
-          <div className="absolute -left-16 bottom-0 h-40 w-40 rounded-full border border-white/10" />
-          <div className="absolute -left-8 bottom-8 h-24 w-24 rounded-full border border-white/10" />
+        <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#253574_48%,#6366F1_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
+          <div className="absolute inset-0 opacity-[.16] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:42px_42px]" />
+          <div className="absolute -right-24 -top-20 h-80 w-80 rounded-full bg-[#B1785C]/28 blur-3xl" />
+          <div className="absolute -bottom-28 left-[12%] h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute left-[44%] top-[12%] h-48 w-48 rounded-full bg-[#6366F1]/35 blur-2xl" />
 
-          <div className="relative grid gap-7 p-5 sm:p-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(310px,.65fr)] lg:items-stretch lg:p-10">
-            <div className="flex min-w-0 flex-col justify-between">
-              <div>
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[.08] px-3 py-1.5 text-[11px] font-black text-[#efc5b1]">
-                  <Sparkles size={14} /> Academic Dashboard · بوابة الطالب الأكاديمية
-                </div>
+          <div className="relative grid gap-8 p-5 sm:p-8 lg:grid-cols-[minmax(360px,.9fr)_minmax(0,1.1fr)] lg:items-center lg:p-10 xl:p-12">
+            <div className="order-1 lg:order-2">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-black text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,.14)] backdrop-blur">
+                <Sparkles size={14} className="text-[#e6b49b]" />
+                منصة التعليم الأكاديمي الذكي · NUMO STUDENT
+              </div>
 
-                <h1 className="max-w-4xl text-3xl font-black leading-[1.35] sm:text-4xl lg:text-[3.2rem]">
-                  أهلا <span className="text-[#d8a084]">{firstName}</span>،
-                  <span className="block">واصل تقدمك بثقة وتركيز.</span>
-                </h1>
+              <h1 className="max-w-4xl text-3xl font-black leading-[1.4] sm:text-4xl lg:text-[3.35rem] xl:text-[3.8rem]">
+                أهلاً <span className="text-[#e7b79f]">{firstName}</span>،
+                <span className="mt-1 block">تجربة تعليمية متقدمة</span>
+                <span className="block text-white/92">مصممة لنجاحك الأكاديمي.</span>
+              </h1>
 
-                <p className="mt-4 max-w-2xl text-sm font-medium leading-8 text-white/68 sm:text-base">
-                  كل مقرر، Section، نتيجة ومحاولة في تجربة واحدة منظمة. ابدأ من الخطوة التالية أو راجع أداءك ثم أكمل استعدادك.
-                </p>
+              <p className="mt-5 max-w-2xl text-sm font-semibold leading-8 text-white/72 sm:text-base sm:leading-9">
+                مقرراتك، اختباراتك، نتائجك ومراجعاتك في واجهة واحدة حديثة تجمع بين الوضوح الأكاديمي، السرعة، والفخامة البصرية.
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href="#course-portfolio"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-[#1F2B5E] shadow-[0_14px_34px_rgba(0,0,0,.15)] transition hover:-translate-y-0.5"
+                >
+                  <BookOpenCheck size={18} /> استعرض مقرراتي
+                </a>
+                {nextAction ? (
+                  <a
+                    href={"/exam/" + nextAction.exam.id}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition hover:bg-white/15"
+                  >
+                    <PlayCircle size={18} /> ابدأ الاختبار المتاح
+                  </a>
+                ) : null}
               </div>
 
               <div className="mt-7 flex flex-wrap gap-2">
@@ -569,53 +587,73 @@ export default function IntensivePortal() {
                   <ShieldCheck size={15} className="text-emerald-300" /> جهاز موثوق
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[.08] px-3 py-2 text-xs font-black">
-                  <Layers3 size={15} className="text-[#e5b49b]" /> {totalSections} Sections
+                  <Layers3 size={15} className="text-[#e7b79f]" /> {totalSections} أقسام
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[.08] px-3 py-2 text-xs font-black">
-                  <Target size={15} className="text-indigo-200" /> {openExams.length} Available Now
+                  <Target size={15} className="text-indigo-200" /> {openExams.length} اختبار متاح
                 </span>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-[1.65rem] border border-white/12 bg-white/[.09] p-5 backdrop-blur-md">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-xs font-black text-white/55">ACADEMIC PROGRESS</div>
-                    <div className="mt-2 text-4xl font-black">{overallProgress}%</div>
-                    <div className="mt-1 text-xs font-bold text-white/55">
-                      {completedSections} of {totalSections || 0} sections completed
+            <div className="order-2 lg:order-1">
+              <div className="relative mx-auto aspect-square w-full max-w-[470px]">
+                <div className="absolute inset-[10%] rounded-full border border-white/16 bg-white/[.04] shadow-[0_0_70px_rgba(99,102,241,.26)] backdrop-blur-sm" />
+                <div className="absolute inset-[19%] rounded-full border border-white/20 bg-[radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,.04)_58%,transparent_60%)]" />
+                <div className="absolute inset-[27%] grid place-items-center rounded-[2.3rem] border border-white/20 bg-white shadow-[0_24px_60px_rgba(14,20,55,.28)]">
+                  <div className="text-center">
+                    <NumoBrand className="mx-auto w-24 sm:w-28" priority />
+                    <div className="mt-4 text-[10px] font-black uppercase tracking-[.22em] text-[#B1785C]" dir="ltr">
+                      NUMO ACADEMIC
                     </div>
-                  </div>
-                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
-                    <BarChart3 size={23} className="text-[#efc3ad]" />
+                    <div className="mt-1 text-sm font-black text-[#1F2B5E]">Student Experience</div>
                   </div>
                 </div>
-                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-l from-[#B1785C] to-[#e0ae94]"
-                    style={{ width: overallProgress + "%" }}
-                  />
-                </div>
-              </div>
 
-              <div className="rounded-[1.65rem] border border-white/12 bg-white/[.09] p-5 backdrop-blur-md">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs font-black text-white/55">BEST PERFORMANCE</div>
-                    <div className="mt-2 text-3xl font-black">
-                      {bestPublishedResult?.percentage ?? "—"}{bestPublishedResult ? "%" : ""}
-                    </div>
-                  </div>
-                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#B1785C]">
-                    <Trophy size={22} />
-                  </div>
+                <div className="absolute left-[3%] top-[17%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                  <GraduationCap size={28} />
                 </div>
-                <div className="mt-4 text-xs font-bold leading-6 text-white/55">
-                  أفضل نتيجة منشورة في اختباراتك حتى الآن.
+                <div className="absolute right-[3%] top-[18%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                  <BookOpenCheck size={27} />
                 </div>
+                <div className="absolute left-[1%] top-[47%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                  <Target size={27} />
+                </div>
+                <div className="absolute right-[1%] top-[48%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                  <Trophy size={27} />
+                </div>
+                <div className="absolute bottom-[9%] left-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                  <BarChart3 size={27} />
+                </div>
+                <div className="absolute bottom-[8%] right-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                  <ShieldCheck size={27} />
+                </div>
+
+                <div className="absolute left-1/2 top-[5%] h-2 w-2 -translate-x-1/2 rounded-full bg-[#e8b59b] shadow-[0_0_18px_rgba(232,181,155,.9)]" />
+                <div className="absolute bottom-[4%] left-[48%] h-2 w-2 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,.9)]" />
               </div>
             </div>
+          </div>
+
+          <div className="relative grid border-t border-white/10 bg-black/5 sm:grid-cols-3">
+            {[
+              { label: "التقدم الأكاديمي", value: overallProgress + "%", note: completedSections + " من " + (totalSections || 0) + " مكتمل", icon: BarChart3 },
+              { label: "أفضل نتيجة", value: bestPublishedResult ? (bestPublishedResult.percentage ?? 0) + "%" : "—", note: "Best Published Score", icon: Medal },
+              { label: "اختبارات متاحة", value: openExams.length, note: "Available Now", icon: PlayCircle },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className={"flex items-center gap-3 px-5 py-4 sm:px-6 " + (index ? "border-t border-white/10 sm:border-r-0 sm:border-t-0 sm:border-s" : "")}>
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-[#edc2ad]">
+                    <Icon size={18} />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-white/50">{item.label}</div>
+                    <div className="mt-0.5 text-2xl font-black">{item.value}</div>
+                    <div className="text-[10px] font-bold text-white/45" dir="auto">{item.note}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -658,7 +696,7 @@ export default function IntensivePortal() {
             return (
               <article
                 key={item.label}
-                className="group rounded-[1.55rem] border border-[#e6e2e9] bg-white p-4 shadow-[0_12px_36px_rgba(31,43,94,.055)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(31,43,94,.09)] sm:p-5"
+                className="group relative overflow-hidden rounded-[1.7rem] border border-white/80 bg-white/92 p-4 shadow-[0_16px_42px_rgba(31,43,94,.07)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)] sm:p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -729,8 +767,8 @@ export default function IntensivePortal() {
           </section>
         ) : null}
 
-        <section className="mt-8">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <section id="course-portfolio" className="mt-10 scroll-mt-28">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
               <div className="text-[11px] font-black uppercase tracking-[.18em] text-[#B1785C]" dir="ltr">
                 COURSE PORTFOLIO
@@ -749,7 +787,7 @@ export default function IntensivePortal() {
             <div className="space-y-8">
               {generalCourses.length ? (
                 <section>
-                  <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#eadfd8] bg-gradient-to-l from-[#fffaf7] to-white px-4 py-3">
+                  <div className="mb-5 flex items-center justify-between gap-3 overflow-hidden rounded-[1.5rem] border border-[#eadfd8] bg-[linear-gradient(110deg,#fffaf7_0%,#ffffff_58%,#f4f3ff_100%)] px-5 py-4 shadow-[0_12px_32px_rgba(31,43,94,.05)]">
                     <div>
                       <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#B1785C]" dir="ltr">GENERAL STUDIES</div>
                       <h3 className="mt-1 text-xl font-black">المواد العامة</h3>
@@ -767,7 +805,7 @@ export default function IntensivePortal() {
               {intensiveCourses.length ? (
                 <section>
                   {generalCourses.length ? (
-                    <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#e2e4f0] bg-gradient-to-l from-[#f8f8ff] to-white px-4 py-3">
+                    <div className="mb-5 flex items-center justify-between gap-3 overflow-hidden rounded-[1.5rem] border border-[#e2e4f0] bg-[linear-gradient(110deg,#f8f8ff_0%,#ffffff_58%,#fff9f6_100%)] px-5 py-4 shadow-[0_12px_32px_rgba(31,43,94,.05)]">
                       <div>
                         <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#6366F1]" dir="ltr">ENGLISH INTENSIVE</div>
                         <h3 className="mt-1 text-xl font-black">دورات اللغة الإنجليزية المكثفة</h3>
@@ -793,7 +831,7 @@ export default function IntensivePortal() {
         </section>
 
         <section className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
-          <div className="rounded-[1.8rem] border border-[#e2dee6] bg-white p-5 shadow-[0_14px_42px_rgba(31,43,94,.055)] sm:p-6">
+          <div className="rounded-[2rem] border border-white/80 bg-white/95 p-5 shadow-[0_14px_42px_rgba(31,43,94,.055)] sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#B1785C]" dir="ltr">ACADEMIC EXPERIENCE</div>
@@ -850,7 +888,7 @@ export default function IntensivePortal() {
         </section>
 
         {data.settings?.support_whatsapp || data.settings?.support_website ? (
-          <section className="mt-8 overflow-hidden rounded-[1.8rem] border border-[#e2dee6] bg-white shadow-[0_14px_42px_rgba(31,43,94,.055)]">
+          <section className="mt-8 overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 shadow-[0_14px_42px_rgba(31,43,94,.055)]">
             <div className="grid gap-5 p-5 sm:p-6 md:grid-cols-[1fr_auto] md:items-center">
               <div className="flex items-start gap-4">
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#fbf2ed] text-[#B1785C]">
@@ -891,7 +929,7 @@ export default function IntensivePortal() {
           </section>
         ) : null}
 
-        <footer className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#e4e0e7] py-5 text-center text-xs font-bold text-[#9296a5] sm:flex-row sm:text-right">
+        <footer className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[#e4e0e7] py-6 text-center text-xs font-bold text-[#9296a5] sm:flex-row sm:text-right">
           <div>NUMO Platform for Education & Student Services</div>
           <div dir="ltr">NUMO INTENSIVE · Student Academic Portal</div>
         </footer>
