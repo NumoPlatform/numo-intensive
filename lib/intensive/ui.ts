@@ -59,7 +59,47 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
     accentSoft: "#FFF2DF",
     gradient: "linear-gradient(135deg, #B94700 0%, #F58B00 100%)",
     scene: "Dunes",
+  },,
+  GR101: {
+    level: "General Studies",
+    label: "Self-Learning Skills",
+    cover: "/covers/gr101.webp",
+    accent: "#B1785C",
+    accentDark: "#7E503C",
+    accentSoft: "#FBF2ED",
+    gradient: "linear-gradient(135deg, #1F2B5E 0%, #B1785C 100%)",
+    scene: "Learning Path",
   },
+  GR111: {
+    level: "General Studies",
+    label: "Islamic Civilization",
+    cover: "/covers/gr111.webp",
+    accent: "#1F2B5E",
+    accentDark: "#152047",
+    accentSoft: "#EEF0F7",
+    gradient: "linear-gradient(135deg, #1F2B5E 0%, #6366F1 100%)",
+    scene: "Civilization",
+  },
+  GR112: {
+    level: "General Studies",
+    label: "Development Issues in the Arab World",
+    cover: "/covers/gr112.webp",
+    accent: "#6366F1",
+    accentDark: "#4043B4",
+    accentSoft: "#F0F0FF",
+    gradient: "linear-gradient(135deg, #1F2B5E 0%, #6366F1 55%, #B1785C 100%)",
+    scene: "Arab Development",
+  },
+  GR118: {
+    level: "General Studies",
+    label: "Life Skills",
+    cover: "/covers/gr118.webp",
+    accent: "#B1785C",
+    accentDark: "#7E503C",
+    accentSoft: "#FBF2ED",
+    gradient: "linear-gradient(135deg, #6366F1 0%, #1F2B5E 58%, #B1785C 100%)",
+    scene: "Life Skills",
+  }
 };
 
 export function courseVisual(code: string): CourseVisual {
