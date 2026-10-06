@@ -394,12 +394,14 @@ export default function IntensivePortal() {
     ? data.courses.find((course) => course.id === nextAction.exam.course_id) ?? null
     : data.courses[0] ?? null;
 
-  const generalCourses = data.courses.filter((course) =>
-    course.code.trim().toUpperCase().startsWith("GR"),
-  );
-  const intensiveCourses = data.courses.filter(
-    (course) => !course.code.trim().toUpperCase().startsWith("GR"),
-  );
+  const generalCourses = data.courses.filter((course) => {
+    const code = course.code.trim().toUpperCase();
+    return code.startsWith("GR") || code.startsWith("AR");
+  });
+  const intensiveCourses = data.courses.filter((course) => {
+    const code = course.code.trim().toUpperCase();
+    return !code.startsWith("GR") && !code.startsWith("AR");
+  });
 
   function renderCourseCard(course: Dashboard["courses"][number]) {
     const visual = courseVisual(course.code);
