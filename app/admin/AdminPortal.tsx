@@ -214,11 +214,11 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="deluxe-panel rounded-[1.65rem] p-5 sm:rounded-[2rem] sm:p-6">
+    <section className="deluxe-panel min-w-0 overflow-hidden rounded-[1.4rem] p-4 sm:rounded-[2rem] sm:p-6">
       <div className="mb-5 flex items-start gap-3 sm:mb-6">
         <span className="mt-1 h-8 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-[#c48566] to-[#8f573f]" />
-        <div>
-          <h2 className="text-lg font-black text-[#182553] sm:text-xl">{title}</h2>
+        <div className="min-w-0">
+          <h2 className="break-words text-lg font-black text-[#182553] sm:text-xl">{title}</h2>
           {subtitle ? <p className="mt-1 text-sm leading-7 text-[#73788d]">{subtitle}</p> : null}
         </div>
       </div>
@@ -426,7 +426,7 @@ export default function AdminPortal() {
   ];
 
   return (
-    <div className="deluxe-canvas min-h-screen text-[#182553]">
+    <div className="admin-shell deluxe-canvas min-h-screen overflow-x-clip text-[#182553]">
       <div className="min-h-screen lg:grid lg:grid-cols-[296px_minmax(0,1fr)]">
         <aside className="deluxe-sidebar relative hidden h-screen overflow-hidden p-5 text-white lg:sticky lg:top-0 lg:flex lg:flex-col lg:p-6">
           <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-[#c48566]/18 blur-3xl" />
@@ -493,7 +493,7 @@ export default function AdminPortal() {
           </div>
         </aside>
 
-        <main className="min-w-0 px-3 pb-28 pt-3 sm:px-6 sm:pt-6 lg:p-8 lg:pb-10">
+        <main className="min-w-0 max-w-full px-3 pb-8 pt-3 sm:px-5 sm:pb-10 sm:pt-5 lg:p-8 lg:pb-10">
           <div className="mx-auto max-w-[1500px]">
             <div className="mb-3 flex items-center justify-between rounded-[1.35rem] border border-white/80 bg-white/80 p-3 shadow-[0_12px_35px_rgba(31,43,94,.07)] backdrop-blur-xl lg:hidden">
               <div className="flex min-w-0 items-center gap-3">
@@ -508,7 +508,30 @@ export default function AdminPortal() {
               </button>
             </div>
 
-            <header className="deluxe-hero relative mb-4 overflow-hidden rounded-[1.75rem] p-5 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8">
+            <nav
+              aria-label="أقسام لوحة التحكم"
+              className="sticky top-2 z-40 mb-3 grid grid-cols-4 gap-1 rounded-[1.25rem] border border-white/80 bg-[#17214d]/95 p-1.5 text-white shadow-[0_14px_38px_rgba(16,27,69,.24)] backdrop-blur-xl lg:hidden"
+            >
+              {navItems.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    setTab(id);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={
+                    "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-[.9rem] px-1 text-[9px] font-black leading-tight transition sm:min-h-13 sm:text-[10px] " +
+                    (tab === id ? "bg-white text-[#182553] shadow-md" : "text-white/60")
+                  }
+                >
+                  <Icon size={17} className={tab === id ? "text-[#ad6b4e]" : ""} />
+                  <span className="max-w-full truncate">{label}</span>
+                </button>
+              ))}
+            </nav>
+
+            <header className="deluxe-hero relative mb-4 overflow-hidden rounded-[1.75rem] p-4 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8">
               <div className="deluxe-orbit deluxe-orbit-one" />
               <div className="deluxe-orbit deluxe-orbit-two" />
               <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -824,40 +847,40 @@ export default function AdminPortal() {
             ) : null}
 
             {tab === "students" ? (
-              <div className="grid gap-6 xl:grid-cols-[.8fr_1.2fr]">
+              <div className="grid min-w-0 gap-5 xl:grid-cols-[.8fr_1.2fr] xl:gap-6">
                 <Panel title="إضافة طالب" subtitle="أنشئ بيانات دخول الطالب وحدد المواد المسجلة له.">
-                  <form onSubmit={createStudent} className="space-y-4">
-                    <label className="block">
+                  <form onSubmit={createStudent} className="min-w-0 space-y-5">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">اسم الطالب</span>
                       <input className="field" required value={studentForm.fullName} onChange={(e)=>setStudentForm({...studentForm,fullName:e.target.value})} />
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">اسم المستخدم</span>
                         <input className="field" dir="ltr" required value={studentForm.username} onChange={(e)=>setStudentForm({...studentForm,username:e.target.value})} />
                       </label>
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">كلمة المرور</span>
                         <input className="field" dir="ltr" type="password" autoComplete="new-password" minLength={8} required value={studentForm.password} onChange={(e)=>setStudentForm({...studentForm,password:e.target.value})} />
                       </label>
                     </div>
                     <div>
                       <span className="mb-2 block text-sm font-black">المواد</span>
-                      <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="deluxe-scrollbar grid max-h-[21rem] min-w-0 gap-2 overflow-y-auto rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-2 sm:grid-cols-2 sm:p-3">
                         {data.courses.filter((course)=>course.is_active).map((course) => (
-                          <label key={course.id} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#e5e1e9] p-3">
+                          <label key={course.id} className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-[#e5e1e9] bg-white p-3 shadow-sm">
                             <input type="checkbox" checked={studentForm.courseIds.includes(course.id)} onChange={()=>toggleCourse(course.id)} />
-                            <span><strong className="block">{course.code}</strong><small className="text-[#777b8d]">{course.title}</small></span>
+                            <span className="min-w-0"><strong className="block">{course.code}</strong><small className="block break-words text-[#777b8d]">{course.title}</small></span>
                           </label>
                         ))}
                       </div>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">تاريخ البداية</span>
                         <input className="field" type="date" value={studentForm.startDate} onChange={(e)=>setStudentForm({...studentForm,startDate:e.target.value})} />
                       </label>
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">تاريخ الانتهاء</span>
                         <input className="field" type="date" value={studentForm.expirationDate} onChange={(e)=>setStudentForm({...studentForm,expirationDate:e.target.value})} />
                       </label>
@@ -869,7 +892,7 @@ export default function AdminPortal() {
                 </Panel>
 
                 <Panel title="الطلاب المسجلون" subtitle="إدارة الحسابات والمواد المسجلة والأجهزة الموثوقة.">
-                  <div className="overflow-x-auto">
+                  <div className="-mx-1 overflow-x-auto overscroll-x-contain rounded-2xl border border-[#ece8ef] bg-white p-1 [scrollbar-width:thin]">
                     <table className="w-full min-w-[760px] text-right text-sm">
                       <thead>
                         <tr className="border-b border-[#e8e4ec] text-[#777b8d]">
@@ -931,7 +954,7 @@ export default function AdminPortal() {
               <div className="grid gap-6 xl:grid-cols-[.85fr_1.15fr]">
                 <Panel title="إنشاء اختبار" subtitle="يتم إنشاء الأقسام تلقائيا وإسناد الاختبار لطلاب المادة.">
                   <form onSubmit={createExam} className="space-y-4">
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">المادة</span>
                       <select className="field" required value={examForm.courseId} onChange={(e)=>setExamForm({...examForm,courseId:e.target.value})}>
                         <option value="">اختر المادة</option>
@@ -939,36 +962,36 @@ export default function AdminPortal() {
                       </select>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">اسم الاختبار</span>
                         <input className="field" required value={examForm.title} onChange={(e)=>setExamForm({...examForm,title:e.target.value})}/>
                       </label>
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">التصنيف</span>
                         <select className="field" value={examForm.category} onChange={(e)=>setExamForm({...examForm,category:e.target.value})}>
                           {["QUIZ 1","QUIZ 2","MIDTERM","FINAL","MOCK EXAM","PRACTICE EXAM","CUSTOM"].map((item)=><option key={item}>{item}</option>)}
                         </select>
                       </label>
                     </div>
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">وصف اختياري</span>
                       <textarea className="field min-h-24" value={examForm.description} onChange={(e)=>setExamForm({...examForm,description:e.target.value})}/>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <label className="block"><span className="mb-2 block text-sm font-black">يفتح في</span><input className="field" type="datetime-local" required value={examForm.startsAt} onChange={(e)=>setExamForm({...examForm,startsAt:e.target.value})}/></label>
-                      <label className="block"><span className="mb-2 block text-sm font-black">يغلق في</span><input className="field" type="datetime-local" required value={examForm.endsAt} onChange={(e)=>setExamForm({...examForm,endsAt:e.target.value})}/></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">يفتح في</span><input className="field" type="datetime-local" required value={examForm.startsAt} onChange={(e)=>setExamForm({...examForm,startsAt:e.target.value})}/></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">يغلق في</span><input className="field" type="datetime-local" required value={examForm.endsAt} onChange={(e)=>setExamForm({...examForm,endsAt:e.target.value})}/></label>
                     </div>
                     <div className="rounded-xl bg-[#f8f7fa] px-3 py-2 text-xs font-bold text-[#777b8d]">
                       جميع الأوقات تعتمد توقيت الرياض (UTC+3) بغض النظر عن موقع المدير.
                     </div>
                     <div className="grid gap-4 sm:grid-cols-3">
-                      <label className="block">
+                      <label className="block min-w-0">
                         <span className="mb-2 block text-sm font-black">الدقائق لكل قسم</span>
                         <input className="field" type="number" min={1} max={240} value={examForm.sectionDurationMinutes} onChange={(e)=>setExamForm({...examForm,sectionDurationMinutes:Number(e.target.value)})}/>
                         <span className="mt-1 block text-xs text-[#777b8d]">الإجمالي: {examForm.sectionDurationMinutes * examForm.skills.length} دقيقة</span>
                       </label>
-                      <label className="block"><span className="mb-2 block text-sm font-black">عدد المحاولات</span><input className="field" type="number" min={1} max={20} value={examForm.attemptsAllowed} onChange={(e)=>setExamForm({...examForm,attemptsAllowed:Number(e.target.value)})}/></label>
-                      <label className="block"><span className="mb-2 block text-sm font-black">إظهار النتيجة</span><select className="field" value={examForm.resultRelease} onChange={(e)=>setExamForm({...examForm,resultRelease:e.target.value})}><option value="MANUAL">يدوي</option><option value="IMMEDIATE">مباشر</option><option value="AFTER_END">بعد الإغلاق</option></select></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">عدد المحاولات</span><input className="field" type="number" min={1} max={20} value={examForm.attemptsAllowed} onChange={(e)=>setExamForm({...examForm,attemptsAllowed:Number(e.target.value)})}/></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">إظهار النتيجة</span><select className="field" value={examForm.resultRelease} onChange={(e)=>setExamForm({...examForm,resultRelease:e.target.value})}><option value="MANUAL">يدوي</option><option value="IMMEDIATE">مباشر</option><option value="AFTER_END">بعد الإغلاق</option></select></label>
                     </div>
                     <div>
                       <span className="mb-2 block text-sm font-black">الأقسام</span>
@@ -1027,14 +1050,14 @@ export default function AdminPortal() {
               <div className="grid gap-6 xl:grid-cols-[.9fr_1.1fr]">
                 <Panel title="إضافة سؤال" subtitle="أضف أسئلة اختيار من متعدد أو صح وخطأ أو أسئلة كتابية مع نصوص اختيارية.">
                   <form onSubmit={addQuestion} className="space-y-4">
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">الاختبار</span>
                       <select className="field" required value={questionForm.examId} onChange={(e)=>setQuestionForm({...questionForm,examId:e.target.value,sectionId:""})}>
                         <option value="">اختر الاختبار</option>
                         {data.exams.map((exam)=><option key={exam.id} value={exam.id}>{courseMap.get(exam.course_id)?.code} — {exam.title}</option>)}
                       </select>
                     </label>
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">القسم / المهارة</span>
                       <select className="field" required value={questionForm.sectionId} onChange={(e)=>setQuestionForm({...questionForm,sectionId:e.target.value})}>
                         <option value="">اختر القسم</option>
@@ -1042,9 +1065,9 @@ export default function AdminPortal() {
                       </select>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-3">
-                      <label className="block"><span className="mb-2 block text-sm font-black">نوع السؤال</span><select className="field" value={questionForm.type} onChange={(e)=>setQuestionForm({...questionForm,type:e.target.value})}><option value="MULTIPLE_CHOICE">اختيار من متعدد</option><option value="TRUE_FALSE">صح / خطأ</option><option value="SHORT_ANSWER">إجابة كتابية</option></select></label>
-                      <label className="block"><span className="mb-2 block text-sm font-black">الدرجة</span><input className="field" type="number" min={0.25} step={0.25} value={questionForm.marks} onChange={(e)=>setQuestionForm({...questionForm,marks:Number(e.target.value)})}/></label>
-                      <label className="block"><span className="mb-2 block text-sm font-black">الصعوبة</span><select className="field" value={questionForm.difficulty} onChange={(e)=>setQuestionForm({...questionForm,difficulty:e.target.value})}><option value="EASY">سهل</option><option value="MEDIUM">متوسط</option><option value="HARD">صعب</option></select></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">نوع السؤال</span><select className="field" value={questionForm.type} onChange={(e)=>setQuestionForm({...questionForm,type:e.target.value})}><option value="MULTIPLE_CHOICE">اختيار من متعدد</option><option value="TRUE_FALSE">صح / خطأ</option><option value="SHORT_ANSWER">إجابة كتابية</option></select></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">الدرجة</span><input className="field" type="number" min={0.25} step={0.25} value={questionForm.marks} onChange={(e)=>setQuestionForm({...questionForm,marks:Number(e.target.value)})}/></label>
+                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">الصعوبة</span><select className="field" value={questionForm.difficulty} onChange={(e)=>setQuestionForm({...questionForm,difficulty:e.target.value})}><option value="EASY">سهل</option><option value="MEDIUM">متوسط</option><option value="HARD">صعب</option></select></label>
                     </div>
 
                     <div className="rounded-2xl border border-[#e6e1e9] bg-[#faf9fb] p-4">
@@ -1053,7 +1076,7 @@ export default function AdminPortal() {
                       <textarea className="field min-h-32" placeholder="نص القطعة..." value={questionForm.passageBody} onChange={(e)=>setQuestionForm({...questionForm,passageBody:e.target.value})}/>
                     </div>
 
-                    <label className="block">
+                    <label className="block min-w-0">
                       <span className="mb-2 block text-sm font-black">نص السؤال</span>
                       <textarea className="field min-h-28" required value={questionForm.prompt} onChange={(e)=>setQuestionForm({...questionForm,prompt:e.target.value})}/>
                     </label>
@@ -1084,7 +1107,7 @@ export default function AdminPortal() {
 
                     {questionForm.type==="SHORT_ANSWER"?(
                       <div className="rounded-2xl border border-[#e6e1e9] p-4">
-                        <label className="block">
+                        <label className="block min-w-0">
                           <span className="mb-2 block text-sm font-black">طريقة التصحيح</span>
                           <select className="field" value={questionForm.gradingMode} onChange={(e)=>setQuestionForm({...questionForm,gradingMode:e.target.value})}>
                             <option value="AUTO">تلقائي</option>
@@ -1140,25 +1163,7 @@ export default function AdminPortal() {
           </div>
         </main>
       </div>
-      <nav aria-label="التنقل الرئيسي" className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-4 rounded-[1.4rem] border border-white/70 bg-[#17214d]/95 p-1.5 text-white shadow-[0_20px_55px_rgba(16,27,69,.34)] backdrop-blur-xl lg:hidden">
-        {navItems.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => {
-              setTab(id);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className={
-              "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1rem] px-1 text-[10px] font-black transition " +
-              (tab === id ? "bg-white text-[#182553] shadow-lg" : "text-white/55")
-            }
-          >
-            <Icon size={18} className={tab === id ? "text-[#ad6b4e]" : ""} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
+
     </div>
   );
 }
