@@ -394,6 +394,95 @@ export default function IntensivePortal() {
     ? data.courses.find((course) => course.id === nextAction.exam.course_id) ?? null
     : data.courses[0] ?? null;
 
+  const generalCourses = data.courses.filter((course) =>
+    course.code.trim().toUpperCase().startsWith("GR"),
+  );
+  const intensiveCourses = data.courses.filter(
+    (course) => !course.code.trim().toUpperCase().startsWith("GR"),
+  );
+
+  function renderCourseCard(course: Course) {
+    const visual = courseVisual(course.code);
+    const metrics = courseMetrics(course.id);
+    const cover = courseCover(course.code, course.default_cover_url);
+
+    return (
+      <a
+        key={course.id}
+        href={"/course/" + course.id}
+        className="group relative overflow-hidden rounded-[1.8rem] border border-[#e3dfe7] bg-white shadow-[0_14px_42px_rgba(31,43,94,.065)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)]"
+      >
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={cover}
+            alt={"غلاف " + course.code}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/35 to-transparent" />
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+            <span className="rounded-full border border-white/30 bg-white/90 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm backdrop-blur">
+              {visual.level}
+            </span>
+            <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-[#1F2B5E]/75 text-white backdrop-blur">
+              <ArrowUpLeft size={17} />
+            </span>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+            <div className="text-xs font-black tracking-[.12em] text-[#efc4ae]" dir="ltr">{course.code}</div>
+            <h3 className="mt-1 text-xl font-black leading-7" dir="auto">{course.title}</h3>
+          </div>
+        </div>
+
+        <div className="p-5">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+              <div className="text-lg font-black">{metrics.sections.length}</div>
+              <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Sections</div>
+            </div>
+            <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+              <div className="text-lg font-black">{metrics.completed}</div>
+              <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Completed</div>
+            </div>
+            <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+              <div className="text-lg font-black">{metrics.best ? metrics.best.toFixed(0) + "%" : "—"}</div>
+              <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Best</div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex items-center justify-between text-[11px] font-black">
+                <span className="text-[#74798b]">التقدم</span>
+                <span style={{ color: visual.accent }}>{metrics.progress}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-[#eeecf1]">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: metrics.progress + "%", background: visual.accent }}
+                />
+              </div>
+            </div>
+            <div
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+              style={{ background: visual.accentSoft, color: visual.accent }}
+            >
+              <BookOpenCheck size={19} />
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#efedf2] pt-4 text-xs font-black">
+            <span className={metrics.open ? "text-emerald-700" : "text-[#8d91a0]"}>
+              {metrics.open ? metrics.open + " اختبار متاح الآن" : "عرض تفاصيل المقرر"}
+            </span>
+            <span className="inline-flex items-center gap-1 text-[#1F2B5E]">
+              فتح المقرر <ChevronLeft size={15} />
+            </span>
+          </div>
+        </div>
+      </a>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f8f9fc_0%,#f4f5f9_46%,#f7f5f3_100%)] text-[#1F2B5E]">
       <header className="sticky top-0 z-40 border-b border-[#e9e6ed]/90 bg-white/[.09]5 shadow-[0_8px_30px_rgba(31,43,94,.05)] backdrop-blur-xl">
@@ -624,7 +713,7 @@ export default function IntensivePortal() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <div className="text-xs font-black text-[#efc4ae]" dir="ltr">{recommendedCourse.code}</div>
-                  <div className="mt-1 text-xl font-black" dir="ltr">{recommendedCourse.title}</div>
+                  <div className="mt-1 text-xl font-black" dir="auto">{recommendedCourse.title}</div>
                   <div className="mt-2 text-xs font-bold text-white/65" dir="ltr">{nextAction.exam.title}</div>
                 </div>
               </div>
@@ -649,88 +738,42 @@ export default function IntensivePortal() {
           </div>
 
           {data.courses.length ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {data.courses.map((course) => {
-                const visual = courseVisual(course.code);
-                const metrics = courseMetrics(course.id);
-                const cover = courseCover(course.code, course.default_cover_url);
+            <div className="space-y-8">
+              {generalCourses.length ? (
+                <section>
+                  <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#eadfd8] bg-gradient-to-l from-[#fffaf7] to-white px-4 py-3">
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#B1785C]" dir="ltr">GENERAL STUDIES</div>
+                      <h3 className="mt-1 text-xl font-black">المواد العامة</h3>
+                    </div>
+                    <div className="rounded-xl bg-[#1F2B5E] px-3 py-2 text-xs font-black text-white">
+                      {generalCourses.length} مقررات
+                    </div>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {generalCourses.map(renderCourseCard)}
+                  </div>
+                </section>
+              ) : null}
 
-                return (
-                  <a
-                    key={course.id}
-                    href={"/course/" + course.id}
-                    className="group relative overflow-hidden rounded-[1.8rem] border border-[#e3dfe7] bg-white shadow-[0_14px_42px_rgba(31,43,94,.065)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)]"
-                  >
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={cover}
-                        alt={"غلاف " + course.code}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B5E] via-[#1F2B5E]/35 to-transparent" />
-                      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
-                        <span className="rounded-full border border-white/18 bg-white/[.09]2 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm">
-                          {visual.level}
-                        </span>
-                        <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-[#1F2B5E]/75 text-white backdrop-blur">
-                          <ArrowUpLeft size={17} />
-                        </span>
+              {intensiveCourses.length ? (
+                <section>
+                  {generalCourses.length ? (
+                    <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#e2e4f0] bg-gradient-to-l from-[#f8f8ff] to-white px-4 py-3">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#6366F1]" dir="ltr">ENGLISH INTENSIVE</div>
+                        <h3 className="mt-1 text-xl font-black">دورات اللغة الإنجليزية المكثفة</h3>
                       </div>
-                      <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                        <div className="text-xs font-black tracking-[.12em] text-[#efc4ae]" dir="ltr">{course.code}</div>
-                        <h3 className="mt-1 text-xl font-black leading-7" dir="ltr">{course.title}</h3>
+                      <div className="rounded-xl bg-[#6366F1] px-3 py-2 text-xs font-black text-white">
+                        {intensiveCourses.length} مقررات
                       </div>
                     </div>
-
-                    <div className="p-5">
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
-                          <div className="text-lg font-black">{metrics.sections.length}</div>
-                          <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Sections</div>
-                        </div>
-                        <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
-                          <div className="text-lg font-black">{metrics.completed}</div>
-                          <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Completed</div>
-                        </div>
-                        <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
-                          <div className="text-lg font-black">{metrics.best ? metrics.best.toFixed(0) + "%" : "—"}</div>
-                          <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Best</div>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-2 flex items-center justify-between text-[11px] font-black">
-                            <span className="text-[#74798b]">التقدم</span>
-                            <span style={{ color: visual.accent }}>{metrics.progress}%</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-[#eeecf1]">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{ width: metrics.progress + "%", background: visual.accent }}
-                            />
-                          </div>
-                        </div>
-                        <div
-                          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
-                          style={{ background: visual.accentSoft, color: visual.accent }}
-                        >
-                          <BookOpenCheck size={19} />
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#efedf2] pt-4 text-xs font-black">
-                        <span className={metrics.open ? "text-emerald-700" : "text-[#8d91a0]"}>
-                          {metrics.open ? metrics.open + " اختبار متاح الآن" : "عرض تفاصيل المقرر"}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-[#1F2B5E]">
-                          فتح المقرر <ChevronLeft size={15} />
-                        </span>
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
+                  ) : null}
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {intensiveCourses.map(renderCourseCard)}
+                  </div>
+                </section>
+              ) : null}
             </div>
           ) : (
             <div className="rounded-[1.8rem] border border-dashed border-[#ccc7d4] bg-white p-10 text-center shadow-sm">
