@@ -193,42 +193,68 @@ export default function CoursePortal() {
           <NumoBrand horizontal className="w-auto" />
         </div>
 
-        <section
-          className="relative overflow-hidden rounded-[1.7rem] shadow-[0_25px_70px_rgba(31,43,94,.20)] sm:rounded-[2rem]"
-          style={{ background: visual.gradient }}
-        >
-          <img
-            src={cover}
-            alt={"غلاف " + course.code}
-            width={1536}
-            height={864}
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-90"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-[#1F2B5E]/94 via-[#1F2B5E]/68 to-[#1F2B5E]/18" />
-          <div className="relative grid gap-6 p-5 text-white sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div className="max-w-3xl">
-              <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black text-[#f1c7b1]">{visual.level}</span>
-              <div dir="ltr" className="mt-4 text-sm font-black tracking-[.15em] text-white/65">{course.code}</div>
-              <h1 dir="auto" className="mt-1 break-words text-3xl font-black leading-tight sm:text-4xl">{course.title}</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-8 text-white/74">
-                {isGeneralCourse
-                  ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار 4 محاولات؛ الكويز 30 دقيقة والميد ترم 60 دقيقة، وتظهر النتيجة مباشرة بعد التسليم."
-                  : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
-              </p>
+        <section className="overflow-hidden rounded-[1.8rem] border border-[#e4e0e8] bg-white shadow-[0_22px_64px_rgba(31,43,94,.12)] sm:rounded-[2rem]">
+          <div className="grid lg:grid-cols-[minmax(0,1.45fr)_minmax(330px,.75fr)] lg:items-stretch">
+            <div className="relative flex items-center justify-center overflow-hidden bg-white p-2 sm:p-3 lg:p-4">
+              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.25rem] border border-[#ece9ef] bg-white sm:rounded-[1.5rem]">
+                <img
+                  src={cover}
+                  alt={"غلاف " + course.code}
+                  width={1536}
+                  height={864}
+                  decoding="async"
+                  fetchPriority="high"
+                  className="absolute inset-0 h-full w-full object-contain object-center"
+                />
+              </div>
             </div>
-            <div className="grid w-full grid-cols-3 gap-2 lg:w-auto lg:min-w-[270px]">
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur">
-                <div className="text-2xl font-black">{isGeneralCourse ? 3 : (sectionCount || exams.length)}</div>
-                <div className="text-[11px] text-white/60">{isGeneralCourse ? "الاختبارات" : "الأقسام"}</div>
+
+            <div className="relative overflow-hidden bg-[#1F2B5E] p-5 text-white sm:p-7 lg:flex lg:flex-col lg:justify-between lg:p-8">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -left-16 -top-16 h-44 w-44 rounded-full border border-white/10"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-20 -right-16 h-52 w-52 rounded-full border border-[#B1785C]/25"
+              />
+
+              <div className="relative">
+                <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-black text-[#efc7b3]">
+                  {visual.level}
+                </span>
+                <div dir="ltr" className="mt-4 text-sm font-black tracking-[.16em] text-white/60">
+                  {course.code}
+                </div>
+                <h1 dir="auto" className="mt-1 break-words text-2xl font-black leading-tight sm:text-3xl">
+                  {course.title}
+                </h1>
+                <p className="mt-3 text-sm leading-7 text-white/75">
+                  {isGeneralCourse
+                    ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار 4 محاولات؛ الكويز 30 دقيقة والميد ترم 60 دقيقة، وتظهر النتيجة مباشرة بعد التسليم."
+                    : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
+                </p>
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur">
-                <div className="text-2xl font-black">{completed}</div>
-                <div className="text-[11px] text-white/60">المكتمل</div>
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur">
-                <div className="text-2xl font-black">{best?.percentage ?? "—"}{best ? "%" : ""}</div>
-                <div className="text-[11px] text-white/60">أفضل درجة</div>
+
+              <div className="relative mt-5 grid grid-cols-3 gap-2">
+                <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
+                  <div className="text-xl font-black sm:text-2xl">
+                    {isGeneralCourse ? 3 : (sectionCount || exams.length)}
+                  </div>
+                  <div className="mt-1 text-[10px] font-bold text-white/55">
+                    {isGeneralCourse ? "الاختبارات" : "الأقسام"}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
+                  <div className="text-xl font-black sm:text-2xl">{completed}</div>
+                  <div className="mt-1 text-[10px] font-bold text-white/55">المكتمل</div>
+                </div>
+                <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
+                  <div className="text-xl font-black sm:text-2xl">
+                    {best?.percentage ?? "—"}{best ? "%" : ""}
+                  </div>
+                  <div className="mt-1 text-[10px] font-bold text-white/55">أفضل درجة</div>
+                </div>
               </div>
             </div>
           </div>
