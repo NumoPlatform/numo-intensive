@@ -188,7 +188,7 @@ export default function QuestionBankPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] px-4 py-7 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-7 lg:px-8">
       <div className="mx-auto max-w-[1500px]">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <a href="/admin" className="inline-flex items-center gap-2 text-sm font-black text-[#73788d]">
@@ -204,7 +204,7 @@ export default function QuestionBankPortal() {
           </button>
         </div>
 
-        <header className="relative mb-7 overflow-hidden rounded-[1.9rem] bg-gradient-to-br from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-7 text-white shadow-[0_24px_70px_rgba(31,43,94,.22)] sm:p-8">
+        <header className="relative mb-7 overflow-hidden rounded-[1.9rem] bg-gradient-to-br from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-5 text-white sm:p-7 shadow-[0_24px_70px_rgba(31,43,94,.22)] sm:p-8">
           <div className="absolute left-5 top-5 hidden sm:block">
             <NumoBrand className="w-20" inverse />
           </div>
@@ -213,13 +213,13 @@ export default function QuestionBankPortal() {
               <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]">
                 <Sparkles size={16} /> NUMO INTENSIVE
               </div>
-              <h1 className="text-3xl font-black sm:text-4xl">بنك الأسئلة</h1>
+              <h1 className="text-2xl font-black sm:text-3xl sm:text-4xl">بنك الأسئلة</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75">
                 ابحث في جميع الأسئلة، راجع مفتاح الإجابة، وأعد استخدام السؤال في أي اختبار للمقرر نفسه دون إعادة كتابته.
               </p>
             </div>
             <div className="rounded-2xl border border-white/15 bg-white/10 px-5 py-4">
-              <div className="text-3xl font-black">{data?.questions.length ?? 0}</div>
+              <div className="text-2xl font-black sm:text-3xl">{data?.questions.length ?? 0}</div>
               <div className="text-xs font-bold text-white/65">سؤال في البنك</div>
             </div>
           </div>
