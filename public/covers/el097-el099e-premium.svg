@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="navyGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101A42"/><stop offset="1" stop-color="#1F2B5E"/></linearGradient>
+    <linearGradient id="whiteGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#F7F5F2"/></linearGradient>
+    <linearGradient id="screenGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#263B7A"/><stop offset="1" stop-color="#6366F1"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#1F2B5E" flood-opacity=".16"/></filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1F2B5E" flood-opacity=".14"/></filter>
+    <clipPath id="cardClip"><rect x="215" y="36" width="1348" height="828" rx="58"/></clipPath>
+  </defs>
+
+  <rect width="1600" height="900" fill="#F4F3F7"/>
+  <rect width="250" height="900" fill="url(#navyGrad)"/>
+  <path d="M235 0h42c-25 88-25 176 0 264-25 88-25 176 0 264-25 88-25 176 0 264-25 54-25 90 0 108h-42Z" fill="#B1785C" opacity=".7"/>
+  <rect x="215" y="36" width="1348" height="828" rx="58" fill="url(#whiteGrad)" stroke="#B1785C" stroke-width="4" filter="url(#shadow)"/>
+
+  <g clip-path="url(#cardClip)">
+    <g opacity=".13" stroke="#1F2B5E" fill="none">
+      <path d="M980 80h520v310H980z" stroke-width="3"/>
+      <path d="M1030 80v310M1110 80v310M1190 80v310M1270 80v310M1350 80v310M1430 80v310" stroke-width="2"/>
+      <path d="M980 205h520M980 305h520" stroke-width="2"/>
+      <path d="M965 455q100-120 200 0t200 0 200 0" stroke-width="3"/>
+      <path d="M1010 510h520M1010 580h520" stroke-width="2"/>
+      <path d="M1035 510v210M1125 510v210M1215 510v210M1305 510v210M1395 510v210M1485 510v210" stroke-width="2"/>
+    </g>
+    <circle cx="1540" cy="130" r="220" fill="#6366F1" opacity=".045"/>
+    <circle cx="1460" cy="790" r="190" fill="#B1785C" opacity=".055"/>
+    <path d="M250 785C540 650 810 835 1080 715S1470 655 1600 735" fill="none" stroke="#6366F1" stroke-width="5" opacity=".2"/>
+    <path d="M250 805C540 670 810 855 1080 735S1470 675 1600 755" fill="none" stroke="#B1785C" stroke-width="4" opacity=".25"/>
+
+    
+    <g transform="translate(1030 305)">
+      <circle cx="160" cy="120" r="88" fill="#fff" stroke="#1F2B5E" stroke-width="12"/>
+      <path d="M92 100l68-34 68 34-68 34-68-34Zm24 42v42c0 30 88 30 88 0v-42l-44 22-44-22Z" fill="#1F2B5E"/>
+      <path d="M228 102v76" stroke="#B1785C" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="228" cy="184" r="8" fill="#B1785C"/>
+    </g>
+    
+    <g transform="translate(985 520)">
+      <rect width="360" height="48" rx="14" fill="#1F2B5E" filter="url(#softShadow)"/>
+      <rect x="18" y="8" width="8" height="32" rx="4" fill="#D8B09B" opacity=".85"/>
+      <text x="180" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="#fff" font-family="Arial, sans-serif">ENGLISH</text>
+    </g>
+    <g transform="translate(985 582)">
+      <rect width="360" height="48" rx="14" fill="#B1785C" filter="url(#softShadow)"/>
+      <rect x="18" y="8" width="8" height="32" rx="4" fill="#D8B09B" opacity=".85"/>
+      <text x="180" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="#fff" font-family="Arial, sans-serif">GRAMMAR</text>
+    </g>
+    <g transform="translate(985 644)">
+      <rect width="360" height="48" rx="14" fill="#1F2B5E" filter="url(#softShadow)"/>
+      <rect x="18" y="8" width="8" height="32" rx="4" fill="#D8B09B" opacity=".85"/>
+      <text x="180" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="#fff" font-family="Arial, sans-serif">VOCABULARY</text>
+    </g>
+    <g transform="translate(985 706)">
+      <rect width="360" height="48" rx="14" fill="#B1785C" filter="url(#softShadow)"/>
+      <rect x="18" y="8" width="8" height="32" rx="4" fill="#D8B09B" opacity=".85"/>
+      <text x="180" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="#fff" font-family="Arial, sans-serif">READING</text>
+    </g>
+    <g transform="translate(870 565)">
+      <circle cx="0" cy="0" r="92" fill="#fff" stroke="#B1785C" stroke-width="7"/>
+      <circle cx="0" cy="0" r="72" fill="#1F2B5E"/>
+      <path d="M-65 0h130M0-72c24 24 34 48 34 72S24 48 0 72M0-72c-24 24-34 48-34 72S-24 48 0 72" stroke="#B1785C" stroke-width="4" fill="none"/>
+      <ellipse cx="0" cy="0" rx="72" ry="28" stroke="#DDB49F" stroke-width="4" fill="none"/>
+    </g>
+  </g>
+
+  <!-- sidebar -->
+  <circle cx="210" cy="160" r="66" fill="#6366F1" stroke="#fff" stroke-width="8" filter="url(#softShadow)"/>
+  <path d="M190 160l20-20 20 20-20 20-20-20Z" fill="#fff"/>
+  <circle cx="210" cy="160" r="11" fill="#fff"/>
+  <text x="100" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="104" font-weight="800" fill="#fff">01</text>
+  <text x="100" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="4" fill="#D8B09B">COURSE</text>
+  <path d="M52 640h96" stroke="#B1785C" stroke-width="4"/>
+  <circle cx="100" cy="640" r="7" fill="#B1785C"/>
+  <g opacity=".13" transform="translate(48 705)">
+    <path d="M8 38 52 14l44 24-44 24L8 38Zm15 19v28c0 19 58 19 58 0V57L52 71 23 57Z" fill="#fff"/>
+  </g>
+  <g fill="#6366F1"><circle cx="55" cy="820" r="4"/><circle cx="77" cy="820" r="4"/><circle cx="99" cy="820" r="4"/><circle cx="121" cy="820" r="4"/><circle cx="55" cy="838" r="4"/><circle cx="77" cy="838" r="4"/><circle cx="99" cy="838" r="4"/><circle cx="121" cy="838" r="4"/><circle cx="55" cy="856" r="4"/><circle cx="77" cy="856" r="4"/><circle cx="99" cy="856" r="4"/><circle cx="121" cy="856" r="4"/><circle cx="55" cy="874" r="4"/><circle cx="77" cy="874" r="4"/><circle cx="99" cy="874" r="4"/><circle cx="121" cy="874" r="4"/></g>
+
+  <!-- brand -->
+  <g transform="translate(305 90)">
+    <path d="M0 30 42 8l42 22-42 22L0 30Zm14 23v20c0 15 56 15 56 0V53L42 67 14 53Z" fill="#1F2B5E"/>
+    <path d="M84 33v37" stroke="#B1785C" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="84" cy="75" r="5" fill="#B1785C"/>
+    <text x="112" y="34" font-family="Arial, sans-serif" font-size="32" font-weight="800" fill="#1F2B5E" direction="rtl">منصة نمو</text>
+    <text x="112" y="66" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="2" fill="#B1785C">NUMO PLATFORM</text>
+  </g>
+
+  <!-- course copy -->
+  <text x="305" y="205" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#1F2B5E">English Intensive Course</text>
+  <text x="305" y="338" font-family="Georgia, serif" font-size="106" font-weight="700" fill="#1F2B5E">EL097_EL099E</text>
+  <text x="305" y="405" font-family="Arial, sans-serif" font-size="35" font-weight="700" fill="#B1785C">Foundation & Pre-Intermediate Levels</text>
+  <rect x="305" y="438" width="500" height="54" rx="27" fill="#B1785C"/>
+  <text x="555" y="474" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="800" fill="#fff">SEMESTER 2026 - 2027</text>
+  <text x="305" y="535" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#6E748C">Your academic path to confident English learning</text>
+
+  <!-- skills -->
+  <g transform="translate(320 650)">
+    <g transform="translate(0 0)">
+      <circle cx="54" cy="54" r="50" fill="#1F2B5E" filter="url(#softShadow)"/>
+      <rect x="34" y="28" width="40" height="50" rx="6" fill="none" stroke="#fff" stroke-width="5"/>
+      <path d="M43 42h22M43 54h22M43 66h15" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      <text x="54" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#16224C" font-family="Arial, sans-serif">Grammar</text>
+    </g>
+    <g transform="translate(185 0)">
+      <circle cx="54" cy="54" r="50" fill="#B1785C" filter="url(#softShadow)"/>
+      <path d="M25 36q28-16 56 0v42q-28-14-56 0V36Zm56 0q28-16 56 0v42q-28-14-56 0V36Z" transform="translate(-27 0)" fill="none" stroke="#fff" stroke-width="5"/>
+      <text x="54" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#16224C" font-family="Arial, sans-serif">Vocabulary</text>
+    </g>
+    <g transform="translate(370 0)">
+      <circle cx="54" cy="54" r="50" fill="#6366F1" filter="url(#softShadow)"/>
+      <path d="M22 36q26-15 52 0v40q-26-13-52 0V36Zm52 0q26-15 52 0v40q-26-13-52 0V36Z" transform="translate(-20 0)" fill="none" stroke="#fff" stroke-width="5"/>
+      <circle cx="86" cy="73" r="13" fill="none" stroke="#fff" stroke-width="4"/>
+      <path d="M96 83l11 11" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      <text x="54" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#16224C" font-family="Arial, sans-serif">Reading</text>
+    </g>
+  </g>
+
+  <text x="1500" y="840" text-anchor="end" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2" fill="#1F2B5E" opacity=".7">NUMO INTENSIVE</text>
+</svg>
