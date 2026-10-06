@@ -165,11 +165,13 @@ export default function CoursePortal() {
         >
           <img
             src={cover}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 hidden h-full w-full object-cover object-center opacity-55 sm:block"
+            alt={"غلاف " + course.code}
+            width={1536}
+            height={864}
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-90"
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#1F2B5E]/96 via-[#1F2B5E]/83 to-[#1F2B5E]/44" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-[#1F2B5E]/94 via-[#1F2B5E]/68 to-[#1F2B5E]/18" />
           <div className="relative grid gap-6 p-5 text-white sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-3xl">
               <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black text-[#f1c7b1]">{visual.level}</span>
