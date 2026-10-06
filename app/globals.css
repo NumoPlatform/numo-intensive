@@ -378,3 +378,162 @@ table {
     padding-inline: 0.9rem;
   }
 }
+
+
+/* NUMO responsive system — mobile, tablet and laptop */
+html {
+  scroll-padding-top: 5.75rem;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+main,
+.admin-shell,
+.intensive-app-root {
+  min-height: 100dvh;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 1023px) {
+  .admin-shell main {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .admin-shell .deluxe-panel {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  html {
+    scroll-padding-top: 5.25rem;
+  }
+
+  body {
+    min-width: 0;
+  }
+
+  main {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Prevent any application navigation from covering forms on phones. */
+  .admin-mobile-tabs {
+    inset-block-end: auto !important;
+    position: sticky !important;
+    top: max(.5rem, env(safe-area-inset-top)) !important;
+  }
+
+  .admin-shell {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .admin-shell form,
+  .admin-shell fieldset,
+  .admin-shell label,
+  .admin-shell .field,
+  .admin-shell .btn {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .admin-shell .field,
+  .admin-shell input,
+  .admin-shell select,
+  .admin-shell textarea {
+    font-size: 16px;
+  }
+
+  .admin-shell input[type="date"],
+  .admin-shell input[type="datetime-local"],
+  .admin-shell input[type="time"] {
+    min-height: 3.25rem;
+    appearance: none;
+  }
+
+  .admin-shell article,
+  .admin-shell section {
+    max-width: 100%;
+  }
+
+  .admin-shell table {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .admin-shell :is(button, a[href]) {
+    min-height: 2.75rem;
+  }
+
+  .admin-shell :is(input, select, textarea):focus {
+    scroll-margin-bottom: 12rem;
+  }
+
+  /* While the virtual keyboard is open, keep navigation out of the input area. */
+  .admin-shell:has(input:focus, textarea:focus, select:focus) .admin-mobile-tabs {
+    position: static !important;
+  }
+
+  /* Student experience */
+  .intensive-app-root,
+  .intensive-app-root main {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .intensive-app-root :is(section, article, form) {
+    max-width: 100%;
+  }
+
+  .intensive-app-root :is(button, a[href]) {
+    min-height: 2.75rem;
+  }
+
+  .intensive-app-root img {
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .field {
+    min-height: 3.2rem;
+    border-radius: .9rem;
+  }
+
+  .btn {
+    min-height: 3.1rem;
+  }
+
+  .deluxe-panel {
+    border-radius: 1.15rem;
+    padding: .9rem;
+  }
+
+  .admin-shell h1,
+  .intensive-app-root h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .admin-shell h2,
+  .intensive-app-root h2 {
+    overflow-wrap: anywhere;
+  }
+}
