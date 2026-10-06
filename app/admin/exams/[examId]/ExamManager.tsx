@@ -369,7 +369,7 @@ export default function ExamManager() {
 
   if (!exam) {
     return (
-      <div className="min-h-screen bg-[#f5f6fa] px-4 py-10 text-[#1F2B5E]">
+      <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-4 py-10 text-[#1F2B5E]">
         <div className="mx-auto max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm">
           <strong>لم يتم العثور على الاختبار.</strong>
           <a href="/admin" className="btn mt-5">العودة للوحة المدير</a>
@@ -379,7 +379,7 @@ export default function ExamManager() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] px-4 py-7 text-[#1F2B5E] sm:px-6 lg:px-8">
+    <div className="admin-shell min-h-screen overflow-x-hidden bg-[#f5f6fa] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-7 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <a href="/admin" className="inline-flex items-center gap-2 text-sm font-black text-[#73788d]">
@@ -392,11 +392,11 @@ export default function ExamManager() {
           </div>
         </div>
 
-        <header className="mb-6 rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-7 text-white shadow-xl">
+        <header className="mb-6 rounded-[1.5rem] sm:rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-5 text-white sm:p-7 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="text-sm font-black text-[#e9c0ab]">{exam.category}</div>
-              <h1 dir="ltr" className="mt-1 text-3xl font-black">{exam.title}</h1>
+              <h1 dir="ltr" className="mt-1 text-2xl font-black sm:text-3xl">{exam.title}</h1>
               <div className="mt-2 text-sm text-white/70">
                 {formatDate(exam.starts_at)} — {formatDate(exam.ends_at)} · {exam.duration_minutes} دقيقة
               </div>
