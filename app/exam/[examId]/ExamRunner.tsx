@@ -201,6 +201,7 @@ export default function ExamRunner() {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [sectionResult, setSectionResult] = useState<SectionResult | null>(null);
   const [sectionResultLoading, setSectionResultLoading] = useState(false);
+  const [courseCode, setCourseCode] = useState("");
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
@@ -212,6 +213,10 @@ export default function ExamRunner() {
         return;
       }
       const found = (payload.exams as ExamInfo[]).find((item) => item.id === examId);
+      const foundCourse = ((payload.courses ?? []) as Array<{ id: string; code: string }>).find(
+        (item) => item.id === found?.course_id,
+      );
+      setCourseCode(foundCourse?.code ?? "");
       if (!found) {
         setMessage("الاختبار غير موجود أو غير متاح لحسابك.");
         setStage("intro");
@@ -607,6 +612,7 @@ export default function ExamRunner() {
 
   const questions = attempt?.questions ?? [];
   const sections = attempt?.sections ?? [];
+  const isArabicGeneralExam = /^(AR|GR)/.test(courseCode.trim().toUpperCase());
   const activeSectionId = attempt?.current_section_id ?? null;
   const activeQuestions = useMemo(
     () => questions.filter((question) => question.sectionId === activeSectionId),
@@ -791,17 +797,31 @@ export default function ExamRunner() {
 
           <section className="overflow-hidden rounded-[2rem] border border-[#dedbe6] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
             <div className="bg-gradient-to-l from-[#1F2B5E] via-[#2d3f82] to-[#6366F1] p-6 text-white sm:p-8">
-              <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">Choose your section</div>
-              <h1 className="mt-2 text-2xl font-black sm:text-3xl">{exam?.title ?? "Exam"}</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">
-                اختر أي Section تريد. بعد كل محاولة تظهر الدرجة والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة حتى حد المحاولات المسموح.
+              <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">
+                {isArabicGeneralExam ? "قسم الاختبار" : "Choose your section"}
+              </div>
+              <h1 dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 text-2xl font-black sm:text-3xl " + (isArabicGeneralExam ? "text-right" : "text-left")}>
+                {exam?.title ?? "Exam"}
+              </h1>
+              <p dir={isArabicGeneralExam ? "rtl" : "auto"} className={"mt-3 max-w-2xl text-sm leading-7 text-white/80 " + (isArabicGeneralExam ? "text-right" : "")}>
+                {isArabicGeneralExam
+                  ? "اضغط على بطاقة القسم لبدء الاختبار. الأسئلة مرتبة من اليمين، وكل سؤال يعرض خياراته كاملة كما في الملف المعتمد. لديك 4 محاولات والنتيجة تظهر مباشرة بعد الإنهاء."
+                  : "اختر أي Section تريد. بعد كل محاولة تظهر الدرجة والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة حتى حد المحاولات المسموح."}
               </p>
             </div>
 
             <div className="p-4 sm:p-7">
-              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#f7f7fa] px-4 py-3 text-sm">
-                <span className="font-black">Completed {completedSectionsCount} / {sections.length}</span>
-                <span className="font-bold text-[#72778b]">أفضل نتيجة لكل Section هي التي تدخل في النتيجة النهائية</span>
+              <div dir={isArabicGeneralExam ? "rtl" : "auto"} className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#ebe7ef] bg-gradient-to-l from-[#fbf7f4] to-[#f7f7ff] px-4 py-3 text-sm">
+                <span className="font-black">
+                  {isArabicGeneralExam
+                    ? `المكتمل ${completedSectionsCount} من ${sections.length}`
+                    : `Completed ${completedSectionsCount} / ${sections.length}`}
+                </span>
+                <span className="font-bold text-[#72778b]">
+                  {isArabicGeneralExam
+                    ? "أفضل نتيجة من المحاولات هي المعتمدة."
+                    : "أفضل نتيجة لكل Section هي التي تدخل في النتيجة النهائية"}
+                </span>
               </div>
 
               {message ? (
@@ -832,8 +852,12 @@ export default function ExamRunner() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="text-xs font-black text-[#B1785C]">SECTION {section.position}</div>
-                          <h2 dir="ltr" className="mt-1 text-xl font-black">{section.title}</h2>
+                          <div className="text-xs font-black text-[#B1785C]">
+                            {isArabicGeneralExam ? `AR112 · MIDTERM` : `SECTION ${section.position}`}
+                          </div>
+                          <h2 dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-1 text-xl font-black " + (isArabicGeneralExam ? "text-right" : "")}>
+                            {section.title}
+                          </h2>
                         </div>
                         {completed ? (
                           <CheckCircle2 size={24} className="text-emerald-600" />
@@ -845,20 +869,20 @@ export default function ExamRunner() {
                       <div className="mt-5 grid grid-cols-2 gap-2 text-center">
                         <div className="rounded-xl bg-white/80 px-3 py-3">
                           <div className="text-lg font-black">{section.timeLimitMinutes}</div>
-                          <div className="text-[11px] text-[#7b8092]">minutes</div>
+                          <div className="text-[11px] text-[#7b8092]">{isArabicGeneralExam ? "دقيقة" : "minutes"}</div>
                         </div>
                         <div className="rounded-xl bg-white/80 px-3 py-3">
                           <div className="text-lg font-black">{count}</div>
-                          <div className="text-[11px] text-[#7b8092]">questions</div>
+                          <div className="text-[11px] text-[#7b8092]">{isArabicGeneralExam ? "سؤال" : "questions"}</div>
                         </div>
                       </div>
 
                       <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-[#e7e3eb] bg-white px-3 py-2 text-xs font-black">
-                        <span>{remainingAttempts} attempts left</span>
+                        <span>{isArabicGeneralExam ? `${remainingAttempts} محاولات متبقية` : `${remainingAttempts} attempts left`}</span>
                         {bestPercentage !== undefined ? (
-                          <span className="text-emerald-700">Best {Number(bestPercentage).toFixed(0)}%</span>
+                          <span className="text-emerald-700">{isArabicGeneralExam ? "أفضل نتيجة" : "Best"} {Number(bestPercentage).toFixed(0)}%</span>
                         ) : (
-                          <span className="text-[#85899a]">Not attempted</span>
+                          <span className="text-[#85899a]">{isArabicGeneralExam ? "لم تتم المحاولة" : "Not attempted"}</span>
                         )}
                       </div>
 
@@ -869,11 +893,11 @@ export default function ExamRunner() {
                         className="btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {advancing ? (
-                          <><Loader2 size={17} className="animate-spin" /> Opening...</>
+                          <><Loader2 size={17} className="animate-spin" /> {isArabicGeneralExam ? "جاري الفتح..." : "Opening..."}</>
                         ) : completed ? (
-                          <><RotateCcw size={17} /> Try again</>
+                          <><RotateCcw size={17} /> {isArabicGeneralExam ? "إعادة المحاولة" : "Try again"}</>
                         ) : (
-                          <><Target size={17} /> Start this section</>
+                          <><Target size={17} /> {isArabicGeneralExam ? "ابدأ الاختبار" : "Start this section"}</>
                         )}
                       </button>
 
@@ -885,13 +909,13 @@ export default function ExamRunner() {
                           className="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#dcd8e4] bg-white px-4 text-sm font-black text-[#1F2B5E]"
                         >
                           {sectionResultLoading ? <Loader2 size={16} className="animate-spin" /> : <BookOpen size={16} />}
-                          View score & corrections
+                          {isArabicGeneralExam ? "عرض الدرجة والتصحيح" : "View score & corrections"}
                         </button>
                       ) : null}
 
                       {remainingAttempts <= 0 ? (
                         <div className="mt-2 rounded-xl bg-[#f0eff4] px-3 py-2 text-center text-xs font-black text-[#777c8f]">
-                          All attempts used
+                          {isArabicGeneralExam ? "تم استخدام جميع المحاولات" : "All attempts used"}
                         </div>
                       ) : null}
                     </article>
@@ -1007,11 +1031,11 @@ export default function ExamRunner() {
                           <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
                               <div className="text-xs font-black text-rose-700">Your answer · إجابتك</div>
-                              <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-rose-900">{item.selectedAnswer}</div>
+                              <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 font-bold leading-7 text-rose-900 " + (isArabicGeneralExam ? "text-right" : "text-left")}>{item.selectedAnswer}</div>
                             </div>
                             <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
                               <div className="text-xs font-black text-emerald-700">Correct answer · الإجابة الصحيحة</div>
-                              <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-emerald-900">{item.correctAnswer}</div>
+                              <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 font-bold leading-7 text-emerald-900 " + (isArabicGeneralExam ? "text-right" : "text-left")}>{item.correctAnswer}</div>
                             </div>
                           </div>
 
@@ -1186,20 +1210,20 @@ export default function ExamRunner() {
                           </div>
                         ) : null}
 
-                        <div dir="ltr" className="whitespace-pre-wrap text-left font-black leading-8 text-[#1F2B5E]">
+                        <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"whitespace-pre-wrap font-black leading-8 text-[#1F2B5E] " + (isArabicGeneralExam ? "text-right" : "text-left")}>
                           {item.prompt}
                         </div>
 
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                           <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
                             <div className="text-xs font-black text-rose-700">إجابتك</div>
-                            <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-rose-900">
+                            <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 font-bold leading-7 text-rose-900 " + (isArabicGeneralExam ? "text-right" : "text-left")}>
                               {item.selectedAnswer}
                             </div>
                           </div>
                           <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
                             <div className="text-xs font-black text-emerald-700">الإجابة الصحيحة</div>
-                            <div dir="ltr" className="mt-2 text-left font-bold leading-7 text-emerald-900">
+                            <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 font-bold leading-7 text-emerald-900 " + (isArabicGeneralExam ? "text-right" : "text-left")}>
                               {item.correctAnswer}
                             </div>
                           </div>
@@ -1273,13 +1297,17 @@ export default function ExamRunner() {
               <div className="text-sm font-black">
                 {isReadingSection
                   ? `Passage ${currentPassageIndex + 1} of ${passageIds.length} · Question ${localQuestionIndex + 1} of ${visibleQuestionEntries.length}`
-                  : `Question ${currentIndex + 1} of ${activeQuestions.length}`}
+                  : isArabicGeneralExam
+                    ? `السؤال ${currentIndex + 1} من ${activeQuestions.length}`
+                    : `Question ${currentIndex + 1} of ${activeQuestions.length}`}
               </div>
             </div>
             <div className="rounded-lg bg-[#f4f2f7] px-2.5 py-1.5 text-xs font-black text-[#686e84]">
               {isReadingSection
                 ? passageAnsweredCount + "/" + visibleQuestionEntries.length + " answered"
-                : answeredCount + "/" + activeQuestions.length + " answered"}
+                : isArabicGeneralExam
+                  ? answeredCount + " / " + activeQuestions.length + " مجاب"
+                  : answeredCount + "/" + activeQuestions.length + " answered"}
             </div>
           </div>
 
@@ -1391,11 +1419,15 @@ export default function ExamRunner() {
               <div className="mt-1 font-black">
                 {isReadingSection
                   ? `Passage ${currentPassageIndex + 1} of ${passageIds.length} · Question ${localQuestionIndex + 1} of ${visibleQuestionEntries.length}`
-                  : `Question ${currentIndex + 1} of ${activeQuestions.length} · Section ${activeSectionIndex + 1} of ${sections.length}`}
+                  : isArabicGeneralExam
+                    ? `السؤال ${currentIndex + 1} من ${activeQuestions.length} · القسم ${activeSectionIndex + 1} من ${sections.length}`
+                    : `Question ${currentIndex + 1} of ${activeQuestions.length} · Section ${activeSectionIndex + 1} of ${sections.length}`}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-lg bg-[#f4f2f7] px-3 py-2 text-xs font-black">{current.marks} marks</span>
+              <span className="rounded-lg bg-[#f4f2f7] px-3 py-2 text-xs font-black">
+                {isArabicGeneralExam ? `${current.marks} درجة` : `${current.marks} marks`}
+              </span>
               <button
                 disabled={answerLocked}
                 onClick={() => toggleFlag(current.id)}
@@ -1429,36 +1461,78 @@ export default function ExamRunner() {
             ) : null}
 
             <section className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#dfe2ec] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
-              <div className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">
-                Question {isReadingSection ? localQuestionIndex + 1 : currentIndex + 1}
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">
+                  {isArabicGeneralExam
+                    ? `السؤال ${isReadingSection ? localQuestionIndex + 1 : currentIndex + 1} من ${isReadingSection ? visibleQuestionEntries.length : activeQuestions.length}`
+                    : `Question ${isReadingSection ? localQuestionIndex + 1 : currentIndex + 1}`}
+                </div>
+                {isArabicGeneralExam ? (
+                  <div className="rounded-full bg-[#eef0f7] px-3 py-1.5 text-[11px] font-black text-[#1F2B5E]">
+                    {courseCode} · MIDTERM
+                  </div>
+                ) : null}
               </div>
-              <div dir="ltr" className="w-full break-words rounded-2xl border border-[#dfe3f1] bg-[#f7f8fc] px-4 py-5 text-left text-[1.05rem] font-black leading-8 text-[#1F2B5E] shadow-inner sm:px-5 sm:py-6 sm:text-xl sm:leading-9">
+              <div
+                dir={isArabicGeneralExam ? "rtl" : "ltr"}
+                className={
+                  "w-full break-words rounded-[1.35rem] border border-[#d9ddea] bg-gradient-to-br from-white to-[#f7f8fc] px-4 py-5 text-[1.05rem] font-black leading-8 text-[#1F2B5E] shadow-[inset_0_1px_0_rgba(255,255,255,.8),0_10px_30px_rgba(31,43,94,.05)] sm:px-6 sm:py-7 sm:text-xl sm:leading-10 " +
+                  (isArabicGeneralExam ? "text-right" : "text-left")
+                }
+              >
                 {current.prompt || "Question text is unavailable. Please contact NUMO support."}
               </div>
 
               {current.type === "MULTIPLE_CHOICE" ? (
-                <div className="mt-5 space-y-3 sm:mt-7">
-                  {(current.options ?? []).map((option) => (
-                    <label
-                      key={option.id}
-                      className={
-                        "flex w-full min-w-0 cursor-pointer items-start gap-3 rounded-2xl border p-4 text-left transition sm:p-5 " +
-                        (answer === option.id
-                          ? "border-[#6366F1] bg-[#f3f3ff] shadow-sm"
-                          : "border-[#e4e0e8] hover:border-[#c8c1d2] hover:bg-[#faf9fb]")
-                      }
-                    >
-                      <input
-                        type="radio"
-                        name={"q-" + current.id}
-                        className="mt-1"
-                        checked={answer === option.id}
-                        disabled={answerLocked}
-                        onChange={() => updateAnswer(current.id, option.id)}
-                      />
-                      <span className="min-w-0 flex-1 break-words text-[15px] font-semibold leading-7 text-[#303750] sm:text-base" dir="auto">{option.label}</span>
-                    </label>
-                  ))}
+                <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className="mt-5 grid gap-3 sm:mt-7 sm:grid-cols-2">
+                  {(current.options ?? []).map((option) => {
+                    const optionText =
+                      option.value && option.value !== option.label ? option.value : option.label;
+                    const compactLabel = option.label.trim().length <= 3;
+                    const selected = answer === option.id;
+                    return (
+                      <label
+                        key={option.id}
+                        className={
+                          "group flex min-h-[4.5rem] w-full min-w-0 cursor-pointer items-center gap-3 rounded-2xl border px-4 py-4 transition-all duration-200 sm:px-5 " +
+                          (selected
+                            ? "border-[#6366F1] bg-[#f3f3ff] shadow-[0_10px_28px_rgba(99,102,241,.12)] ring-1 ring-[#6366F1]/20"
+                            : "border-[#e1dde7] bg-white hover:-translate-y-0.5 hover:border-[#B1785C]/55 hover:shadow-[0_10px_24px_rgba(31,43,94,.07)]")
+                        }
+                      >
+                        <input
+                          type="radio"
+                          name={"q-" + current.id}
+                          className="sr-only"
+                          checked={selected}
+                          disabled={answerLocked}
+                          onChange={() => updateAnswer(current.id, option.id)}
+                        />
+                        {compactLabel ? (
+                          <span
+                            className={
+                              "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-base font-black transition " +
+                              (selected
+                                ? "bg-[#1F2B5E] text-white"
+                                : "bg-[#eef0f7] text-[#1F2B5E] group-hover:bg-[#fbf2ed] group-hover:text-[#8f5b43]")
+                            }
+                          >
+                            {option.label}
+                          </span>
+                        ) : null}
+                        <span
+                          dir="auto"
+                          className={
+                            "min-w-0 flex-1 break-words text-[15px] font-bold leading-7 text-[#303750] sm:text-base " +
+                            (isArabicGeneralExam ? "text-right" : "text-left")
+                          }
+                        >
+                          {optionText}
+                        </span>
+                        {selected ? <CheckCircle2 className="shrink-0 text-[#6366F1]" size={21} /> : null}
+                      </label>
+                    );
+                  })}
                 </div>
               ) : null}
 
@@ -1508,7 +1582,7 @@ export default function ExamRunner() {
           {!currentHasAnswer ? (
             <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-black text-amber-800">
               <ShieldCheck size={17} />
-              Answer required to continue · يجب اختيار إجابة للمتابعة
+              {isArabicGeneralExam ? "يجب اختيار إجابة قبل الانتقال للسؤال التالي" : "Answer required to continue · يجب اختيار إجابة للمتابعة"}
             </div>
           ) : null}
 
