@@ -826,7 +826,9 @@ export default function ExamRunner() {
                     <ShieldCheck className="mb-2 text-[#B1785C]" />
                     <strong className="block">{isArabicGeneralExam ? "المحاولات والإتاحة" : "Attempts & window"}</strong>
                     <span className="block text-sm text-[#74798d]">
-                      {isArabicGeneralExam ? `${exam.attempts_allowed} محاولات` : `Up to ${exam.attempts_allowed} attempts`}
+                      {exam.attempts_allowed === 0
+                        ? (isArabicGeneralExam ? "محاولات مفتوحة" : "Unlimited attempts")
+                        : (isArabicGeneralExam ? `${exam.attempts_allowed} محاولات` : `Up to ${exam.attempts_allowed} attempts`)}
                     </span>
                     <span className="mt-1 block text-xs leading-6 text-[#8a8e9e]">{formatDate(exam.starts_at)} — {formatDate(exam.ends_at)}</span>
                   </div>
@@ -837,8 +839,8 @@ export default function ExamRunner() {
                 <h2 className="font-black">{isArabicGeneralExam ? "قبل البدء" : "Before you begin"}</h2>
                 {isArabicGeneralExam ? (
                   <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
-                    <li>• مدة الميد ترم 60 دقيقة.</li>
-                    <li>• لديك 4 محاولات مستقلة.</li>
+                    <li>• مدة الاختبار {exam?.duration_minutes ?? 0} دقيقة.</li>
+                    <li>• {exam?.attempts_allowed === 0 ? "المحاولات مفتوحة دون حد أقصى خلال فترة الإتاحة." : `لديك ${exam?.attempts_allowed ?? 1} محاولات مستقلة.`}</li>
                     <li>• تُحفظ إجاباتك تلقائيًا أثناء الحل.</li>
                     <li>• يجب اختيار إجابة قبل الانتقال إلى السؤال التالي.</li>
                     <li>• تظهر الدرجة والمراجعة بعد إنهاء المحاولة.</li>
@@ -894,7 +896,9 @@ export default function ExamRunner() {
               </h1>
               <p dir={isArabicGeneralExam ? "rtl" : "auto"} className={"mt-3 max-w-2xl text-sm leading-7 text-white/80 " + (isArabicGeneralExam ? "text-right" : "")}>
                 {isArabicGeneralExam
-                  ? "اضغط على بطاقة القسم لبدء الاختبار. الأسئلة مرتبة من اليمين، وكل سؤال يعرض خياراته كاملة كما في الملف المعتمد. لديك 4 محاولات والنتيجة تظهر مباشرة بعد الإنهاء."
+                  ? (exam?.attempts_allowed === 0
+                      ? "اضغط على بطاقة القسم لبدء الاختبار. الأسئلة مرتبة من اليمين، وكل سؤال يعرض خياراته كاملة كما في الملف المعتمد. المحاولات مفتوحة والنتيجة تظهر مباشرة بعد الإنهاء."
+                      : `اضغط على بطاقة القسم لبدء الاختبار. الأسئلة مرتبة من اليمين، وكل سؤال يعرض خياراته كاملة كما في الملف المعتمد. لديك ${exam?.attempts_allowed ?? 1} محاولات والنتيجة تظهر مباشرة بعد الإنهاء.`)
                   : "اختر أي Section تريد. بعد كل محاولة تظهر الدرجة والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة حتى حد المحاولات المسموح."}
               </p>
             </div>
@@ -926,7 +930,8 @@ export default function ExamRunner() {
                   const progress = attempt.section_progress?.[section.id] ?? {};
                   const attemptCount = Number(progress.attempt_count ?? (completed ? 1 : 0));
                   const allowed = Number(exam?.attempts_allowed ?? 1);
-                  const remainingAttempts = Math.max(0, allowed - attemptCount);
+                  const unlimitedAttempts = allowed === 0;
+                  const remainingAttempts = unlimitedAttempts ? -1 : Math.max(0, allowed - attemptCount);
                   const bestPercentage = progress.best_percentage;
 
                   return (
@@ -967,7 +972,11 @@ export default function ExamRunner() {
                       </div>
 
                       <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-[#e7e3eb] bg-white px-3 py-2 text-xs font-black">
-                        <span>{isArabicGeneralExam ? `${remainingAttempts} محاولات متبقية` : `${remainingAttempts} attempts left`}</span>
+                        <span>
+                          {unlimitedAttempts
+                            ? (isArabicGeneralExam ? "محاولات مفتوحة" : "Unlimited attempts")
+                            : (isArabicGeneralExam ? `${remainingAttempts} محاولات متبقية` : `${remainingAttempts} attempts left`)}
+                        </span>
                         {bestPercentage !== undefined ? (
                           <span className="text-emerald-700">{isArabicGeneralExam ? "أفضل نتيجة" : "Best"} {Number(bestPercentage).toFixed(0)}%</span>
                         ) : (
@@ -977,7 +986,7 @@ export default function ExamRunner() {
 
                       <button
                         type="button"
-                        disabled={remainingAttempts <= 0 || advancing}
+                        disabled={(!unlimitedAttempts && remainingAttempts <= 0) || advancing}
                         onClick={() => void selectSection(section.id)}
                         className="btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
                       >
@@ -1002,7 +1011,7 @@ export default function ExamRunner() {
                         </button>
                       ) : null}
 
-                      {remainingAttempts <= 0 ? (
+                      {!unlimitedAttempts && remainingAttempts <= 0 ? (
                         <div className="mt-2 rounded-xl bg-[#f0eff4] px-3 py-2 text-center text-xs font-black text-[#777c8f]">
                           {isArabicGeneralExam ? "تم استخدام جميع المحاولات" : "All attempts used"}
                         </div>
@@ -1035,7 +1044,8 @@ export default function ExamRunner() {
   }
 
   if (stage === "section-result" && attempt && sectionResult) {
-    const hasRetry = sectionResult.attemptsRemaining > 0;
+    const unlimitedAttempts = sectionResult.attemptsAllowed === 0;
+    const hasRetry = unlimitedAttempts || sectionResult.attemptsRemaining > 0;
 
     return (
       <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
@@ -1049,9 +1059,13 @@ export default function ExamRunner() {
                 {sectionResult.sectionTitle}
               </h1>
               <div className="mt-2 text-sm text-white/75">
-                {isArabicGeneralExam
-                  ? `المحاولة ${sectionResult.sectionAttemptNumber} من ${sectionResult.attemptsAllowed}`
-                  : `Attempt ${sectionResult.sectionAttemptNumber} of ${sectionResult.attemptsAllowed}`}
+                {unlimitedAttempts
+                  ? (isArabicGeneralExam
+                      ? `المحاولة ${sectionResult.sectionAttemptNumber} · المحاولات مفتوحة`
+                      : `Attempt ${sectionResult.sectionAttemptNumber} · Unlimited attempts`)
+                  : (isArabicGeneralExam
+                      ? `المحاولة ${sectionResult.sectionAttemptNumber} من ${sectionResult.attemptsAllowed}`
+                      : `Attempt ${sectionResult.sectionAttemptNumber} of ${sectionResult.attemptsAllowed}`)}
               </div>
             </div>
 
@@ -1070,8 +1084,12 @@ export default function ExamRunner() {
                   <div className="mt-1 text-xs font-bold text-rose-700">{isArabicGeneralExam ? "خطأ / غير مجاب" : "Wrong / unanswered"}</div>
                 </div>
                 <div className="rounded-2xl border border-[#e4e0e9] bg-[#faf9fb] p-5 text-center">
-                  <div className="text-3xl font-black">{sectionResult.attemptsRemaining}</div>
-                  <div className="mt-1 text-xs font-bold text-[#73788d]">{isArabicGeneralExam ? "المحاولات المتبقية" : "Attempts remaining"}</div>
+                  <div className="text-3xl font-black">{unlimitedAttempts ? "∞" : sectionResult.attemptsRemaining}</div>
+                  <div className="mt-1 text-xs font-bold text-[#73788d]">
+                    {unlimitedAttempts
+                      ? (isArabicGeneralExam ? "محاولات مفتوحة" : "Unlimited attempts")
+                      : (isArabicGeneralExam ? "المحاولات المتبقية" : "Attempts remaining")}
+                  </div>
                 </div>
               </div>
 
