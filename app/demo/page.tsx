@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 import { GraduationCap, LayoutDashboard, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function DemoLanding() {
@@ -12,7 +13,7 @@ export default function DemoLanding() {
             </div>
             <div>
               <div className="font-black">منصة نمو</div>
-              <div className="text-xs font-bold text-[#B1785C]" dir="ltr">NUMO INTENSIVE</div>
+              <div className="text-[10px] font-bold tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
             </div>
           </div>
           <div className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">نسخة تجريبية</div>
@@ -20,7 +21,7 @@ export default function DemoLanding() {
 
         <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1F2B5E] via-[#2d3e7d] to-[#6366F1] p-8 text-white shadow-[0_28px_80px_rgba(31,43,94,.25)] sm:p-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black">
-            <Sparkles size={16} /> تجربة NUMO INTENSIVE
+            <Sparkles size={16} /> تجربة {BRAND.nameAr}
           </div>
           <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.45] sm:text-5xl">جرّب واجهة الطالب ولوحة تحكم المدير.</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-white/75">
