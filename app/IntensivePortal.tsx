@@ -630,7 +630,7 @@ export default function IntensivePortal() {
       </header>
 
       <main className="mx-auto w-full max-w-[1480px] overflow-x-clip px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-        <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#253574_48%,#6366F1_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
+        <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#26366F_58%,#1A244F_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
           <div className="absolute inset-0 opacity-[.16] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:42px_42px]" />
           <div className="absolute -right-24 -top-20 h-80 w-80 rounded-full bg-[#B1785C]/28 blur-3xl" />
           <div className="absolute -bottom-28 left-[12%] h-80 w-80 rounded-full bg-white/10 blur-3xl" />
