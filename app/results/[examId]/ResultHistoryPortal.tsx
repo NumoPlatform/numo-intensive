@@ -122,7 +122,7 @@ export default function ResultHistoryPortal() {
       <div className="grid min-h-screen place-items-center bg-[#f6f7fb] text-[#1F2B5E]">
         <div className="text-center">
           <Loader2 className="mx-auto mb-3 animate-spin" size={28} />
-          <div className="font-black">Loading result history...</div>
+          <div className="font-black">جاري تحميل سجل النتائج...</div>
         </div>
       </div>
     );
@@ -133,9 +133,9 @@ export default function ResultHistoryPortal() {
       <div className="grid min-h-screen place-items-center bg-[#f6f7fb] px-4">
         <div className="w-full max-w-lg rounded-[1.6rem] border border-rose-100 bg-white p-6 text-center shadow-xl">
           <ShieldCheck className="mx-auto mb-3 text-rose-600" />
-          <h1 className="text-xl font-black text-[#1F2B5E]">Result history unavailable</h1>
-          <p className="mt-2 text-sm leading-7 text-[#73788d]">{error || "Try again in a moment."}</p>
-          <a href="/" className="btn mt-5">Return to portal</a>
+          <h1 className="text-xl font-black text-[#1F2B5E]">تعذر عرض سجل النتائج</h1>
+          <p className="mt-2 text-sm leading-7 text-[#73788d]">{error || "حاول مرة أخرى بعد قليل."}</p>
+          <a href="/" className="btn mt-5">العودة إلى مُحاكي نُمو</a>
         </div>
       </div>
     );
