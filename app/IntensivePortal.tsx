@@ -684,72 +684,60 @@ export default function IntensivePortal() {
             </div>
 
             <div className="order-2 lg:order-1">
-              <div className="lg:hidden">
-                <div className="relative mx-auto aspect-square w-[78vw] max-w-[300px]">
-                  <div className="absolute inset-[7%] rounded-full border border-white/20 bg-white/[.035] shadow-[0_0_54px_rgba(99,102,241,.24)] backdrop-blur-sm" />
-                  <div className="absolute inset-[17%] rounded-full border border-white/16 bg-[radial-gradient(circle,rgba(255,255,255,.14),rgba(255,255,255,.035)_58%,transparent_61%)]" />
-                  <div className="pointer-events-none absolute inset-[3%] rounded-full bg-[conic-gradient(from_35deg,rgba(177,120,92,.16),transparent_18%,rgba(99,102,241,.16)_42%,transparent_62%,rgba(255,255,255,.08)_82%,transparent)] blur-[1px]" />
+              <div className="mx-auto w-full max-w-[520px]">
+                <div className="numo-orbit-scene relative mx-auto aspect-square w-[84vw] max-w-[330px] sm:max-w-[390px] lg:w-full lg:max-w-[470px]">
+                  <div className="numo-orbit-halo absolute inset-[4%] rounded-full" />
+                  <div className="numo-orbit-ring absolute inset-[8%] rounded-full" />
+                  <div className="numo-orbit-ring numo-orbit-ring--inner absolute inset-[18%] rounded-full" />
+                  <div className="numo-orbit-core absolute inset-[25%] rounded-full" />
 
-                  <div className="relative z-10 grid h-full w-full grid-cols-3 grid-rows-3 place-items-center p-1.5">
+                  <div className="relative z-10 grid h-full w-full grid-cols-5 grid-rows-5 place-items-center p-1.5 sm:p-2">
                     {[
-                      { icon: GraduationCap, tone: "text-[#6366F1]", cell: "col-start-1 row-start-1" },
-                      { icon: BookOpenCheck, tone: "text-[#1F2B5E]", cell: "col-start-3 row-start-1" },
-                      { icon: Target, tone: "text-[#B1785C]", cell: "col-start-1 row-start-2" },
-                      { icon: Trophy, tone: "text-[#6366F1]", cell: "col-start-3 row-start-2" },
-                      { icon: BarChart3, tone: "text-[#1F2B5E]", cell: "col-start-1 row-start-3" },
-                      { icon: ShieldCheck, tone: "text-[#B1785C]", cell: "col-start-3 row-start-3" },
-                    ].map(({ icon: Icon, tone, cell }, index) => (
+                      { icon: GraduationCap, tone: "text-[#4F56D8]", cell: "col-start-2 row-start-1", tilt: "-rotate-6" },
+                      { icon: PlayCircle, tone: "text-[#1F2B5E]", cell: "col-start-4 row-start-1", tilt: "rotate-6" },
+                      { icon: Target, tone: "text-[#B1785C]", cell: "col-start-1 row-start-2", tilt: "-rotate-3" },
+                      { icon: BookOpenCheck, tone: "text-[#4850C7]", cell: "col-start-5 row-start-2", tilt: "rotate-3" },
+                      { icon: Layers3, tone: "text-[#1F2B5E]", cell: "col-start-1 row-start-4", tilt: "rotate-3" },
+                      { icon: BarChart3, tone: "text-[#4F56D8]", cell: "col-start-5 row-start-4", tilt: "-rotate-3" },
+                      { icon: Trophy, tone: "text-[#B1785C]", cell: "col-start-2 row-start-5", tilt: "rotate-6" },
+                      { icon: ShieldCheck, tone: "text-[#1F2B5E]", cell: "col-start-4 row-start-5", tilt: "-rotate-6" },
+                    ].map(({ icon: Icon, tone, cell, tilt }, index) => (
                       <div
                         key={index}
                         className={
-                          "numo-icon-medallion " +
+                          "numo-orbit-tile " +
                           cell +
-                          " grid h-11 w-11 place-items-center rounded-xl border border-white/75 bg-white/95 shadow-[0_10px_24px_rgba(8,16,51,.18)] " +
+                          " " +
+                          tilt +
+                          " grid h-11 w-11 place-items-center rounded-xl sm:h-14 sm:w-14 sm:rounded-2xl lg:h-[72px] lg:w-[72px] " +
                           tone
                         }
                       >
-                        <Icon size={20} />
+                        <Icon size={20} className="sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
                       </div>
                     ))}
                   </div>
 
-                  <div className="absolute left-1/2 top-1/2 z-20 grid h-[34%] w-[34%] min-h-[92px] min-w-[92px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.55rem] border border-white/30 bg-white text-[#1F2B5E] shadow-[0_22px_48px_rgba(10,18,52,.28)]">
+                  <div className="numo-orbit-center absolute left-1/2 top-1/2 z-20 grid h-[38%] w-[38%] min-h-[104px] min-w-[104px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.7rem] sm:rounded-[2rem] lg:rounded-[2.5rem]">
                     <div className="text-center">
-                      <NumoBrand className="mx-auto w-14" priority />
-                      <div className="mt-2 text-[6px] font-black uppercase tracking-[.09em] text-[#B1785C]" dir="ltr">
+                      <NumoBrand className="mx-auto w-16 sm:w-20 lg:w-28" priority />
+                      <div className="mt-2 text-[6px] font-black uppercase tracking-[.10em] text-[#B1785C] sm:text-[7px] lg:mt-4 lg:text-[9px] lg:tracking-[.14em]" dir="ltr">
                         {BRAND.nameEn}
                       </div>
-                      <div className="mt-1 text-[11px] font-black">{BRAND.nameAr}</div>
+                      <div className="mt-1 text-[11px] font-black text-[#1F2B5E] sm:text-xs lg:text-sm">{BRAND.nameAr}</div>
+                      <div className="mt-1 hidden text-[9px] font-bold text-[#8a8e9e] sm:block lg:text-[10px]">راجع · اختبر · اعرف مستواك</div>
                     </div>
                   </div>
 
-                  <div className="absolute left-1/2 top-[2%] z-30 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#efc2ab] shadow-[0_0_14px_rgba(239,194,171,.9)]" />
-                  <div className="absolute bottom-[2%] left-1/2 z-30 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white shadow-[0_0_14px_rgba(255,255,255,.9)]" />
-                </div>
-              </div>
-
-              <div className="relative mx-auto hidden aspect-square w-full max-w-[470px] lg:block">
-                <div className="absolute inset-[10%] rounded-full border border-white/16 bg-white/[.04] shadow-[0_0_70px_rgba(99,102,241,.26)] backdrop-blur-sm" />
-                <div className="absolute inset-[19%] rounded-full border border-white/20 bg-[radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,.04)_58%,transparent_60%)]" />
-                <div className="absolute inset-[27%] grid place-items-center rounded-[2.3rem] border border-white/20 bg-white shadow-[0_24px_60px_rgba(14,20,55,.28)]">
-                  <div className="text-center">
-                    <NumoBrand className="mx-auto w-28" priority />
-                    <div className="mt-4 text-[9px] font-black uppercase tracking-[.14em] text-[#B1785C]" dir="ltr">
-                      {BRAND.nameEn}
-                    </div>
-                    <div className="mt-1 text-sm font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
-                  </div>
+                  <span className="numo-orbit-spark numo-orbit-spark--one" />
+                  <span className="numo-orbit-spark numo-orbit-spark--two" />
+                  <span className="numo-orbit-spark numo-orbit-spark--three" />
                 </div>
 
-                <div className="numo-icon-medallion absolute left-[3%] top-[17%] grid h-[72px] w-[72px] place-items-center rounded-2xl text-[#6366F1]"><GraduationCap size={28} /></div>
-                <div className="numo-icon-medallion absolute right-[3%] top-[18%] grid h-[72px] w-[72px] place-items-center rounded-2xl text-[#1F2B5E]"><BookOpenCheck size={27} /></div>
-                <div className="numo-icon-medallion absolute left-[1%] top-[47%] grid h-[72px] w-[72px] place-items-center rounded-2xl text-[#B1785C]"><Target size={27} /></div>
-                <div className="numo-icon-medallion absolute right-[1%] top-[48%] grid h-[72px] w-[72px] place-items-center rounded-2xl text-[#6366F1]"><Trophy size={27} /></div>
-                <div className="numo-icon-medallion absolute bottom-[9%] left-[16%] grid h-[72px] w-[72px] place-items-center rounded-2xl text-[#1F2B5E]"><BarChart3 size={27} /></div>
-                <div className="numo-icon-medallion absolute bottom-[8%] right-[16%] grid h-[72px] w-[72px] place-items-center rounded-2xl text-[#B1785C]"><ShieldCheck size={27} /></div>
-
-                <div className="absolute left-1/2 top-[5%] h-2 w-2 -translate-x-1/2 rounded-full bg-[#e8b59b] shadow-[0_0_18px_rgba(232,181,155,.9)]" />
-                <div className="absolute bottom-[4%] left-[48%] h-2 w-2 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,.9)]" />
+                <div className="mx-auto -mt-1 hidden w-fit items-center gap-2 rounded-full border border-white/18 bg-white/[.08] px-4 py-2 text-[10px] font-black text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,.10)] backdrop-blur sm:flex">
+                  <Sparkles size={13} className="text-[#E8B59E]" />
+                  تجربة أكاديمية تفاعلية من نُمو
+                </div>
               </div>
             </div>
           </div>

@@ -792,3 +792,184 @@ textarea {
 .numo-primary-cta:active {
   transform: translateY(0) scale(.99);
 }
+
+
+/* NUMO Artistic Orbit Hero */
+.numo-orbit-scene {
+  isolation: isolate;
+  filter: drop-shadow(0 24px 54px rgba(7, 13, 42, .20));
+}
+
+.numo-orbit-halo {
+  background:
+    radial-gradient(circle, rgba(255,255,255,.13) 0%, rgba(99,102,241,.18) 36%, rgba(99,102,241,.06) 52%, transparent 69%);
+  filter: blur(10px);
+  opacity: .95;
+}
+
+.numo-orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(255,255,255,.34);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 58%, rgba(255,255,255,.04) 59%, rgba(255,255,255,.08) 62%, transparent 66%),
+    conic-gradient(
+      from 10deg,
+      rgba(255,255,255,.10),
+      rgba(124,129,255,.48) 14%,
+      rgba(255,255,255,.76) 24%,
+      rgba(177,120,92,.28) 38%,
+      rgba(255,255,255,.10) 52%,
+      rgba(99,102,241,.46) 66%,
+      rgba(255,255,255,.66) 78%,
+      rgba(177,120,92,.22) 90%,
+      rgba(255,255,255,.10)
+    );
+  box-shadow:
+    0 0 22px rgba(110,116,255,.22),
+    0 0 48px rgba(255,255,255,.08),
+    inset 0 0 22px rgba(255,255,255,.08);
+  -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%, #000 69%, transparent 71%);
+  mask: radial-gradient(circle, transparent 62%, #000 64%, #000 69%, transparent 71%);
+  animation: numoOrbitSpin 20s linear infinite;
+}
+
+.numo-orbit-ring--inner {
+  opacity: .66;
+  animation-duration: 28s;
+  animation-direction: reverse;
+  box-shadow:
+    0 0 18px rgba(255,255,255,.08),
+    inset 0 0 18px rgba(99,102,241,.10);
+}
+
+.numo-orbit-core {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255,255,255,.16), rgba(99,102,241,.08) 42%, rgba(255,255,255,.02) 68%, transparent 72%);
+  filter: blur(2px);
+}
+
+.numo-orbit-tile {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.86);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.99), rgba(247,247,252,.94));
+  box-shadow:
+    0 14px 30px rgba(8,16,51,.20),
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 0 0 1px rgba(99,102,241,.05);
+  backdrop-filter: blur(10px);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.numo-orbit-tile::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(125deg, rgba(255,255,255,.7), transparent 34%, transparent 66%, rgba(99,102,241,.06));
+  content: "";
+  pointer-events: none;
+}
+
+.numo-orbit-tile:hover {
+  box-shadow:
+    0 18px 38px rgba(8,16,51,.24),
+    0 0 26px rgba(99,102,241,.12),
+    0 1px 0 rgba(255,255,255,1) inset;
+}
+
+.numo-orbit-center {
+  border: 1px solid rgba(255,255,255,.86);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.995), rgba(247,246,249,.97));
+  box-shadow:
+    0 24px 60px rgba(8,16,51,.28),
+    0 0 34px rgba(255,255,255,.16),
+    0 1px 0 rgba(255,255,255,1) inset;
+}
+
+.numo-orbit-center::after {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(177,120,92,.14);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.numo-orbit-spark {
+  position: absolute;
+  z-index: 5;
+  width: .42rem;
+  height: .42rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow:
+    0 0 10px rgba(255,255,255,.95),
+    0 0 24px rgba(99,102,241,.72);
+  animation: numoSparkPulse 2.8s ease-in-out infinite;
+}
+
+.numo-orbit-spark--one {
+  top: 8%;
+  left: 49%;
+}
+
+.numo-orbit-spark--two {
+  right: 9%;
+  top: 53%;
+  animation-delay: .8s;
+  background: #E8B59E;
+  box-shadow:
+    0 0 10px rgba(232,181,158,.9),
+    0 0 24px rgba(177,120,92,.55);
+}
+
+.numo-orbit-spark--three {
+  bottom: 7%;
+  left: 46%;
+  animation-delay: 1.4s;
+}
+
+@keyframes numoOrbitSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes numoSparkPulse {
+  0%, 100% { opacity: .48; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+@media (max-width: 639px) {
+  .numo-orbit-scene {
+    filter: drop-shadow(0 18px 36px rgba(7, 13, 42, .18));
+  }
+
+  .numo-orbit-ring {
+    box-shadow:
+      0 0 18px rgba(110,116,255,.20),
+      0 0 34px rgba(255,255,255,.06),
+      inset 0 0 18px rgba(255,255,255,.06);
+  }
+
+  .numo-orbit-tile {
+    box-shadow:
+      0 10px 22px rgba(8,16,51,.18),
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+
+  .numo-orbit-center {
+    box-shadow:
+      0 18px 42px rgba(8,16,51,.24),
+      0 0 24px rgba(255,255,255,.12),
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numo-orbit-ring,
+  .numo-orbit-spark {
+    animation: none !important;
+  }
+}
