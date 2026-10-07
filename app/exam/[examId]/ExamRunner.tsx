@@ -447,7 +447,7 @@ export default function ExamRunner() {
     }
 
     if (incoming.section_finished) {
-      setMessage("تم إكمال جميع الأقسام في هذه المحاولة.");
+      setMessage("");
       setStage("section-select");
       return;
     }
@@ -867,7 +867,9 @@ export default function ExamRunner() {
                 {stage === "starting" ? <><Loader2 size={18} className="animate-spin" /> {isArabicGeneralExam ? "جاري تجهيز الاختبار..." : "Starting exam..."}</> :
                   beforeStart ? (isArabicGeneralExam ? "الاختبار لم يبدأ بعد" : "The exam is not open yet") :
                   afterEnd ? (isArabicGeneralExam ? "انتهى وقت إتاحة الاختبار" : "The exam has closed") :
-                  (isArabicGeneralExam ? "دخول قسم الميد ترم" : "Start / choose section")}
+                  (isArabicGeneralExam
+                    ? `الدخول إلى قسم ${exam?.category ?? "الاختبار"}`
+                    : "Start / choose section")}
               </button>
             </div>
           </div>
@@ -889,7 +891,7 @@ export default function ExamRunner() {
           <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
             <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-6 text-white sm:p-8">
               <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">
-                {isArabicGeneralExam ? "قسم الاختبار" : "Choose your section"}
+                {isArabicGeneralExam ? `قسم ${exam?.category ?? "الاختبار"}` : "Choose your section"}
               </div>
               <h1 dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-2 text-2xl font-black sm:text-3xl " + (isArabicGeneralExam ? "text-right" : "text-left")}>
                 {exam?.title ?? "Exam"}
@@ -947,7 +949,9 @@ export default function ExamRunner() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="text-xs font-black text-[#B1785C]">
-                            {isArabicGeneralExam ? `${courseCode || "GENERAL"} · MIDTERM` : `SECTION ${section.position}`}
+                            {isArabicGeneralExam
+                              ? `${courseCode || "GENERAL"} · ${exam?.category ?? "EXAM"}`
+                              : `SECTION ${section.position}`}
                           </div>
                           <h2 dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"mt-1 text-xl font-black " + (isArabicGeneralExam ? "text-right" : "")}>
                             {section.title}
