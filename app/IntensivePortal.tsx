@@ -441,6 +441,14 @@ export default function IntensivePortal() {
 
   const catalogCourses = data.catalogCourses?.length ? data.catalogCourses : data.courses;
   const assignedCourseIds = new Set(data.courses.map((course) => course.id));
+  const activeCarouselCourse = catalogCourses[carouselIndex] ?? null;
+  const previousCarouselCourse = catalogCourses.length
+    ? catalogCourses[(carouselIndex - 1 + catalogCourses.length) % catalogCourses.length]
+    : null;
+  const nextCarouselCourse = catalogCourses.length
+    ? catalogCourses[(carouselIndex + 1) % catalogCourses.length]
+    : null;
+
   function goCarousel(direction: 1 | -1) {
     if (!catalogCourses.length) return;
     setCarouselPaused(true);
@@ -770,10 +778,10 @@ export default function IntensivePortal() {
           })}
         </section>
 
-        {catalogCourses.length ? (
+        {catalogCourses.length && activeCarouselCourse ? (
           <section
             ref={carouselRef}
-            className="mt-8 overflow-hidden rounded-[2.35rem] border border-[#dfd9e5] bg-[linear-gradient(180deg,#ffffff_0%,#fbfafc_100%)] shadow-[0_34px_100px_rgba(31,43,94,.13)]"
+            className="mt-8 overflow-hidden rounded-[2.4rem] border border-[#dcd6e2] bg-[#0f1738] shadow-[0_34px_110px_rgba(31,43,94,.18)] ring-1 ring-white/90 sm:rounded-[3rem]"
             onMouseEnter={() => setCarouselPaused(true)}
             onMouseLeave={() => setCarouselPaused(false)}
             onFocusCapture={() => setCarouselPaused(true)}
@@ -786,238 +794,239 @@ export default function IntensivePortal() {
               const startX = carouselTouchStartX.current;
               const endX = event.changedTouches[0]?.clientX ?? null;
               carouselTouchStartX.current = null;
-              if (startX !== null && endX !== null && Math.abs(endX - startX) > 48) {
+              if (startX !== null && endX !== null && Math.abs(endX - startX) > 44) {
                 goCarousel(endX < startX ? 1 : -1);
-              } else {
-                window.setTimeout(() => setCarouselPaused(false), 4200);
               }
+              window.setTimeout(() => setCarouselPaused(false), 6200);
             }}
-            aria-label="معرض المقررات والكورسات"
+            aria-label="معرض المقررات الفاخر"
           >
-            <div className="relative overflow-hidden border-b border-[#ebe6ee] bg-white px-5 py-5 sm:px-7 sm:py-6 lg:px-9">
-              <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#6366F1]/[.07] blur-3xl" />
-              <div className="absolute -bottom-24 left-[10%] h-52 w-52 rounded-full bg-[#B1785C]/[.08] blur-3xl" />
+            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_14%_12%,rgba(99,102,241,.34),transparent_26%),radial-gradient(circle_at_86%_14%,rgba(177,120,92,.28),transparent_24%),linear-gradient(135deg,#0d1432_0%,#1F2B5E_46%,#303f86_100%)] px-4 pb-6 pt-6 sm:px-7 sm:pb-8 sm:pt-8 lg:px-10 lg:pb-10">
+              <div className="pointer-events-none absolute inset-0 opacity-[.10] [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:42px_42px]" />
+              <div className="pointer-events-none absolute -left-24 top-12 h-72 w-72 rounded-full border border-white/[.07]" />
+              <div className="pointer-events-none absolute -right-24 bottom-[-5rem] h-96 w-96 rounded-full border border-[#B1785C]/16" />
+              <div className="pointer-events-none absolute left-[42%] top-[-8rem] h-72 w-72 rounded-full bg-white/[.06] blur-3xl" />
 
-              <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="relative flex flex-wrap items-end justify-between gap-4">
                 <div className="max-w-3xl">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#eadfd8] bg-[#fffaf7] px-3 py-1.5 text-[10px] font-black tracking-[.14em] text-[#9c654d]" dir="ltr">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[.07] px-3 py-1.5 text-[10px] font-black uppercase tracking-[.18em] text-[#edc1aa] backdrop-blur" dir="ltr">
                     <Sparkles size={13} />
-                    NUMO CURATED ACADEMIC GALLERY
+                    NUMO SIGNATURE COLLECTION
                   </div>
-                  <h2 className="mt-3 text-2xl font-black leading-[1.35] text-[#1F2B5E] sm:text-3xl lg:text-[2.35rem]">
-                    مكتبتك الأكاديمية بأسلوب عرض عالمي
+                  <h2 className="mt-3 text-2xl font-black leading-[1.35] text-white sm:text-3xl lg:text-[2.55rem]">
+                    تجربة عرض أكاديمية بمستوى عالمي
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-[#74798c]">
-                    أغلفة كاملة دون قص، وانتقالات سينمائية هادئة تبدأ عند وصولك للقسم. المقررات الممنوحة لك تبقى ظاهرة في قسمك الأكاديمي أسفل المعرض.
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-7 text-white/58">
+                    الأغلفة تظهر كاملة 100% دون أي قص أو كتابة فوقها، مع انتقال سينمائي هادئ وSwipe للجوال.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 sm:min-w-[340px]">
-                  <div className="rounded-2xl border border-[#ebe8ef] bg-[#faf9fc] px-3 py-3 text-center">
-                    <div className="text-xl font-black text-[#1F2B5E]">{catalogCourses.length}</div>
-                    <div className="mt-1 text-[9px] font-black uppercase tracking-[.08em] text-[#8e92a2]">Catalog</div>
+                <div className="flex items-center gap-2">
+                  <div className="rounded-2xl border border-white/12 bg-white/[.08] px-4 py-2.5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur">
+                    <div className="text-[9px] font-black uppercase tracking-[.14em] text-white/40" dir="ltr">SHOWCASE</div>
+                    <div className="mt-1 text-lg font-black text-white" dir="ltr">
+                      {String(carouselIndex + 1).padStart(2, "0")} / {String(catalogCourses.length).padStart(2, "0")}
+                    </div>
                   </div>
-                  <div className="rounded-2xl border border-[#efdfd6] bg-[#fff8f4] px-3 py-3 text-center">
-                    <div className="text-xl font-black text-[#9b654d]">{data.courses.length}</div>
-                    <div className="mt-1 text-[9px] font-black text-[#9a806f]">ممنوحة لك</div>
-                  </div>
-                  <div className="rounded-2xl border border-[#e3e4f6] bg-[#f5f5ff] px-3 py-3 text-center">
-                    <div className="text-xl font-black text-[#5f63d8]">{openExams.length}</div>
-                    <div className="mt-1 text-[9px] font-black text-[#7e82a1]">اختبار متاح</div>
+                  <div className="hidden rounded-2xl border border-[#B1785C]/25 bg-[#B1785C]/10 px-4 py-2.5 text-center backdrop-blur sm:block">
+                    <div className="text-[9px] font-black uppercase tracking-[.14em] text-[#e9bca6]" dir="ltr">AUTO ROTATION</div>
+                    <div className="mt-1 text-xs font-black text-white/85">{carouselPaused ? "PAUSED" : "ACTIVE"}</div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_12%_12%,rgba(99,102,241,.23),transparent_20%),radial-gradient(circle_at_88%_22%,rgba(177,120,92,.20),transparent_24%),linear-gradient(135deg,#111936_0%,#172451_44%,#263574_100%)] px-3 py-5 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-              <div className="pointer-events-none absolute inset-0 opacity-[.12] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:38px_38px]" />
-              <div className="pointer-events-none absolute left-[8%] top-[15%] h-44 w-44 rounded-full border border-white/10" />
-              <div className="pointer-events-none absolute right-[7%] top-[8%] h-64 w-64 rounded-full border border-[#B1785C]/15" />
-              <div className="pointer-events-none absolute right-[12%] top-[15%] h-40 w-40 rounded-full border border-white/8" />
+              <div className="relative mt-7 min-h-[300px] sm:mt-9 sm:min-h-[460px] lg:min-h-[560px]">
+                {catalogCourses.length > 2 && previousCarouselCourse ? (
+                  <button
+                    type="button"
+                    onClick={() => goCarousel(-1)}
+                    className="absolute left-[-14%] top-1/2 z-[1] hidden w-[43%] -translate-y-1/2 rotate-[-5deg] rounded-[2rem] border border-white/10 bg-white/[.035] p-2 opacity-30 shadow-[0_30px_80px_rgba(0,0,0,.35)] transition duration-500 hover:opacity-50 lg:block"
+                    aria-label={"عرض " + previousCarouselCourse.code}
+                  >
+                    <div className="aspect-[16/9] overflow-hidden rounded-[1.55rem] bg-white p-2">
+                      <img
+                        src={courseCover(previousCarouselCourse.code, previousCarouselCourse.default_cover_url)}
+                        alt=""
+                        width={1536}
+                        height={864}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                  </button>
+                ) : null}
 
-              <div className="relative mx-auto max-w-[1160px]">
-                <div className="relative min-h-[390px] sm:min-h-[520px] lg:min-h-[590px]">
-                  {catalogCourses.map((course, index) => {
-                    const assigned = assignedCourseIds.has(course.id);
-                    const active = index === carouselIndex;
-                    const visual = courseVisual(course.code);
-                    return (
-                      <article
-                        key={course.id}
-                        aria-hidden={!active}
-                        className={
-                          "absolute inset-0 flex items-center justify-center transition-all duration-[850ms] ease-[cubic-bezier(.22,.61,.36,1)] " +
-                          (active
-                            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-                            : "pointer-events-none translate-y-5 scale-[.975] opacity-0")
-                        }
-                      >
-                        <div className="w-full">
-                          <div className="mx-auto w-full max-w-[980px]">
-                            <div className="relative">
-                              <div className="pointer-events-none absolute -inset-5 rounded-[2.4rem] border border-white/[.08] bg-white/[.025] shadow-[0_40px_120px_rgba(0,0,0,.32)] backdrop-blur-sm sm:-inset-7" />
-                              <div className="pointer-events-none absolute -inset-[1px] rounded-[2rem] bg-[linear-gradient(120deg,rgba(255,255,255,.26),rgba(177,120,92,.24),rgba(99,102,241,.22),rgba(255,255,255,.12))] opacity-75" />
+                {catalogCourses.length > 2 && nextCarouselCourse ? (
+                  <button
+                    type="button"
+                    onClick={() => goCarousel(1)}
+                    className="absolute right-[-14%] top-1/2 z-[1] hidden w-[43%] -translate-y-1/2 rotate-[5deg] rounded-[2rem] border border-white/10 bg-white/[.035] p-2 opacity-30 shadow-[0_30px_80px_rgba(0,0,0,.35)] transition duration-500 hover:opacity-50 lg:block"
+                    aria-label={"عرض " + nextCarouselCourse.code}
+                  >
+                    <div className="aspect-[16/9] overflow-hidden rounded-[1.55rem] bg-white p-2">
+                      <img
+                        src={courseCover(nextCarouselCourse.code, nextCarouselCourse.default_cover_url)}
+                        alt=""
+                        width={1536}
+                        height={864}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                  </button>
+                ) : null}
 
-                              <div className="relative overflow-hidden rounded-[1.95rem] bg-[#fefefe] p-2 shadow-[0_28px_85px_rgba(3,8,30,.34)] sm:p-3">
-                                <div className="relative aspect-[16/9] overflow-hidden rounded-[1.45rem] bg-white">
-                                  <img
-                                    src={courseCover(course.code, course.default_cover_url)}
-                                    alt={"غلاف " + course.code}
-                                    width={1536}
-                                    height={864}
-                                    loading={active ? "eager" : "lazy"}
-                                    decoding="async"
-                                    className="absolute inset-0 h-full w-full object-contain"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="mx-auto mt-5 grid max-w-[900px] gap-3 rounded-[1.6rem] border border-white/12 bg-white/[.085] p-4 text-white shadow-[0_18px_50px_rgba(0,0,0,.18)] backdrop-blur-xl sm:grid-cols-[1fr_auto] sm:items-center sm:p-5">
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="rounded-full bg-[#B1785C]/20 px-2.5 py-1 text-[10px] font-black tracking-[.13em] text-[#efc4ae]" dir="ltr">
-                                    {course.code}
-                                  </span>
-                                  <span className="text-[10px] font-black text-white/45" dir="ltr">
-                                    {String(index + 1).padStart(2, "0")} / {String(catalogCourses.length).padStart(2, "0")}
-                                  </span>
-                                  <span className={
-                                    "rounded-full px-2.5 py-1 text-[9px] font-black " +
-                                    (assigned ? "bg-emerald-400/15 text-emerald-200" : "bg-white/10 text-white/65")
-                                  }>
-                                    {assigned ? "ممنوح لك" : "كتالوج نمو"}
-                                  </span>
-                                </div>
-
-                                <h3 className="mt-2 text-xl font-black leading-7 sm:text-2xl" dir="auto">
-                                  {course.title}
-                                </h3>
-                                <p className="mt-1 line-clamp-2 text-xs font-medium leading-6 text-white/55 sm:text-sm">
-                                  {course.description || "NUMO Premium Academic Course"}
-                                </p>
-                              </div>
-
-                              <div className="flex items-center gap-2 sm:justify-end">
-                                {assigned ? (
-                                  <a
-                                    href={"/course/" + course.id}
-                                    className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-[#1F2B5E] shadow-[0_12px_28px_rgba(0,0,0,.16)] transition hover:-translate-y-0.5 sm:flex-none"
-                                  >
-                                    فتح المقرر <ChevronLeft size={16} />
-                                  </a>
-                                ) : (
-                                  <span className="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-white/15 bg-white/[.08] px-5 text-xs font-black text-white/70 sm:flex-none">
-                                    يمنح من الإدارة
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                <div className="absolute inset-0 z-10 flex items-center justify-center">
+                  <div className="relative w-full max-w-[960px] px-1 sm:px-5 lg:px-12">
+                    <div className="pointer-events-none absolute inset-x-[9%] bottom-[-24px] h-20 rounded-[50%] bg-black/40 blur-2xl" />
+                    <div className="course-showcase-frame relative rounded-[1.9rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-2.5 shadow-[0_40px_100px_rgba(3,8,30,.52),0_0_0_1px_rgba(255,255,255,.62)_inset] sm:rounded-[2.5rem] sm:p-4">
+                      <div className="rounded-[1.45rem] border border-[#e0dbe4] bg-white p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2.5">
+                        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.1rem] bg-white sm:rounded-[1.6rem]">
+                          <img
+                            key={activeCarouselCourse.id}
+                            src={courseCover(activeCarouselCourse.code, activeCarouselCourse.default_cover_url)}
+                            alt={"غلاف " + activeCarouselCourse.code}
+                            width={1536}
+                            height={864}
+                            decoding="async"
+                            className="h-full w-full object-contain [animation:courseReveal_.72s_cubic-bezier(.22,.61,.36,1)]"
+                          />
                         </div>
-                      </article>
-                    );
-                  })}
+                      </div>
+                      <div className="pointer-events-none absolute -left-1 top-1/2 h-20 w-1 -translate-y-1/2 rounded-full bg-[linear-gradient(#B1785C,#f0c5af,#B1785C)] shadow-[0_0_20px_rgba(177,120,92,.45)]" />
+                      <div className="pointer-events-none absolute -right-1 top-1/2 h-20 w-1 -translate-y-1/2 rounded-full bg-[linear-gradient(#6366F1,#b6b8ff,#6366F1)] shadow-[0_0_20px_rgba(99,102,241,.45)]" />
+                    </div>
+                  </div>
                 </div>
 
                 {catalogCourses.length > 1 ? (
-                  <div className="relative mt-3 sm:mt-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <button
-                        type="button"
-                        onClick={() => goCarousel(-1)}
-                        className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[.08] text-white shadow-[0_12px_30px_rgba(0,0,0,.15)] backdrop-blur transition hover:bg-white/[.14]"
-                        aria-label="المقرر السابق"
-                      >
-                        <ChevronRight size={20} />
-                      </button>
-
-                      <div className="deluxe-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto px-1 py-2">
-                        {catalogCourses.map((course, index) => (
-                          <button
-                            key={course.id}
-                            type="button"
-                            onClick={() => {
-                              setCarouselIndex(index);
-                              setCarouselPaused(true);
-                              window.setTimeout(() => setCarouselPaused(false), 6500);
-                            }}
-                            className={
-                              "group min-w-[118px] overflow-hidden rounded-[1rem] border p-1.5 text-right transition-all duration-300 sm:min-w-[150px] " +
-                              (index === carouselIndex
-                                ? "border-[#d9a087] bg-white shadow-[0_14px_34px_rgba(0,0,0,.18)]"
-                                : "border-white/10 bg-white/[.06] text-white/65 hover:bg-white/[.10]")
-                            }
-                          >
-                            <div className="aspect-[16/9] overflow-hidden rounded-[.7rem] bg-white">
-                              <img
-                                src={courseCover(course.code, course.default_cover_url)}
-                                alt=""
-                                width={360}
-                                height={203}
-                                loading="lazy"
-                                decoding="async"
-                                className="h-full w-full object-contain"
-                              />
-                            </div>
-                            <div className={
-                              "mt-1.5 truncate px-1 text-[9px] font-black tracking-[.08em] " +
-                              (index === carouselIndex ? "text-[#1F2B5E]" : "text-white/65")
-                            } dir="ltr">
-                              {course.code}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => goCarousel(1)}
-                        className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[.08] text-white shadow-[0_12px_30px_rgba(0,0,0,.15)] backdrop-blur transition hover:bg-white/[.14]"
-                        aria-label="المقرر التالي"
-                      >
-                        <ChevronLeft size={20} />
-                      </button>
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between gap-3 text-[9px] font-black uppercase tracking-[.13em] text-white/40" dir="ltr">
-                      <span>AUTO PLAY · SCROLL ACTIVATED</span>
-                      <span>{carouselPaused ? "PAUSED BY INTERACTION" : "CINEMATIC ROTATION"}</span>
-                    </div>
-                  </div>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => goCarousel(-1)}
+                      className="absolute left-1 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#0c1435]/86 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:left-3 sm:h-12 sm:w-12"
+                      aria-label="المقرر السابق"
+                    >
+                      <ChevronLeft size={21} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goCarousel(1)}
+                      className="absolute right-1 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#0c1435]/86 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:right-3 sm:h-12 sm:w-12"
+                      aria-label="المقرر التالي"
+                    >
+                      <ChevronRight size={21} />
+                    </button>
+                  </>
                 ) : null}
               </div>
             </div>
 
-            <div className="grid gap-3 border-t border-[#ebe6ee] bg-white px-5 py-5 sm:grid-cols-[1fr_auto] sm:items-center sm:px-7 lg:px-9">
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[.15em] text-[#B1785C]" dir="ltr">
-                  YOUR NEXT STEP
+            <div className="relative bg-[linear-gradient(180deg,#ffffff_0%,#fbfafc_100%)] p-4 sm:p-6 lg:px-8 lg:py-6">
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-[#f9efe9] px-3 py-1.5 text-[10px] font-black tracking-[.14em] text-[#9a6249]" dir="ltr">
+                      {activeCarouselCourse.code}
+                    </span>
+                    <span className={
+                      "rounded-full px-3 py-1.5 text-[10px] font-black " +
+                      (assignedCourseIds.has(activeCarouselCourse.id)
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-[#f1f2ff] text-[#5b5fd5]")
+                    }>
+                      {assignedCourseIds.has(activeCarouselCourse.id) ? "ممنوح لك" : "من كتالوج نمو"}
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-[.14em] text-[#a5a8b4]" dir="ltr">
+                      {courseVisual(activeCarouselCourse.code).level}
+                    </span>
+                  </div>
+                  <h3 className="mt-2 text-xl font-black text-[#1F2B5E] sm:text-2xl" dir="auto">
+                    {activeCarouselCourse.title}
+                  </h3>
+                  <p className="mt-2 max-w-3xl text-sm font-medium leading-7 text-[#777c8f]">
+                    {activeCarouselCourse.description || "تجربة أكاديمية مصممة بعناية ضمن منظومة NUMO التعليمية."}
+                  </p>
                 </div>
-                <div className="mt-1 text-lg font-black text-[#1F2B5E]">
-                  {nextAction
-                    ? nextAction.inProgress
-                      ? "لديك محاولة قيد التنفيذ ويمكنك متابعتها الآن."
-                      : "يوجد اختبار متاح لك الآن."
-                    : "لا توجد محاولة معلقة حاليًا؛ استكشف مقرراتك في الأسفل."}
+
+                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  {assignedCourseIds.has(activeCarouselCourse.id) ? (
+                    <a
+                      href={"/course/" + activeCarouselCourse.id}
+                      className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1F2B5E,#303f86)] px-5 text-sm font-black text-white shadow-[0_14px_32px_rgba(31,43,94,.22)] transition hover:-translate-y-0.5 sm:flex-none"
+                    >
+                      فتح المقرر <ChevronLeft size={17} />
+                    </a>
+                  ) : (
+                    <div className="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-[#eadbd3] bg-[#fff8f4] px-5 text-sm font-black text-[#9a6249] sm:flex-none">
+                      يمنح من مدير النظام
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {nextAction ? (
+
+              {catalogCourses.length > 1 ? (
+                <div className="mt-5 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-[linear-gradient(90deg,transparent,#ddd7e2)]" />
+                  <div className="flex max-w-full items-center gap-1.5 overflow-x-auto px-1 py-1 [scrollbar-width:none]">
+                    {catalogCourses.map((course, index) => (
+                      <button
+                        key={course.id}
+                        type="button"
+                        onClick={() => {
+                          setCarouselIndex(index);
+                          setCarouselPaused(true);
+                          window.setTimeout(() => setCarouselPaused(false), 6200);
+                        }}
+                        className={
+                          "shrink-0 rounded-full transition-all duration-300 " +
+                          (index === carouselIndex
+                            ? "h-2.5 w-10 bg-[linear-gradient(90deg,#B1785C,#6366F1)] shadow-[0_3px_12px_rgba(99,102,241,.22)]"
+                            : "h-2.5 w-2.5 bg-[#d8d4dd] hover:bg-[#aaa5b3]")
+                        }
+                        aria-label={"عرض " + course.code}
+                      />
+                    ))}
+                  </div>
+                  <div className="h-px flex-1 bg-[linear-gradient(90deg,#ddd7e2,transparent)]" />
+                </div>
+              ) : null}
+
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[.14em] text-[#a5a8b4]" dir="ltr">
+                <span>AUTO-PLAY ON VIEW · SWIPE ENABLED · FULL COVER MODE</span>
+                <span>{carouselPaused ? "PAUSED BY INTERACTION" : "CINEMATIC ROTATION"}</span>
+              </div>
+
+              <div className="mt-5 grid gap-3 border-t border-[#ece8ef] pt-5 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[.14em] text-[#B1785C]" dir="ltr">YOUR NEXT STEP</div>
+                  <div className="mt-1 text-base font-black text-[#1F2B5E]">
+                    {nextAction
+                      ? nextAction.inProgress
+                        ? "لديك محاولة قيد التنفيذ ويمكنك متابعتها الآن."
+                        : "يوجد اختبار متاح لك الآن."
+                      : "لا توجد محاولة معلقة حاليًا؛ مقرراتك الممنوحة لك تظهر في القسم التالي."}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {nextAction ? (
+                    <a
+                      href={"/exam/" + nextAction.exam.id}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-xs font-black text-white"
+                    >
+                      <PlayCircle size={16} />
+                      {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
+                    </a>
+                  ) : null}
                   <a
-                    href={"/exam/" + nextAction.exam.id}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_28px_rgba(31,43,94,.18)]"
+                    href="#course-portfolio"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfdae5] bg-[#faf9fb] px-4 text-xs font-black text-[#1F2B5E]"
                   >
-                    <PlayCircle size={18} />
-                    {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
+                    <BookOpenCheck size={16} /> مقرراتي الأكاديمية
                   </a>
-                ) : null}
-                <a
-                  href="#course-portfolio"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#dfdae5] bg-[#faf9fb] px-5 text-sm font-black text-[#1F2B5E]"
-                >
-                  <BookOpenCheck size={18} /> مقرراتي الأكاديمية
-                </a>
+                </div>
               </div>
             </div>
           </section>
