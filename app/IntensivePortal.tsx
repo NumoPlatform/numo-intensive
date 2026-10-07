@@ -538,11 +538,17 @@ export default function IntensivePortal() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#efedf2] pt-4 text-xs font-black">
-            <span className={metrics.open ? "text-emerald-700" : "text-[#8d91a0]"}>
+          <div className="mt-4 grid gap-2 border-t border-[#efedf2] pt-4 sm:grid-cols-[1fr_auto] sm:items-center">
+            <span className={
+              "inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-black " +
+              (metrics.open
+                ? "border border-[#ead4c8] bg-[#fff7f2] text-[#9a6249]"
+                : "bg-[#f7f7fa] text-[#8d91a0]")
+            }>
+              {metrics.open ? <PlayCircle size={14} /> : <BookOpenCheck size={14} />}
               {metrics.open ? metrics.open + " اختبار متاح الآن" : "عرض تفاصيل المقرر"}
             </span>
-            <span className="inline-flex items-center gap-1 text-[#1F2B5E]">
+            <span className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#1F2B5E,#394b91)] px-4 text-xs font-black text-white shadow-[0_10px_22px_rgba(31,43,94,.18)]">
               فتح المقرر <ChevronLeft size={15} />
             </span>
           </div>
@@ -816,9 +822,11 @@ export default function IntensivePortal() {
                   <h2 className="mt-3 text-2xl font-black leading-[1.35] text-white sm:text-3xl lg:text-[2.55rem]">
                     المجموعة الأكاديمية
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-7 text-white/58">
-                    مقررات ودورات منصة نمو في واجهة واحدة أنيقة ومتكاملة.
-                  </p>
+                  <div className="mt-3 max-w-2xl rounded-2xl border border-white/10 bg-white/[.055] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur-sm">
+                    <p className="text-[15px] font-extrabold leading-7 text-[#F4E7E0] sm:text-base">
+                      مقررات ودورات منصة نُمو في واجهة أكاديمية فاخرة، واضحة ومتكاملة.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -952,9 +960,14 @@ export default function IntensivePortal() {
                   {assignedCourseIds.has(activeCarouselCourse.id) ? (
                     <a
                       href={"/course/" + activeCarouselCourse.id}
-                      className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1F2B5E,#303f86)] px-5 text-sm font-black text-white shadow-[0_14px_32px_rgba(31,43,94,.22)] transition hover:-translate-y-0.5 sm:flex-none"
+                      className="group relative inline-flex min-h-14 flex-1 items-center justify-center gap-3 overflow-hidden rounded-2xl border border-[#8D91FF]/40 bg-[linear-gradient(135deg,#16214F_0%,#1F2B5E_46%,#6366F1_100%)] px-6 text-sm font-black text-white shadow-[0_18px_42px_rgba(31,43,94,.28),0_0_0_1px_rgba(255,255,255,.08)_inset] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_52px_rgba(31,43,94,.34),0_0_24px_rgba(99,102,241,.18)] sm:flex-none"
                     >
-                      فتح المقرر <ChevronLeft size={17} />
+                      <span className="pointer-events-none absolute inset-0 translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.16),transparent)] transition-transform duration-700 group-hover:-translate-x-full" />
+                      <span className="relative grid h-8 w-8 place-items-center rounded-xl bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,.14)]">
+                        <BookOpenCheck size={17} />
+                      </span>
+                      <span className="relative">فتح المقرر</span>
+                      <ChevronLeft className="relative transition-transform duration-300 group-hover:-translate-x-1" size={18} />
                     </a>
                   ) : (
                     <div className="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-[#eadbd3] bg-[#fff8f4] px-5 text-sm font-black text-[#9a6249] sm:flex-none">
@@ -994,11 +1007,11 @@ export default function IntensivePortal() {
               <div className="mt-5 grid gap-3 border-t border-[#ece8ef] pt-5 sm:grid-cols-[1fr_auto] sm:items-center">
                 <div>
                   <div className="text-[10px] font-black uppercase tracking-[.14em] text-[#B1785C]" dir="ltr">YOUR NEXT STEP</div>
-                  <div className="mt-1 text-base font-black text-[#1F2B5E]">
+                  <div className="mt-1 text-base font-black leading-7 text-[#1F2B5E]">
                     {nextAction
                       ? nextAction.inProgress
                         ? "لديك محاولة قيد التنفيذ ويمكنك متابعتها الآن."
-                        : "يوجد اختبار متاح لك الآن."
+                        : "يوجد اختبار متاح لك الآن — ابدأ عندما تكون جاهزًا."
                       : "لا توجد محاولة معلقة حاليًا؛ مقرراتك الممنوحة لك تظهر في القسم التالي."}
                   </div>
                 </div>
@@ -1006,10 +1019,14 @@ export default function IntensivePortal() {
                   {nextAction ? (
                     <a
                       href={"/exam/" + nextAction.exam.id}
-                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-xs font-black text-white"
+                      className="group relative inline-flex min-h-14 items-center justify-center gap-3 overflow-hidden rounded-2xl border border-[#E3B49D]/55 bg-[linear-gradient(135deg,#8F5A42_0%,#B1785C_48%,#D69A7C_100%)] px-6 text-sm font-black text-white shadow-[0_18px_40px_rgba(177,120,92,.30),0_0_0_1px_rgba(255,255,255,.10)_inset] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_52px_rgba(177,120,92,.38),0_0_26px_rgba(214,154,124,.18)]"
                     >
-                      <PlayCircle size={16} />
-                      {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
+                      <span className="pointer-events-none absolute inset-0 translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.18),transparent)] transition-transform duration-700 group-hover:-translate-x-full" />
+                      <span className="relative grid h-8 w-8 place-items-center rounded-xl bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,.16)]">
+                        <PlayCircle size={18} />
+                      </span>
+                      <span className="relative">{nextAction.inProgress ? "متابعة الاختبار" : "اختبار متاح الآن"}</span>
+                      <ChevronLeft className="relative transition-transform duration-300 group-hover:-translate-x-1" size={18} />
                     </a>
                   ) : null}
                   <a
