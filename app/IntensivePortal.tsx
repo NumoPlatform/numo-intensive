@@ -132,6 +132,7 @@ export default function IntensivePortal() {
   const [carouselInView, setCarouselInView] = useState(false);
   const [carouselPaused, setCarouselPaused] = useState(false);
   const carouselRef = useRef<HTMLElement | null>(null);
+  const carouselTouchStartX = useRef<number | null>(null);
 
   async function loadDashboard() {
     const response = await intensiveFetch("/api/dashboard", { cache: "no-store" });
@@ -772,80 +773,70 @@ export default function IntensivePortal() {
         {catalogCourses.length ? (
           <section
             ref={carouselRef}
-            className="mt-7 overflow-hidden rounded-[2rem] border border-[#ded9e4] bg-white shadow-[0_22px_70px_rgba(31,43,94,.10)]"
+            className="mt-8 overflow-hidden rounded-[2.35rem] border border-[#dfd9e5] bg-[linear-gradient(180deg,#ffffff_0%,#fbfafc_100%)] shadow-[0_34px_100px_rgba(31,43,94,.13)]"
             onMouseEnter={() => setCarouselPaused(true)}
             onMouseLeave={() => setCarouselPaused(false)}
             onFocusCapture={() => setCarouselPaused(true)}
             onBlurCapture={() => setCarouselPaused(false)}
-            aria-label="عرض المقررات والكورسات"
+            onTouchStart={(event) => {
+              carouselTouchStartX.current = event.touches[0]?.clientX ?? null;
+              setCarouselPaused(true);
+            }}
+            onTouchEnd={(event) => {
+              const startX = carouselTouchStartX.current;
+              const endX = event.changedTouches[0]?.clientX ?? null;
+              carouselTouchStartX.current = null;
+              if (startX !== null && endX !== null && Math.abs(endX - startX) > 48) {
+                goCarousel(endX < startX ? 1 : -1);
+              } else {
+                window.setTimeout(() => setCarouselPaused(false), 4200);
+              }
+            }}
+            aria-label="معرض المقررات والكورسات"
           >
-            <div className="grid lg:grid-cols-[minmax(0,.88fr)_minmax(460px,1.12fr)]">
-              <div className="relative flex flex-col justify-center overflow-hidden p-5 sm:p-7 lg:p-9">
-                <div className="absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#6366F1]/10 blur-3xl" />
-                <div className="absolute -bottom-24 left-2 h-52 w-52 rounded-full bg-[#B1785C]/10 blur-3xl" />
-                <div className="relative">
-                  <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[11px] font-black text-[#9a6249]">
-                    <PlayCircle size={14} /> CONTINUE LEARNING
+            <div className="relative overflow-hidden border-b border-[#ebe6ee] bg-white px-5 py-5 sm:px-7 sm:py-6 lg:px-9">
+              <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#6366F1]/[.07] blur-3xl" />
+              <div className="absolute -bottom-24 left-[10%] h-52 w-52 rounded-full bg-[#B1785C]/[.08] blur-3xl" />
+
+              <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-3xl">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#eadfd8] bg-[#fffaf7] px-3 py-1.5 text-[10px] font-black tracking-[.14em] text-[#9c654d]" dir="ltr">
+                    <Sparkles size={13} />
+                    NUMO CURATED ACADEMIC GALLERY
                   </div>
-                  <h2 className="text-2xl font-black sm:text-3xl">خطوتك الأكاديمية التالية</h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-7 text-[#74798c]">
-                    {nextAction
-                      ? nextAction.inProgress
-                        ? "لديك محاولة قيد التنفيذ. يمكنك العودة مباشرة ومتابعة الاختبار من آخر نقطة."
-                        : "يوجد اختبار متاح الآن. يمكنك البدء مباشرة، بينما يعرض الكاروسيل جميع مقررات وكورسات نمو النشطة."
-                      : "استكشف جميع مقررات وكورسات نمو في العرض المتحرك، وتظهر مقرراتك الممنوحة لك من الإدارة في قسمك الأكاديمي بالأسفل."}
+                  <h2 className="mt-3 text-2xl font-black leading-[1.35] text-[#1F2B5E] sm:text-3xl lg:text-[2.35rem]">
+                    مكتبتك الأكاديمية بأسلوب عرض عالمي
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-[#74798c]">
+                    أغلفة كاملة دون قص، وانتقالات سينمائية هادئة تبدأ عند وصولك للقسم. المقررات الممنوحة لك تبقى ظاهرة في قسمك الأكاديمي أسفل المعرض.
                   </p>
+                </div>
 
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    {nextAction ? (
-                      <a
-                        href={"/exam/" + nextAction.exam.id}
-                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(31,43,94,.20)] transition hover:-translate-y-0.5"
-                      >
-                        <PlayCircle size={18} />
-                        {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
-                      </a>
-                    ) : (
-                      <a
-                        href="#course-portfolio"
-                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(31,43,94,.20)]"
-                      >
-                        <BookOpenCheck size={18} /> عرض مقرراتي
-                      </a>
-                    )}
-                    {recommendedCourse ? (
-                      <a
-                        href={"/course/" + recommendedCourse.id}
-                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#ded9e4] bg-white px-5 text-sm font-black"
-                      >
-                        تفاصيل المقرر <ChevronLeft size={17} />
-                      </a>
-                    ) : null}
+                <div className="grid grid-cols-3 gap-2 sm:min-w-[340px]">
+                  <div className="rounded-2xl border border-[#ebe8ef] bg-[#faf9fc] px-3 py-3 text-center">
+                    <div className="text-xl font-black text-[#1F2B5E]">{catalogCourses.length}</div>
+                    <div className="mt-1 text-[9px] font-black uppercase tracking-[.08em] text-[#8e92a2]">Catalog</div>
                   </div>
-
-                  <div className="mt-7 grid grid-cols-3 gap-2">
-                    <div className="rounded-2xl bg-[#f7f7fb] p-3 text-center">
-                      <div className="text-xl font-black text-[#1F2B5E]">{catalogCourses.length}</div>
-                      <div className="mt-1 text-[10px] font-black text-[#898d9d]">في كتالوج نمو</div>
-                    </div>
-                    <div className="rounded-2xl bg-[#fbf4ef] p-3 text-center">
-                      <div className="text-xl font-black text-[#9b654d]">{data.courses.length}</div>
-                      <div className="mt-1 text-[10px] font-black text-[#9a806f]">ممنوحة لك</div>
-                    </div>
-                    <div className="rounded-2xl bg-[#f1f2ff] p-3 text-center">
-                      <div className="text-xl font-black text-[#5b5fd5]">{openExams.length}</div>
-                      <div className="mt-1 text-[10px] font-black text-[#7f82a0]">اختبار متاح</div>
-                    </div>
+                  <div className="rounded-2xl border border-[#efdfd6] bg-[#fff8f4] px-3 py-3 text-center">
+                    <div className="text-xl font-black text-[#9b654d]">{data.courses.length}</div>
+                    <div className="mt-1 text-[9px] font-black text-[#9a806f]">ممنوحة لك</div>
+                  </div>
+                  <div className="rounded-2xl border border-[#e3e4f6] bg-[#f5f5ff] px-3 py-3 text-center">
+                    <div className="text-xl font-black text-[#5f63d8]">{openExams.length}</div>
+                    <div className="mt-1 text-[9px] font-black text-[#7e82a1]">اختبار متاح</div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="relative min-h-[340px] overflow-hidden bg-[radial-gradient(circle_at_78%_14%,rgba(177,120,92,.24),transparent_24%),radial-gradient(circle_at_18%_86%,rgba(99,102,241,.25),transparent_27%),linear-gradient(135deg,#121b43_0%,#1F2B5E_48%,#2f3d80_100%)] p-3 sm:min-h-[430px] sm:p-5">
-                <div className="pointer-events-none absolute inset-0 opacity-[.15] [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:34px_34px]" />
-                <div className="pointer-events-none absolute -right-12 top-5 h-44 w-44 rounded-full border border-white/10" />
-                <div className="pointer-events-none absolute -right-4 top-14 h-28 w-28 rounded-full border border-[#B1785C]/25" />
+            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_12%_12%,rgba(99,102,241,.23),transparent_20%),radial-gradient(circle_at_88%_22%,rgba(177,120,92,.20),transparent_24%),linear-gradient(135deg,#111936_0%,#172451_44%,#263574_100%)] px-3 py-5 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+              <div className="pointer-events-none absolute inset-0 opacity-[.12] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:38px_38px]" />
+              <div className="pointer-events-none absolute left-[8%] top-[15%] h-44 w-44 rounded-full border border-white/10" />
+              <div className="pointer-events-none absolute right-[7%] top-[8%] h-64 w-64 rounded-full border border-[#B1785C]/15" />
+              <div className="pointer-events-none absolute right-[12%] top-[15%] h-40 w-40 rounded-full border border-white/8" />
 
-                <div className="relative flex h-full min-h-[316px] items-center justify-center sm:min-h-[390px]">
+              <div className="relative mx-auto max-w-[1160px]">
+                <div className="relative min-h-[390px] sm:min-h-[520px] lg:min-h-[590px]">
                   {catalogCourses.map((course, index) => {
                     const assigned = assignedCourseIds.has(course.id);
                     const active = index === carouselIndex;
@@ -855,63 +846,72 @@ export default function IntensivePortal() {
                         key={course.id}
                         aria-hidden={!active}
                         className={
-                          "absolute inset-0 flex items-center justify-center transition-all duration-700 ease-out " +
+                          "absolute inset-0 flex items-center justify-center transition-all duration-[850ms] ease-[cubic-bezier(.22,.61,.36,1)] " +
                           (active
-                            ? "pointer-events-auto translate-x-0 scale-100 opacity-100"
-                            : "pointer-events-none translate-x-8 scale-[.965] opacity-0")
+                            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+                            : "pointer-events-none translate-y-5 scale-[.975] opacity-0")
                         }
                       >
-                        <div className="relative w-full max-w-[760px]">
-                          <div className="absolute -inset-3 rounded-[2rem] border border-white/10 bg-white/[.035] shadow-[0_28px_80px_rgba(5,10,35,.34)] backdrop-blur" />
-                          <div className="relative overflow-hidden rounded-[1.65rem] border border-white/20 bg-white shadow-[0_24px_65px_rgba(5,10,35,.30)]">
-                            <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f3f3f7)]">
-                              <img
-                                src={courseCover(course.code, course.default_cover_url)}
-                                alt={"غلاف " + course.code}
-                                width={1536}
-                                height={864}
-                                loading={active ? "eager" : "lazy"}
-                                decoding="async"
-                                className="absolute inset-0 h-full w-full object-contain transition duration-700"
-                              />
-                              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101938]/50 via-transparent to-white/5" />
-                              <div className="absolute left-3 top-3 rounded-full border border-white/50 bg-white/92 px-3 py-1.5 text-[10px] font-black text-[#1F2B5E] shadow-lg backdrop-blur">
-                                {visual.level}
-                              </div>
-                              <div className={
-                                "absolute right-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black shadow-lg backdrop-blur " +
-                                (assigned ? "bg-emerald-100/95 text-emerald-800" : "bg-[#1F2B5E]/88 text-white")
-                              }>
-                                {assigned ? "ممنوح لك" : "كتالوج نمو"}
+                        <div className="w-full">
+                          <div className="mx-auto w-full max-w-[980px]">
+                            <div className="relative">
+                              <div className="pointer-events-none absolute -inset-5 rounded-[2.4rem] border border-white/[.08] bg-white/[.025] shadow-[0_40px_120px_rgba(0,0,0,.32)] backdrop-blur-sm sm:-inset-7" />
+                              <div className="pointer-events-none absolute -inset-[1px] rounded-[2rem] bg-[linear-gradient(120deg,rgba(255,255,255,.26),rgba(177,120,92,.24),rgba(99,102,241,.22),rgba(255,255,255,.12))] opacity-75" />
+
+                              <div className="relative overflow-hidden rounded-[1.95rem] bg-[#fefefe] p-2 shadow-[0_28px_85px_rgba(3,8,30,.34)] sm:p-3">
+                                <div className="relative aspect-[16/9] overflow-hidden rounded-[1.45rem] bg-white">
+                                  <img
+                                    src={courseCover(course.code, course.default_cover_url)}
+                                    alt={"غلاف " + course.code}
+                                    width={1536}
+                                    height={864}
+                                    loading={active ? "eager" : "lazy"}
+                                    decoding="async"
+                                    className="absolute inset-0 h-full w-full object-contain"
+                                  />
+                                </div>
                               </div>
                             </div>
 
-                            <div className="grid gap-3 border-t border-[#ece8ef] bg-white p-4 sm:grid-cols-[1fr_auto] sm:items-center sm:p-5">
+                            <div className="mx-auto mt-5 grid max-w-[900px] gap-3 rounded-[1.6rem] border border-white/12 bg-white/[.085] p-4 text-white shadow-[0_18px_50px_rgba(0,0,0,.18)] backdrop-blur-xl sm:grid-cols-[1fr_auto] sm:items-center sm:p-5">
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <span className="text-xs font-black tracking-[.12em] text-[#B1785C]" dir="ltr">{course.code}</span>
-                                  <span className="h-1 w-1 rounded-full bg-[#d0cbd4]" />
-                                  <span className="text-[10px] font-black text-[#8c90a0]" dir="ltr">
+                                  <span className="rounded-full bg-[#B1785C]/20 px-2.5 py-1 text-[10px] font-black tracking-[.13em] text-[#efc4ae]" dir="ltr">
+                                    {course.code}
+                                  </span>
+                                  <span className="text-[10px] font-black text-white/45" dir="ltr">
                                     {String(index + 1).padStart(2, "0")} / {String(catalogCourses.length).padStart(2, "0")}
                                   </span>
+                                  <span className={
+                                    "rounded-full px-2.5 py-1 text-[9px] font-black " +
+                                    (assigned ? "bg-emerald-400/15 text-emerald-200" : "bg-white/10 text-white/65")
+                                  }>
+                                    {assigned ? "ممنوح لك" : "كتالوج نمو"}
+                                  </span>
                                 </div>
-                                <h3 className="mt-1 truncate text-lg font-black text-[#1F2B5E] sm:text-xl" dir="auto">{course.title}</h3>
-                                <p className="mt-1 line-clamp-1 text-xs font-medium text-[#7d8192]">
+
+                                <h3 className="mt-2 text-xl font-black leading-7 sm:text-2xl" dir="auto">
+                                  {course.title}
+                                </h3>
+                                <p className="mt-1 line-clamp-2 text-xs font-medium leading-6 text-white/55 sm:text-sm">
                                   {course.description || "NUMO Premium Academic Course"}
                                 </p>
                               </div>
-                              {assigned ? (
-                                <a
-                                  href={"/course/" + course.id}
-                                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-xs font-black text-white"
-                                >
-                                  فتح المقرر <ChevronLeft size={15} />
-                                </a>
-                              ) : (
-                                <span className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e5d8d0] bg-[#fbf4ef] px-4 text-xs font-black text-[#9a6249]">
-                                  يمنح من الإدارة
-                                </span>
-                              )}
+
+                              <div className="flex items-center gap-2 sm:justify-end">
+                                {assigned ? (
+                                  <a
+                                    href={"/course/" + course.id}
+                                    className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-[#1F2B5E] shadow-[0_12px_28px_rgba(0,0,0,.16)] transition hover:-translate-y-0.5 sm:flex-none"
+                                  >
+                                    فتح المقرر <ChevronLeft size={16} />
+                                  </a>
+                                ) : (
+                                  <span className="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-white/15 bg-white/[.08] px-5 text-xs font-black text-white/70 sm:flex-none">
+                                    يمنح من الإدارة
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -921,48 +921,103 @@ export default function IntensivePortal() {
                 </div>
 
                 {catalogCourses.length > 1 ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => goCarousel(1)}
-                      className="absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#111a40]/72 text-white shadow-xl backdrop-blur transition hover:bg-[#1F2B5E]"
-                      aria-label="المقرر التالي"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => goCarousel(-1)}
-                      className="absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#111a40]/72 text-white shadow-xl backdrop-blur transition hover:bg-[#1F2B5E]"
-                      aria-label="المقرر السابق"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                    <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center gap-1.5">
-                      {catalogCourses.map((course, index) => (
-                        <button
-                          key={course.id}
-                          type="button"
-                          onClick={() => {
-                            setCarouselIndex(index);
-                            setCarouselPaused(true);
-                            window.setTimeout(() => setCarouselPaused(false), 6500);
-                          }}
-                          className={
-                            "h-1.5 rounded-full transition-all duration-300 " +
-                            (index === carouselIndex ? "w-8 bg-[#d89b7c]" : "w-2 bg-white/35")
-                          }
-                          aria-label={"عرض " + course.code}
-                        />
-                      ))}
-                    </div>
-                  </>
-                ) : null}
+                  <div className="relative mt-3 sm:mt-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => goCarousel(-1)}
+                        className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[.08] text-white shadow-[0_12px_30px_rgba(0,0,0,.15)] backdrop-blur transition hover:bg-white/[.14]"
+                        aria-label="المقرر السابق"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
 
-                <div className="absolute left-4 top-4 z-20 hidden items-center gap-2 rounded-full border border-white/10 bg-white/[.08] px-3 py-1.5 text-[9px] font-black uppercase tracking-[.16em] text-white/70 backdrop-blur sm:inline-flex" dir="ltr">
-                  <Sparkles size={12} className="text-[#e9b59c]" />
-                  AUTO PLAY · SCROLL ACTIVATED
+                      <div className="deluxe-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto px-1 py-2">
+                        {catalogCourses.map((course, index) => (
+                          <button
+                            key={course.id}
+                            type="button"
+                            onClick={() => {
+                              setCarouselIndex(index);
+                              setCarouselPaused(true);
+                              window.setTimeout(() => setCarouselPaused(false), 6500);
+                            }}
+                            className={
+                              "group min-w-[118px] overflow-hidden rounded-[1rem] border p-1.5 text-right transition-all duration-300 sm:min-w-[150px] " +
+                              (index === carouselIndex
+                                ? "border-[#d9a087] bg-white shadow-[0_14px_34px_rgba(0,0,0,.18)]"
+                                : "border-white/10 bg-white/[.06] text-white/65 hover:bg-white/[.10]")
+                            }
+                          >
+                            <div className="aspect-[16/9] overflow-hidden rounded-[.7rem] bg-white">
+                              <img
+                                src={courseCover(course.code, course.default_cover_url)}
+                                alt=""
+                                width={360}
+                                height={203}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                            <div className={
+                              "mt-1.5 truncate px-1 text-[9px] font-black tracking-[.08em] " +
+                              (index === carouselIndex ? "text-[#1F2B5E]" : "text-white/65")
+                            } dir="ltr">
+                              {course.code}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => goCarousel(1)}
+                        className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[.08] text-white shadow-[0_12px_30px_rgba(0,0,0,.15)] backdrop-blur transition hover:bg-white/[.14]"
+                        aria-label="المقرر التالي"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between gap-3 text-[9px] font-black uppercase tracking-[.13em] text-white/40" dir="ltr">
+                      <span>AUTO PLAY · SCROLL ACTIVATED</span>
+                      <span>{carouselPaused ? "PAUSED BY INTERACTION" : "CINEMATIC ROTATION"}</span>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="grid gap-3 border-t border-[#ebe6ee] bg-white px-5 py-5 sm:grid-cols-[1fr_auto] sm:items-center sm:px-7 lg:px-9">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.15em] text-[#B1785C]" dir="ltr">
+                  YOUR NEXT STEP
                 </div>
+                <div className="mt-1 text-lg font-black text-[#1F2B5E]">
+                  {nextAction
+                    ? nextAction.inProgress
+                      ? "لديك محاولة قيد التنفيذ ويمكنك متابعتها الآن."
+                      : "يوجد اختبار متاح لك الآن."
+                    : "لا توجد محاولة معلقة حاليًا؛ استكشف مقرراتك في الأسفل."}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {nextAction ? (
+                  <a
+                    href={"/exam/" + nextAction.exam.id}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_28px_rgba(31,43,94,.18)]"
+                  >
+                    <PlayCircle size={18} />
+                    {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
+                  </a>
+                ) : null}
+                <a
+                  href="#course-portfolio"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#dfdae5] bg-[#faf9fb] px-5 text-sm font-black text-[#1F2B5E]"
+                >
+                  <BookOpenCheck size={18} /> مقرراتي الأكاديمية
+                </a>
               </div>
             </div>
           </section>
