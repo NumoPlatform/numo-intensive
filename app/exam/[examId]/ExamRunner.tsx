@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -740,7 +741,7 @@ export default function ExamRunner() {
           </Link>
           <div className="overflow-hidden rounded-[2rem] border border-[#e1dde7] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
             <div className="bg-gradient-to-l from-[#1F2B5E] via-[#2d3f82] to-[#6366F1] p-7 text-white sm:p-9">
-              <div className="text-sm font-black text-[#e9c1ad]">{exam?.category ?? "NUMO INTENSIVE"}</div>
+              <div className="text-sm font-black text-[#e9c1ad]">{exam?.category ?? BRAND.nameEn}</div>
               <h1 className="mt-2 text-3xl font-black">{exam?.title ?? "Exam"}</h1>
             </div>
             <div className="p-6 sm:p-8">
