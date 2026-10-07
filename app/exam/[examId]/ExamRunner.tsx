@@ -1649,7 +1649,7 @@ export default function ExamRunner() {
                 </div>
                 {isArabicGeneralExam ? (
                   <div className="rounded-full bg-[#eef0f7] px-3 py-1.5 text-[11px] font-black text-[#1F2B5E]">
-                    {courseCode} · MIDTERM
+                    {courseCode} · {exam?.category ?? "EXAM"}
                   </div>
                 ) : null}
               </div>
