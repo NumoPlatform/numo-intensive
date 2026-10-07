@@ -104,10 +104,20 @@ export async function GET(request: NextRequest) {
 
   const courseIds = enrollments.map((item) => item.course_id);
   let courses: Course[] = [];
+  let catalogCourses: Course[] = [];
   let exams: Exam[] = [];
   let sections: Section[] = [];
   let attempts: Attempt[] = [];
   let results: Result[] = [];
+
+  if (auth.profile.role === "STUDENT") {
+    const catalogQuery = new URLSearchParams({
+      select: "id,code,title,description,default_cover_url,cover_path",
+      is_active: "eq.true",
+      order: "code.asc",
+    });
+    catalogCourses = await serviceRequest<Course[]>("/rest/v1/intensive_courses?" + catalogQuery.toString());
+  }
 
   if (auth.profile.role === "STUDENT" && courseIds.length) {
     const courseQuery = new URLSearchParams({
@@ -174,6 +184,7 @@ export async function GET(request: NextRequest) {
     ok: true,
     profile: auth.profile,
     courses,
+    catalogCourses,
     exams,
     sections,
     attempts,
