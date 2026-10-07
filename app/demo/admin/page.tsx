@@ -15,6 +15,7 @@ import {
   Sparkles,
   UsersRound,
 } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { demoSections } from "../demo-data";
 
@@ -47,7 +48,7 @@ export default function DemoAdminPage() {
             <img src="/icon.svg" alt="شعار نمو" className="h-11 w-11 rounded-xl bg-[#1F2B5E] p-1.5" />
             <div>
               <div className="font-black">منصة نمو</div>
-              <div className="text-[10px] font-bold tracking-[.12em] text-[#B1785C]" dir="ltr">NUMO INTENSIVE</div>
+              <div className="text-[9px] font-bold tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
             </div>
           </div>
         </div>
@@ -60,7 +61,7 @@ export default function DemoAdminPage() {
               <div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]">
                 <Sparkles size={16} /> لوحة المدير التجريبية
               </div>
-              <h1 className="mt-2 text-4xl font-black">مركز تحكم NUMO INTENSIVE</h1>
+              <h1 className="mt-2 text-4xl font-black">{BRAND.adminTitle}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">
                 إدارة الطلاب والمقررات والاختبارات والمحاولات والنتائج وإعدادات الوصول من مكان واحد.
               </p>
@@ -95,7 +96,7 @@ export default function DemoAdminPage() {
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
               <div className="text-xs font-black tracking-[.14em] text-[#B1785C]">إدارة المقررات</div>
-              <h2 className="mt-1 text-2xl font-black">كل مقررات NUMO INTENSIVE</h2>
+              <h2 className="mt-1 text-2xl font-black">كل مقررات {BRAND.nameAr}</h2>
               <p className="mt-2 text-sm text-[#777b8d]">الغلاف والحالة وعدد الطلاب والاختبارات ظاهرة للمدير مباشرة.</p>
             </div>
             <button className="rounded-xl bg-[#1F2B5E] px-4 py-2.5 text-sm font-black text-white">+ إضافة مقرر</button>
