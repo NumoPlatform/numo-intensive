@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import NumoBrand from "@/app/components/NumoBrand";
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useState } from "react";
@@ -400,7 +401,7 @@ export default function AdminPortal() {
           <NumoBrand className="w-28" priority />
           <RefreshCw className="mx-auto mb-4 mt-6 animate-spin text-[#b97b5d]" />
           <div className="font-black">جاري تجهيز مركز التحكم...</div>
-          <div className="mt-1 text-xs font-bold text-[#85899a]">NUMO DELUXE ADMIN</div>
+          <div className="mt-1 text-xs font-bold text-[#85899a]">{BRAND.adminTitleEn}</div>
         </div>
       </div>
     );
@@ -432,8 +433,10 @@ export default function AdminPortal() {
           <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-[#c48566]/18 blur-3xl" />
           <div className="absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#5b6ca7]/18 blur-3xl" />
           <div className="relative flex min-h-0 flex-1 flex-col">
-            <div className="mb-7 flex justify-center rounded-[1.65rem] border border-white/10 bg-white/[.06] p-4 shadow-2xl shadow-black/10">
-              <NumoBrand className="w-32" priority inverse />
+            <div className="mb-7 rounded-[1.65rem] border border-white/10 bg-white/[.06] p-4 text-center shadow-2xl shadow-black/10">
+              <NumoBrand className="mx-auto w-32" priority inverse />
+              <div className="mt-3 text-sm font-black text-white">{BRAND.nameAr}</div>
+              <div className="mt-1 text-[9px] font-black tracking-[.12em] text-[#E7B79F]" dir="ltr">{BRAND.nameEn}</div>
             </div>
 
             <div className="mb-3 px-3 text-[10px] font-black tracking-[.18em] text-white/40">مساحة العمل</div>
@@ -499,8 +502,8 @@ export default function AdminPortal() {
               <div className="flex min-w-0 items-center gap-3">
                 <NumoBrand className="w-[4.6rem]" priority />
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-black">مركز تحكم نمو</div>
-                  <div className="truncate text-[10px] font-bold tracking-[.12em] text-[#a9684c]" dir="ltr">DELUXE ADMIN</div>
+                  <div className="truncate text-sm font-black">{BRAND.adminTitle}</div>
+                  <div className="truncate text-[9px] font-bold tracking-[.08em] text-[#a9684c]" dir="ltr">{BRAND.nameEn}</div>
                 </div>
               </div>
               <button onClick={logout} aria-label="تسجيل الخروج" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f4efec] text-[#8f573f]">
@@ -537,12 +540,12 @@ export default function AdminPortal() {
               <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
                 <div>
                   <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3 py-1.5 text-[10px] font-black text-[#efc8b5] backdrop-blur sm:text-xs">
-                    <Sparkles size={14} /> NUMO DELUXE CONTROL CENTER
+                    <Sparkles size={14} /> {BRAND.adminTitleEn}
                   </div>
                   <p className="text-xs font-bold text-white/55">أهلًا بك، {data.admin.full_name.split(" ")[0]}</p>
-                  <h1 className="mt-1 text-2xl font-black leading-tight sm:text-4xl">كل المنصة. رؤية واحدة.</h1>
+                  <h1 className="mt-1 text-2xl font-black leading-tight sm:text-4xl">{BRAND.adminTitle}</h1>
                   <p className="mt-3 max-w-2xl text-xs leading-6 text-white/65 sm:text-sm sm:leading-7">
-                    إدارة ذكية للطلاب والمقررات والاختبارات والنتائج بهوية نمو الرسمية.
+                    إدارة الطلاب والمقررات والاختبارات والنتائج ضمن {BRAND.nameAr} مع الحفاظ على الصلاحيات والبيانات الحالية.
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">

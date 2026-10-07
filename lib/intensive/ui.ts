@@ -125,14 +125,14 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
 export function courseVisual(code: string): CourseVisual {
   const normalized = code.trim().toUpperCase().replaceAll(" ", "");
   return COURSE_VISUALS[normalized] ?? {
-    level: "English Intensive",
-    label: "NUMO Intensive Course",
-    cover: "/covers/el111.svg",
+    level: "Academic Course",
+    label: "NUMO Academic Course",
+    cover: "/covers/numo-academic.svg",
     accent: "#6366F1",
     accentDark: "#303B78",
     accentSoft: "#EEF2FF",
     gradient: "linear-gradient(135deg, #1F2B5E 0%, #6366F1 100%)",
-    scene: "NUMO",
+    scene: "NUMO Academic Simulator",
   };
 }
 

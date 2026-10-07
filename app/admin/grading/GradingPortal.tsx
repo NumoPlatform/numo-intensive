@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import {
   ArrowRight,
@@ -129,7 +130,7 @@ export default function GradingPortal() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#e9c0ab]">
-                <Sparkles size={16} /> NUMO INTENSIVE
+                <Sparkles size={16} /> {BRAND.adminTitleEn}
               </div>
               <h1 className="text-2xl font-black sm:text-3xl">Grading & Results</h1>
               <p className="mt-2 text-sm leading-7 text-white/70">Grade written answers and publish completed results.</p>

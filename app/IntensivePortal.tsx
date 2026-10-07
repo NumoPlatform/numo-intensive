@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import NumoBrand from "@/app/components/NumoBrand";
+import { BRAND, BRAND_FEATURES } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -16,7 +17,6 @@ import {
   GraduationCap,
   LayoutDashboard,
   Layers3,
-  LockKeyhole,
   LogOut,
   Medal,
   MessageCircle,
@@ -271,31 +271,44 @@ export default function IntensivePortal() {
     return (
       <div className="min-h-screen px-4 py-8 text-[#1F2B5E] sm:py-12">
         <div className="mx-auto grid min-h-[82vh] max-w-6xl items-center gap-7 lg:grid-cols-[1.08fr_.92fr]">
-          <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1F2B5E] via-[#2e3f82] to-[#6366F1] p-8 text-white shadow-[0_28px_80px_rgba(31,43,94,.28)] lg:p-12">
-            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/30 blur-3xl" />
-            <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+          <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#26366F_68%,#202B5B_100%)] p-7 text-white shadow-[0_30px_84px_rgba(31,43,94,.26)] sm:p-9 lg:p-12">
+            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/24 blur-3xl" />
+            <div className="absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#6366F1]/14 blur-3xl" />
             <div className="relative">
-              <div className="mb-9 inline-flex rounded-[1.4rem] border border-white/15 bg-white p-2 shadow-2xl shadow-black/15">
+              <div className="mb-7 inline-flex rounded-[1.4rem] border border-white/15 bg-white p-2 shadow-[0_18px_45px_rgba(5,12,38,.22)]">
                 <NumoBrand className="w-28" priority inverse />
               </div>
-              <p className="mb-3 text-sm font-black tracking-wide text-[#e9c2ad]">تعلم مركز. استعداد أذكى.</p>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.35] lg:text-6xl">
-                الدورات المكثفة للغة الإنجليزية
-              </h1>
-              <p className="mt-5 max-w-xl text-lg leading-9 text-white/80">
-                بوابتك الخاصة للدورات المكثفة والتدريب والاختبارات.
-              </p>
-              <div className="mt-9 grid gap-3 sm:grid-cols-2">
-                <div className="intensive-glass rounded-2xl p-4">
-                  <ShieldCheck className="mb-3 text-[#f0c7b2]" />
-                  <strong className="block">جهاز واحد لكل طالب</strong>
-                  <span className="mt-1 block text-sm text-white/70">يرتبط حسابك بأول جهاز موثوق يتم تسجيل الدخول منه.</span>
+
+              <div className="max-w-3xl">
+                <p className="text-sm font-black tracking-wide text-[#E7B79F]">{BRAND.description}</p>
+                <h1 className="mt-3 text-4xl font-black leading-[1.25] sm:text-5xl lg:text-6xl">
+                  {BRAND.nameAr}
+                </h1>
+                <div className="mt-2 text-xs font-black uppercase tracking-[.2em] text-white/62 sm:text-sm" dir="ltr">
+                  {BRAND.nameEn}
                 </div>
-                <div className="intensive-glass rounded-2xl p-4">
-                  <LockKeyhole className="mb-3 text-[#f0c7b2]" />
-                  <strong className="block">حسابات تديرها منصة نمو</strong>
-                  <span className="mt-1 block text-sm text-white/70">يتم إنشاء اسم المستخدم وكلمة المرور من خلال إدارة نمو.</span>
-                </div>
+                <h2 className="mt-7 text-2xl font-black leading-[1.5] text-white sm:text-3xl">
+                  {BRAND.tagline}
+                </h2>
+                <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-white/76 sm:text-lg sm:leading-9">
+                  {BRAND.heroMessage}
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {BRAND_FEATURES.map((feature, index) => {
+                  const FeatureIcon = [BookOpenCheck, CheckCircle2, Target][index];
+                  return (
+                    <div key={feature} className="rounded-2xl border border-white/12 bg-white/[.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
+                      <FeatureIcon className="mb-3 text-[#E7B79F]" size={21} />
+                      <strong className="block text-sm leading-6">{feature}</strong>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-7 border-t border-white/10 pt-5 text-sm font-black text-[#F3D6C7]">
+                {BRAND.marketingLine}
               </div>
             </div>
           </section>
@@ -305,14 +318,21 @@ export default function IntensivePortal() {
             className="rounded-[2rem] border border-[#e4e1eb] bg-white p-7 shadow-[0_24px_70px_rgba(31,43,94,.12)] lg:p-10"
           >
             <div className="mb-8">
-              <NumoBrand className="w-24" priority />
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#f8f0ec] px-3 py-1.5 text-sm font-black text-[#9a6249]">
-                <Sparkles size={15} /> منصة نمو
+              <div className="flex items-center gap-3">
+                <NumoBrand className="w-24" priority />
+                <div className="min-w-0">
+                  <div className="text-sm font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
+                  <div className="mt-1 text-[10px] font-black tracking-[.12em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
+                </div>
               </div>
-              <h2 className="mt-4 text-3xl font-black">تسجيل الدخول</h2>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#f8f0ec] px-3 py-1.5 text-sm font-black text-[#9a6249]">
+                <Sparkles size={15} /> {BRAND.description}
+              </div>
+              <h2 className="mt-4 text-3xl font-black">{BRAND.loginTitle}</h2>
               <p className="mt-2 leading-7 text-[#68708a]">
-                استخدم بيانات الدخول التي زودتك بها إدارة نمو.
+                {BRAND.loginHelper}
               </p>
+              <p className="mt-2 text-sm font-bold leading-6 text-[#9A6249]">{BRAND.loginNote}</p>
             </div>
 
             <label className="mb-5 block">
@@ -565,11 +585,11 @@ export default function IntensivePortal() {
             <NumoBrand horizontal priority className="w-auto" />
             <div className="hidden h-9 w-px bg-[#e6e2e9] lg:block" />
             <div className="hidden lg:block">
-              <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#B1785C]" dir="ltr">
-                NUMO INTENSIVE
+              <div className="text-[10px] font-black uppercase tracking-[.14em] text-[#B1785C]" dir="ltr">
+                {BRAND.nameEn}
               </div>
               <div className="mt-0.5 text-xs font-bold text-[#7b8092]">
-                Student Academic Portal
+                بوابة الطالب الأكاديمية
               </div>
             </div>
           </div>
@@ -610,7 +630,7 @@ export default function IntensivePortal() {
       </header>
 
       <main className="mx-auto w-full max-w-[1480px] overflow-x-clip px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-        <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#253574_48%,#6366F1_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
+        <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#26366F_58%,#1A244F_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
           <div className="absolute inset-0 opacity-[.16] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:42px_42px]" />
           <div className="absolute -right-24 -top-20 h-80 w-80 rounded-full bg-[#B1785C]/28 blur-3xl" />
           <div className="absolute -bottom-28 left-[12%] h-80 w-80 rounded-full bg-white/10 blur-3xl" />
@@ -618,20 +638,20 @@ export default function IntensivePortal() {
 
           <div className="relative grid gap-8 p-5 sm:p-8 lg:grid-cols-[minmax(360px,.9fr)_minmax(0,1.1fr)] lg:items-center lg:p-10 xl:p-12">
             <div className="order-1 lg:order-2">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-black text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,.14)] backdrop-blur">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3 py-2 text-[11px] font-black text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
                 <Sparkles size={14} className="text-[#e6b49b]" />
-                منصة التعليم الأكاديمي الذكي · NUMO STUDENT
+                {BRAND.description}
               </div>
 
-              <h1 className="max-w-4xl text-3xl font-black leading-[1.4] sm:text-4xl lg:text-[3.35rem] xl:text-[3.8rem]">
-                أهلاً <span className="text-[#e7b79f]">{firstName}</span>،
-                <span className="mt-1 block">تجربة تعليمية متقدمة</span>
-                <span className="block text-white/92">مصممة لنجاحك الأكاديمي.</span>
+              <p className="text-xs font-black text-white/55">أهلًا {firstName}</p>
+              <h1 className="mt-2 max-w-4xl text-3xl font-black leading-[1.35] sm:text-4xl lg:text-[3.35rem] xl:text-[3.8rem]">
+                {BRAND.studentWelcome}
               </h1>
 
-              <p className="mt-5 max-w-2xl text-sm font-semibold leading-8 text-white/72 sm:text-base sm:leading-9">
-                مقرراتك، اختباراتك، نتائجك ومراجعاتك في واجهة واحدة حديثة تجمع بين الوضوح الأكاديمي، السرعة، والفخامة البصرية.
+              <p className="mt-5 max-w-2xl text-sm font-semibold leading-8 text-white/74 sm:text-base sm:leading-9">
+                {BRAND.studentSubtitle}
               </p>
+              <div className="mt-3 text-sm font-black text-[#E7B79F]">{BRAND.marketingLine}</div>
 
               <div className="mt-7 flex flex-wrap gap-3">
                 <a
@@ -670,10 +690,10 @@ export default function IntensivePortal() {
                 <div className="absolute inset-[27%] grid place-items-center rounded-[2.3rem] border border-white/20 bg-white shadow-[0_24px_60px_rgba(14,20,55,.28)]">
                   <div className="text-center">
                     <NumoBrand className="mx-auto w-24 sm:w-28" priority />
-                    <div className="mt-4 text-[10px] font-black uppercase tracking-[.22em] text-[#B1785C]" dir="ltr">
-                      NUMO ACADEMIC
+                    <div className="mt-4 text-[9px] font-black uppercase tracking-[.14em] text-[#B1785C]" dir="ltr">
+                      {BRAND.nameEn}
                     </div>
-                    <div className="mt-1 text-sm font-black text-[#1F2B5E]">Student Experience</div>
+                    <div className="mt-1 text-sm font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
                   </div>
                 </div>
 
@@ -1117,7 +1137,7 @@ export default function IntensivePortal() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#B1785C]" dir="ltr">ACADEMIC EXPERIENCE</div>
-                <h2 className="mt-1 text-xl font-black">كيف تعمل تجربتك في NUMO Intensive؟</h2>
+                <h2 className="mt-1 text-xl font-black">كيف تعمل تجربتك في {BRAND.nameAr}؟</h2>
               </div>
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f1f2ff] text-[#6366F1]">
                 <GraduationCap size={21} />
@@ -1213,7 +1233,7 @@ export default function IntensivePortal() {
 
         <footer className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[#e4e0e7] py-6 text-center text-xs font-bold text-[#9296a5] sm:flex-row sm:text-right">
           <div>NUMO Platform for Education & Student Services</div>
-          <div dir="ltr">NUMO INTENSIVE · Student Academic Portal</div>
+          <div dir="ltr">{BRAND.nameEn} · Student Academic Portal</div>
         </footer>
       </main>
     </div>

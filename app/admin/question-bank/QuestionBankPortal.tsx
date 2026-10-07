@@ -1,6 +1,7 @@
 "use client";
 
 import NumoBrand from "@/app/components/NumoBrand";
+import { BRAND } from "@/lib/brand";
 import { useEffect, useMemo, useState } from "react";
 import { intensiveFetch } from "@/lib/intensive/client";
 import {
@@ -211,7 +212,7 @@ export default function QuestionBankPortal() {
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]">
-                <Sparkles size={16} /> NUMO INTENSIVE
+                <Sparkles size={16} /> {BRAND.adminTitleEn}
               </div>
               <h1 className="text-2xl font-black sm:text-3xl sm:text-4xl">بنك الأسئلة</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-white/75">

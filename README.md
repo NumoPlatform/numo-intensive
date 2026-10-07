@@ -1,6 +1,6 @@
-# NUMO INTENSIVE
+# مُحاكي نُمو | NUMO ACADEMIC SIMULATOR
 
-Independent English Intensive Courses platform for NUMO.
+Academic training and assessment environment for NUMO. The English intensive courses remain supported as academic course content, but they are no longer the platform identity.
 
 ## Standalone architecture
 
@@ -14,9 +14,9 @@ This source tree is self-contained and is deployed independently.
 - No imports from Advisor, Observatory, Planner, Track or any previous NUMO/AOU application
 - No legacy `NUMO_SUPABASE_*` environment variables
 
-## Student assessments
+## Academic assessments
 
-The intensive-course assessment experience is section based:
+English-course assessments can remain section based:
 
 - Grammar
 - Vocabulary
