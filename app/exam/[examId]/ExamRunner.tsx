@@ -619,7 +619,7 @@ export default function ExamRunner() {
   const sections = attempt?.sections ?? [];
   const normalizedCourseCode = courseCode.trim().toUpperCase();
   const isArabicGeneralExam = /^(AR|GR)/.test(normalizedCourseCode);
-  const isTextbookReferencedExam = normalizedCourseCode === "AR112";
+  const isTextbookReferencedExam = ["AR112", "GR101"].includes(normalizedCourseCode);
   const activeSectionId = attempt?.current_section_id ?? null;
   const activeQuestions = useMemo(
     () => questions.filter((question) => question.sectionId === activeSectionId),
