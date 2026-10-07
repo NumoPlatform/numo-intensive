@@ -200,7 +200,7 @@ export default function CoursePortal() {
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-[1.8rem] border border-[#e4e0e8] bg-white shadow-[0_22px_64px_rgba(31,43,94,.12)] sm:rounded-[2rem]">
+        <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[1.8rem] sm:rounded-[2rem]">
           <div className="grid lg:grid-cols-[minmax(0,1.45fr)_minmax(330px,.75fr)] lg:items-stretch">
             <div className="relative flex items-center justify-center overflow-hidden bg-white p-2 sm:p-3 lg:p-4">
               <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.25rem] border border-[#ece9ef] bg-white sm:rounded-[1.5rem]">
@@ -216,7 +216,7 @@ export default function CoursePortal() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden bg-[#1F2B5E] p-5 text-white sm:p-7 lg:flex lg:flex-col lg:justify-between lg:p-8">
+            <div className="numo-hero-radiance relative overflow-hidden bg-[linear-gradient(145deg,#182248,#1F2B5E_58%,#293873)] p-5 text-white sm:p-7 lg:flex lg:flex-col lg:justify-between lg:p-8">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute -left-16 -top-16 h-44 w-44 rounded-full border border-white/10"
@@ -309,7 +309,7 @@ export default function CoursePortal() {
               return (
                 <article
                   key={definition.category}
-                  className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]"
+                  className="numo-card-lift numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]"
                 >
                   <div className="h-2" style={{ background: definition.accent }} />
                   <div className="p-4 sm:p-5">
@@ -326,14 +326,14 @@ export default function CoursePortal() {
                         <a
                           href={"/exam/" + exam.id}
                           aria-label={"دخول " + definition.title}
-                          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl transition hover:-translate-y-0.5"
+                          className="numo-icon-medallion grid h-14 w-14 shrink-0 place-items-center rounded-2xl transition hover:-translate-y-0.5"
                           style={{ background: definition.soft, color: definition.accent }}
                         >
                           <Icon size={25} />
                         </a>
                       ) : (
                         <div
-                          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl opacity-70"
+                          className="numo-icon-medallion grid h-14 w-14 shrink-0 place-items-center rounded-2xl opacity-70"
                           style={{ background: definition.soft, color: definition.accent }}
                         >
                           <Icon size={25} />
@@ -442,7 +442,7 @@ export default function CoursePortal() {
               const isOpen = now >= new Date(exam.starts_at).getTime() && now <= new Date(exam.ends_at).getTime();
 
               return (
-                <article key={section.id} className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
+                <article key={section.id} className="numo-card-lift numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
                   <div className="h-2" style={{ background: visual.accent }} />
                   <div className="p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-3">
@@ -450,7 +450,7 @@ export default function CoursePortal() {
                         <div className="text-xs font-black text-[#B1785C]">{exam.category}</div>
                         <h2 dir="ltr" className="mt-1 break-words text-2xl font-black">{name}</h2>
                       </div>
-                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl" style={{ background: visual.accentSoft, color: visual.accent }}>
+                      <div className="numo-icon-medallion grid h-11 w-11 shrink-0 place-items-center rounded-2xl" style={{ background: visual.accentSoft, color: visual.accent }}>
                         <BookOpenCheck size={20} />
                       </div>
                     </div>
