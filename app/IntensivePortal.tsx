@@ -440,8 +440,6 @@ export default function IntensivePortal() {
 
   const catalogCourses = data.catalogCourses?.length ? data.catalogCourses : data.courses;
   const assignedCourseIds = new Set(data.courses.map((course) => course.id));
-  const activeCarouselCourse = catalogCourses[carouselIndex] ?? catalogCourses[0] ?? null;
-
   function goCarousel(direction: 1 | -1) {
     if (!catalogCourses.length) return;
     setCarouselPaused(true);
