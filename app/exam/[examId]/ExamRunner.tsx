@@ -713,7 +713,7 @@ export default function ExamRunner() {
       <div className="grid min-h-screen place-items-center text-[#1F2B5E]">
         <div className="text-center">
           <Loader2 className="mx-auto mb-3 animate-spin" />
-          <div className="font-black">Loading the exam...</div>
+          <div className="font-black">جاري تجهيز الاختبار...</div>
         </div>
       </div>
     );
@@ -734,27 +734,27 @@ export default function ExamRunner() {
         ? previewSections.map((section) => section.title + ": " + section.timeLimitMinutes + " min").join(" · ")
         : "أقسام بوقت مستقل";
     return (
-      <div className="min-h-screen px-4 py-8 text-[#1F2B5E]">
+      <div className="deluxe-canvas min-h-screen px-4 py-8 text-[#1F2B5E]">
         <div className="mx-auto max-w-3xl">
           <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#6f7489]">
             <ArrowRight size={17} /> العودة للوحة الطالب
           </Link>
-          <div className="overflow-hidden rounded-[2rem] border border-[#e1dde7] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
-            <div className="bg-gradient-to-l from-[#1F2B5E] via-[#2d3f82] to-[#6366F1] p-7 text-white sm:p-9">
+          <div className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
+            <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-7 text-white sm:p-9">
               <div className="text-sm font-black text-[#e9c1ad]">{exam?.category ?? BRAND.nameEn}</div>
               <h1 className="mt-2 text-3xl font-black">{exam?.title ?? "Exam"}</h1>
             </div>
             <div className="p-6 sm:p-8">
               {exam ? (
                 <div className="mb-7 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-[#f7f7fa] p-4">
+                  <div className="numo-card-lift rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-4">
                     <Clock3 className="mb-2 text-[#6366F1]" />
                     <strong className="block">{isArabicGeneralExam ? "مدة الاختبار" : "Section timing"}</strong>
                     <span dir={isArabicGeneralExam ? "rtl" : "auto"} className="text-sm text-[#74798d]">
                       {isArabicGeneralExam ? `${exam.duration_minutes} دقيقة` : timingSummary}
                     </span>
                   </div>
-                  <div className="rounded-2xl bg-[#f7f7fa] p-4">
+                  <div className="numo-card-lift rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-4">
                     <ShieldCheck className="mb-2 text-[#B1785C]" />
                     <strong className="block">{isArabicGeneralExam ? "المحاولات والإتاحة" : "Attempts & window"}</strong>
                     <span className="block text-sm text-[#74798d]">
@@ -810,14 +810,14 @@ export default function ExamRunner() {
     const canFinishExam = sections.length > 0 && completedSectionsCount === sections.length;
 
     return (
-      <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
+      <div className="deluxe-canvas min-h-screen px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
         <div className="mx-auto max-w-5xl">
           <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#6f7489]">
             <ArrowRight size={17} /> العودة للوحة الطالب
           </Link>
 
-          <section className="overflow-hidden rounded-[2rem] border border-[#dedbe6] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
-            <div className="bg-gradient-to-l from-[#1F2B5E] via-[#2d3f82] to-[#6366F1] p-6 text-white sm:p-8">
+          <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
+            <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-6 text-white sm:p-8">
               <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">
                 {isArabicGeneralExam ? "قسم الاختبار" : "Choose your section"}
               </div>
@@ -865,7 +865,7 @@ export default function ExamRunner() {
                     <article
                       key={section.id}
                       className={
-                        "rounded-[1.4rem] border p-5 transition " +
+                        "numo-card-lift rounded-[1.4rem] border p-5 transition " +
                         (completed
                           ? "border-emerald-100 bg-emerald-50/60"
                           : "border-[#e0dce7] bg-white shadow-sm")
@@ -972,8 +972,8 @@ export default function ExamRunner() {
     return (
       <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
         <div className="mx-auto max-w-5xl">
-          <section className="overflow-hidden rounded-[2rem] border border-[#dedbe6] bg-white shadow-[0_24px_70px_rgba(31,43,94,.12)]">
-            <div className="bg-gradient-to-l from-[#1F2B5E] via-[#304388] to-[#6366F1] p-6 text-white sm:p-8">
+          <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
+            <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-6 text-white sm:p-8">
               <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">
                 {isArabicGeneralExam ? "نتيجة المحاولة" : "SECTION RESULT"}
               </div>
@@ -1019,7 +1019,7 @@ export default function ExamRunner() {
               {sectionResult.wrongCount === 0 ? (
                 <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-7 text-center">
                   <CheckCircle2 className="mx-auto mb-3 text-emerald-600" size={34} />
-                  <div className="text-xl font-black text-emerald-800">Excellent — all answers are correct.</div>
+                  <div className="text-xl font-black text-emerald-800">ممتاز — جميع الإجابات صحيحة.</div>
                   <div className="mt-2 text-sm font-bold text-emerald-700">ممتاز، جميع إجاباتك صحيحة.</div>
                 </div>
               ) : (
@@ -1182,8 +1182,8 @@ export default function ExamRunner() {
 
   if (stage === "done") {
     return (
-      <div className="grid min-h-screen place-items-center px-4 py-10 text-[#1F2B5E]">
-        <div className="w-full max-w-5xl rounded-[2rem] border border-[#e1dde7] bg-white p-6 text-center shadow-[0_24px_70px_rgba(31,43,94,.12)] sm:p-8">
+      <div className="deluxe-canvas grid min-h-screen place-items-center px-4 py-10 text-[#1F2B5E]">
+        <div className="numo-premium-surface numo-metal-border w-full max-w-5xl rounded-[2rem] p-6 text-center sm:p-8">
           <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
             <CheckCircle2 size={34} />
           </div>
@@ -1191,7 +1191,7 @@ export default function ExamRunner() {
 
           {publishedResult ? (
             <>
-              <div className="mt-7 rounded-2xl bg-gradient-to-br from-[#1F2B5E] to-[#4050d0] p-6 text-white">
+              <div className="numo-hero-radiance mt-7 rounded-2xl bg-[linear-gradient(135deg,#17204B,#1F2B5E_62%,#303B78)] p-6 text-white shadow-[0_20px_46px_rgba(31,43,94,.22)]">
                 <div className="text-sm text-white/70">نتيجتك</div>
                 <div className="mt-2 text-5xl font-black">{publishedResult.percentage ?? 0}%</div>
                 <div className="mt-2 text-sm text-white/75">
@@ -1342,8 +1342,8 @@ export default function ExamRunner() {
   const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen min-w-0 overflow-x-hidden bg-[#f5f6fa] text-[#1F2B5E]">
-      <header className="sticky top-0 z-30 border-b border-[#e0dce6] bg-white/95 shadow-sm backdrop-blur">
+    <div className="deluxe-canvas min-h-screen min-w-0 overflow-x-hidden text-[#1F2B5E]">
+      <header className="sticky top-0 z-30 border-b border-[#e0dce6] bg-white/95 shadow-[0_10px_30px_rgba(31,43,94,.08)] backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-stretch gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             <div className="text-[9px] font-black uppercase tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
