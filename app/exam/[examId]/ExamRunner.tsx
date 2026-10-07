@@ -162,6 +162,18 @@ type SectionResult = {
   completedAt?: string | null;
 };
 
+type InlineFeedback = {
+  questionId: string;
+  isCorrect: boolean;
+  selectedAnswer: string;
+  correctAnswer: string;
+  correction: string;
+  referenceSource: string | null;
+  referenceUnit: string | null;
+  referencePage: string | null;
+  referenceEvidence: string | null;
+};
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ar-SA", {
     dateStyle: "medium",
@@ -207,6 +219,8 @@ export default function ExamRunner() {
   const [sectionResult, setSectionResult] = useState<SectionResult | null>(null);
   const [sectionResultLoading, setSectionResultLoading] = useState(false);
   const [courseCode, setCourseCode] = useState("");
+  const [inlineFeedback, setInlineFeedback] = useState<Record<string, InlineFeedback>>({});
+  const [inlineFeedbackLoading, setInlineFeedbackLoading] = useState<Record<string, boolean>>({});
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
@@ -250,7 +264,7 @@ export default function ExamRunner() {
   }, [examId]);
 
   const saveAnswer = useCallback(async (questionId: string, answer: unknown, flagged: boolean) => {
-    if (!attempt) return;
+    if (!attempt) return false;
     setSaveState("saving");
     const response = await intensiveFetch("/api/exam/save", {
       method: "POST",
@@ -265,9 +279,10 @@ export default function ExamRunner() {
     if (response.ok) {
       setSaveState("saved");
       window.setTimeout(() => setSaveState("idle"), 1200);
-    } else {
-      setSaveState("error");
+      return true;
     }
+    setSaveState("error");
+    return false;
   }, [attempt]);
 
   const queueSave = useCallback((questionId: string, answer: unknown, flagged: boolean) => {
@@ -277,6 +292,30 @@ export default function ExamRunner() {
       void saveAnswer(questionId, answer, flagged);
     }, 450);
   }, [attempt, saveAnswer]);
+
+  async function loadInlineFeedback(questionId: string) {
+    if (!attempt || inlineFeedbackLoading[questionId]) return;
+    setInlineFeedbackLoading((current) => ({ ...current, [questionId]: true }));
+    try {
+      const response = await intensiveFetch(
+        "/api/exam/feedback?attemptId=" +
+          encodeURIComponent(attempt.attempt_id) +
+          "&questionId=" +
+          encodeURIComponent(questionId),
+        { cache: "no-store" },
+      );
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "تعذر تحميل التصحيح.");
+      setInlineFeedback((current) => ({
+        ...current,
+        [questionId]: payload.feedback as InlineFeedback,
+      }));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "تعذر تحميل التصحيح الفوري.");
+    } finally {
+      setInlineFeedbackLoading((current) => ({ ...current, [questionId]: false }));
+    }
+  }
 
   const flushCurrentSection = useCallback(async () => {
     if (!attempt?.current_section_id) return;
@@ -316,7 +355,21 @@ export default function ExamRunner() {
   }, [answers, attempt, flags]);
 
   function updateAnswer(questionId: string, value: unknown) {
+    const immediateReferenceMode = courseCode.trim().toUpperCase() === "GR101";
+    if (immediateReferenceMode && inlineFeedback[questionId]) return;
+
     setAnswers((current) => ({ ...current, [questionId]: value }));
+
+    if (immediateReferenceMode) {
+      void (async () => {
+        setInlineFeedbackLoading((current) => ({ ...current, [questionId]: true }));
+        const saved = await saveAnswer(questionId, value, Boolean(flags[questionId]));
+        setInlineFeedbackLoading((current) => ({ ...current, [questionId]: false }));
+        if (saved) await loadInlineFeedback(questionId);
+      })();
+      return;
+    }
+
     queueSave(questionId, value, Boolean(flags[questionId]));
   }
 
@@ -620,6 +673,7 @@ export default function ExamRunner() {
   const normalizedCourseCode = courseCode.trim().toUpperCase();
   const isArabicGeneralExam = /^(AR|GR)/.test(normalizedCourseCode);
   const isTextbookReferencedExam = ["AR112", "GR101"].includes(normalizedCourseCode);
+  const isImmediateReferenceMode = normalizedCourseCode === "GR101";
   const activeSectionId = attempt?.current_section_id ?? null;
   const activeQuestions = useMemo(
     () => questions.filter((question) => question.sectionId === activeSectionId),
@@ -674,11 +728,25 @@ export default function ExamRunner() {
 
   const currentHasAnswer = current ? hasAnswerValue(answers[current.id]) : false;
 
+  useEffect(() => {
+    if (!isImmediateReferenceMode || !attempt || !current) return;
+    if (!hasAnswerValue(answers[current.id])) return;
+    if (inlineFeedback[current.id] || inlineFeedbackLoading[current.id]) return;
+    void loadInlineFeedback(current.id);
+  }, [isImmediateReferenceMode, attempt?.attempt_id, current?.id, answers, inlineFeedback, inlineFeedbackLoading]);
+
   function requireCurrentAnswer() {
-    if (currentHasAnswer) return true;
-    setMessage("يجب تحديد إجابة للسؤال الحالي قبل الانتقال. · Answer the current question before continuing.");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    return false;
+    if (!currentHasAnswer) {
+      setMessage("يجب تحديد إجابة للسؤال الحالي قبل الانتقال. · Answer the current question before continuing.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
+    }
+    if (isImmediateReferenceMode && current && !inlineFeedback[current.id]) {
+      setMessage("انتظر لحظة حتى يظهر التصحيح والمرجع المعتمد لهذا السؤال.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
+    }
+    return true;
   }
 
   function goToQuestion(targetIndex: number) {
@@ -1339,6 +1407,10 @@ export default function ExamRunner() {
 
   const answer = answers[current.id];
   const answerLocked = remaining <= 0 || advancing || submitting;
+  const currentInlineFeedback = inlineFeedback[current.id] ?? null;
+  const currentInlineFeedbackLoading = Boolean(inlineFeedbackLoading[current.id]);
+  const questionAnswerLocked =
+    answerLocked || (isImmediateReferenceMode && Boolean(currentInlineFeedback));
   const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
 
   return (
@@ -1515,7 +1587,7 @@ export default function ExamRunner() {
                 {isArabicGeneralExam ? `${current.marks} درجة` : `${current.marks} marks`}
               </span>
               <button
-                disabled={answerLocked}
+                disabled={questionAnswerLocked}
                 onClick={() => toggleFlag(current.id)}
                 className={
                   "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-black " +
@@ -1591,7 +1663,7 @@ export default function ExamRunner() {
                           name={"q-" + current.id}
                           className="sr-only"
                           checked={selected}
-                          disabled={answerLocked}
+                          disabled={questionAnswerLocked}
                           onChange={() => updateAnswer(current.id, option.id)}
                         />
                         {compactLabel ? (
@@ -1628,7 +1700,7 @@ export default function ExamRunner() {
                     <button
                       key={option.id}
                       type="button"
-                      disabled={answerLocked}
+                      disabled={questionAnswerLocked}
                       onClick={() => updateAnswer(current.id, option.value)}
                       className={
                         "rounded-2xl border p-5 text-lg font-black transition " +
@@ -1649,9 +1721,76 @@ export default function ExamRunner() {
                   placeholder="اكتب إجابتك هنا..."
                   dir="auto"
                   value={String(answer ?? "")}
-                  disabled={answerLocked}
+                  disabled={questionAnswerLocked}
                   onChange={(event) => updateAnswer(current.id, event.target.value)}
                 />
+              ) : null}
+
+              {isImmediateReferenceMode && currentInlineFeedbackLoading ? (
+                <div dir="rtl" className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5 text-sm font-black text-[#1F2B5E]">
+                  <Loader2 size={18} className="animate-spin" />
+                  جاري التحقق من الإجابة وفتح المرجع المعتمد...
+                </div>
+              ) : null}
+
+              {isImmediateReferenceMode && currentInlineFeedback ? (
+                <div dir="rtl" className="mt-6 space-y-3 text-right">
+                  <div className={
+                    "rounded-2xl border p-5 " +
+                    (currentInlineFeedback.isCorrect
+                      ? "border-emerald-200 bg-emerald-50"
+                      : "border-rose-200 bg-rose-50")
+                  }>
+                    <div className={
+                      "flex items-center justify-end gap-2 text-lg font-black " +
+                      (currentInlineFeedback.isCorrect ? "text-emerald-800" : "text-rose-800")
+                    }>
+                      <span>{currentInlineFeedback.isCorrect ? "إجابة صحيحة" : "إجابة غير صحيحة"}</span>
+                      <CheckCircle2 size={20} />
+                    </div>
+                    <p className="mt-2 text-sm font-bold leading-7 text-[#4d5368]">
+                      {currentInlineFeedback.correction}
+                    </p>
+                    {!currentInlineFeedback.isCorrect ? (
+                      <div className="mt-4 rounded-xl border border-emerald-100 bg-white p-4">
+                        <div className="text-xs font-black text-emerald-700">الإجابة الصحيحة</div>
+                        <div className="mt-1 text-base font-black text-emerald-900">
+                          {currentInlineFeedback.correctAnswer}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {currentInlineFeedback.referenceEvidence ? (
+                    <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
+                      <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
+                        <span>التصحيح والدليل المباشر من المنهج</span>
+                        <BookOpen size={18} />
+                      </div>
+                      <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
+                        {currentInlineFeedback.referenceEvidence}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  <div className="rounded-2xl border border-[#eadfd8] bg-white p-5 shadow-sm">
+                    <div className="text-xs font-black text-[#B1785C]">الموضع المباشر في المنهج</div>
+                    <div className="mt-2 text-sm font-black leading-7 text-[#1F2B5E]">
+                      {currentInlineFeedback.referenceSource || "المرجع المعتمد للمقرر"}
+                    </div>
+                    <div className="mt-1 text-sm font-bold leading-7 text-[#62687d]">
+                      {currentInlineFeedback.referenceUnit ? currentInlineFeedback.referenceUnit + " · " : ""}
+                      {currentInlineFeedback.referencePage
+                        ? "صفحة " + currentInlineFeedback.referencePage
+                        : "الصفحة غير محددة"}
+                    </div>
+                    {currentInlineFeedback.referencePage ? (
+                      <div className="mt-3 inline-flex rounded-full bg-[#f5efe9] px-3 py-1.5 text-xs font-black text-[#8d5b45]">
+                        راجع مباشرة الصفحة {currentInlineFeedback.referencePage} في المنهج
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               ) : null}
             </section>
           </div>
