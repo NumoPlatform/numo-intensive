@@ -45,9 +45,9 @@ for (const file of files) {
 }
 
 if (violations.length) {
-  console.error("NUMO INTENSIVE isolation check failed:");
+  console.error("NUMO ACADEMIC SIMULATOR isolation check failed:");
   for (const item of violations) console.error(" - " + item);
   process.exit(1);
 }
 
-console.log(`NUMO INTENSIVE isolation check passed for ${files.length} source files.`);
+console.log(`NUMO ACADEMIC SIMULATOR isolation check passed for ${files.length} source files.`);
