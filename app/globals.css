@@ -537,3 +537,43 @@ textarea {
     overflow-wrap: anywhere;
   }
 }
+
+
+@keyframes courseReveal {
+  0% {
+    opacity: 0;
+    transform: scale(.985) translateY(8px);
+    filter: saturate(.92) contrast(.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: saturate(1) contrast(1);
+  }
+}
+
+@keyframes numoFramePulse {
+  0%, 100% {
+    box-shadow:
+      0 40px 100px rgba(3, 8, 30, .52),
+      0 0 0 1px rgba(255, 255, 255, .62) inset;
+  }
+  50% {
+    box-shadow:
+      0 44px 112px rgba(3, 8, 30, .58),
+      0 0 34px rgba(99, 102, 241, .10),
+      0 0 0 1px rgba(255, 255, 255, .72) inset;
+  }
+}
+
+.course-showcase-frame {
+  animation: numoFramePulse 5.8s ease-in-out infinite;
+  transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-showcase-frame,
+  [class*="courseReveal"] {
+    animation: none !important;
+  }
+}
