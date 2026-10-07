@@ -597,7 +597,7 @@ textarea {
 .numo-metal-border::before {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 1;
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(135deg, rgba(177,120,92,.42), rgba(255,255,255,.9) 34%, rgba(99,102,241,.22) 72%, rgba(31,43,94,.14));
