@@ -1,6 +1,7 @@
 "use client";
 
 import NumoBrand from "@/app/components/NumoBrand";
+import { BRAND } from "@/lib/brand";
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, CheckCircle2, Clock3, Globe2, Loader2, MessageCircle, Save, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
 import { intensiveFetch } from "@/lib/intensive/client";
@@ -75,7 +76,7 @@ export default function SettingsPortal(){
 
         <header className="overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7c] to-[#6366F1] p-5 text-white sm:p-8 shadow-[0_25px_70px_rgba(31,43,94,.22)]">
           <div className="flex flex-wrap items-end justify-between gap-5">
-            <div><div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]"><Sparkles size={16}/> إعدادات النظام</div><h1 className="mt-2 text-2xl font-black sm:text-4xl">إعدادات NUMO INTENSIVE</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">تحكم ببيانات الدعم والمنطقة الزمنية، وراجع السياسات الأساسية التي تحكم تجربة الطالب والاختبارات.</p></div>
+            <div><div className="inline-flex items-center gap-2 text-sm font-black text-[#efc8b4]"><Sparkles size={16}/> إعدادات النظام</div><h1 className="mt-2 text-2xl font-black sm:text-4xl">إعدادات {BRAND.nameAr}</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">تحكم ببيانات الدعم والمنطقة الزمنية، وراجع السياسات الأساسية التي تحكم تجربة الطالب والاختبارات.</p></div>
             <div className="rounded-2xl border border-white/15 bg-white/10 p-5"><ShieldCheck className="text-emerald-300"/><div className="mt-2 font-black">سياسات الأمان مفعلة</div><div className="mt-1 text-xs text-white/55">جهاز موثوق واحد لكل طالب</div></div>
           </div>
         </header>
