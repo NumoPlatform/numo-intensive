@@ -577,3 +577,195 @@ textarea {
     animation: none !important;
   }
 }
+
+
+/* NUMO Academic Simulator — Deluxe visual refinement */
+.numo-premium-surface {
+  border: 1px solid rgba(31, 43, 94, 0.09);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.98), rgba(252,250,248,.96));
+  box-shadow:
+    0 28px 70px rgba(31, 43, 94, 0.10),
+    0 2px 0 rgba(255,255,255,.96) inset;
+}
+
+.numo-metal-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.numo-metal-border::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(177,120,92,.42), rgba(255,255,255,.9) 34%, rgba(99,102,241,.22) 72%, rgba(31,43,94,.14));
+  content: "";
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.numo-card-lift {
+  transform: translateZ(0);
+  transition:
+    transform 220ms cubic-bezier(.2,.7,.2,1),
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.numo-card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 30px 70px rgba(31,43,94,.13),
+    0 2px 0 rgba(255,255,255,.92) inset;
+}
+
+.numo-icon-medallion {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.72);
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255,255,255,.98), rgba(255,255,255,.72) 44%, rgba(246,242,237,.92));
+  box-shadow:
+    0 16px 34px rgba(8,16,51,.18),
+    0 1px 0 rgba(255,255,255,1) inset;
+}
+
+.numo-icon-medallion::after {
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(177,120,92,.16);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.numo-primary-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(156,160,255,.35);
+  background: linear-gradient(135deg,#111A42 0%,#1F2B5E 45%,#424AB7 78%,#6366F1 100%);
+  color: #fff;
+  box-shadow:
+    0 18px 42px rgba(31,43,94,.30),
+    0 1px 0 rgba(255,255,255,.14) inset;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.numo-primary-cta::before {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(112deg, transparent 28%, rgba(255,255,255,.16) 48%, transparent 68%);
+  transform: translateX(120%);
+  transition: transform 650ms ease;
+  content: "";
+  pointer-events: none;
+}
+
+.numo-primary-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 24px 54px rgba(31,43,94,.38),
+    0 1px 0 rgba(255,255,255,.18) inset;
+}
+
+.numo-primary-cta:hover::before {
+  transform: translateX(-120%);
+}
+
+.numo-status-live {
+  border: 1px solid rgba(177,120,92,.28);
+  background:
+    linear-gradient(135deg, rgba(255,249,245,.98), rgba(247,234,226,.92));
+  color: #8f573f;
+  box-shadow:
+    0 10px 24px rgba(177,120,92,.12),
+    0 1px 0 rgba(255,255,255,.9) inset;
+}
+
+.numo-live-dot {
+  width: .48rem;
+  height: .48rem;
+  flex: 0 0 auto;
+  border-radius: 9999px;
+  background: #B1785C;
+  box-shadow: 0 0 0 0 rgba(177,120,92,.36);
+  animation: numoLivePulse 2.2s ease-out infinite;
+}
+
+.numo-hero-radiance {
+  isolation: isolate;
+}
+
+.numo-hero-radiance::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 84% 16%, rgba(177,120,92,.18), transparent 24rem),
+    radial-gradient(circle at 15% 88%, rgba(99,102,241,.12), transparent 27rem);
+  content: "";
+  pointer-events: none;
+}
+
+.numo-fine-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 88%);
+}
+
+.numo-stat-glow {
+  position: relative;
+}
+
+.numo-stat-glow::after {
+  position: absolute;
+  inset-inline: 1.1rem;
+  bottom: -.45rem;
+  height: .8rem;
+  border-radius: 9999px;
+  background: rgba(31,43,94,.08);
+  filter: blur(12px);
+  content: "";
+  pointer-events: none;
+}
+
+@keyframes numoLivePulse {
+  0% { box-shadow: 0 0 0 0 rgba(177,120,92,.36); }
+  65% { box-shadow: 0 0 0 8px rgba(177,120,92,0); }
+  100% { box-shadow: 0 0 0 0 rgba(177,120,92,0); }
+}
+
+@media (max-width: 639px) {
+  .numo-card-lift:hover {
+    transform: none;
+  }
+
+  .numo-primary-cta {
+    min-height: 3.15rem;
+  }
+
+  .numo-icon-medallion {
+    box-shadow:
+      0 10px 24px rgba(8,16,51,.15),
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numo-live-dot {
+    animation: none;
+  }
+
+  .numo-primary-cta::before {
+    display: none;
+  }
+}
