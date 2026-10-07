@@ -271,7 +271,7 @@ export default function IntensivePortal() {
     return (
       <div className="min-h-screen px-4 py-8 text-[#1F2B5E] sm:py-12">
         <div className="mx-auto grid min-h-[82vh] max-w-6xl items-center gap-7 lg:grid-cols-[1.08fr_.92fr]">
-          <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#26366F_68%,#202B5B_100%)] p-7 text-white shadow-[0_30px_84px_rgba(31,43,94,.26)] sm:p-9 lg:p-12">
+          <section className="numo-hero-radiance relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,#1B264F_0%,#1F2B5E_56%,#26366F_100%)] p-7 text-white shadow-[0_32px_90px_rgba(31,43,94,.28)] sm:p-9 lg:p-12">
             <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/24 blur-3xl" />
             <div className="absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#6366F1]/14 blur-3xl" />
             <div className="relative">
@@ -299,7 +299,7 @@ export default function IntensivePortal() {
                 {BRAND_FEATURES.map((feature, index) => {
                   const FeatureIcon = [BookOpenCheck, CheckCircle2, Target][index];
                   return (
-                    <div key={feature} className="rounded-2xl border border-white/12 bg-white/[.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
+                    <div key={feature} className="numo-card-lift rounded-2xl border border-white/12 bg-white/[.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
                       <FeatureIcon className="mb-3 text-[#E7B79F]" size={21} />
                       <strong className="block text-sm leading-6">{feature}</strong>
                     </div>
@@ -315,7 +315,7 @@ export default function IntensivePortal() {
 
           <form
             onSubmit={login}
-            className="rounded-[2rem] border border-[#e4e1eb] bg-white p-7 shadow-[0_24px_70px_rgba(31,43,94,.12)] lg:p-10"
+            className="numo-premium-surface rounded-[2rem] p-7 lg:p-10"
           >
             <div className="mb-8">
               <div className="flex items-center gap-3">
@@ -494,7 +494,7 @@ export default function IntensivePortal() {
       <a
         key={course.id}
         href={"/course/" + course.id}
-        className="group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_70px_rgba(31,43,94,.14)]"
+        className="numo-card-lift numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f7f6fa)]">
           <img
@@ -562,13 +562,13 @@ export default function IntensivePortal() {
             <span className={
               "inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-black " +
               (metrics.open
-                ? "border border-[#ead4c8] bg-[#fff7f2] text-[#9a6249]"
+                ? "numo-status-live"
                 : "bg-[#f7f7fa] text-[#8d91a0]")
             }>
-              {metrics.open ? <PlayCircle size={14} /> : <BookOpenCheck size={14} />}
+              {metrics.open ? <span className="numo-live-dot" /> : <BookOpenCheck size={14} />}
               {metrics.open ? metrics.open + " اختبار متاح الآن" : "عرض تفاصيل المقرر"}
             </span>
-            <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#8D91FF]/30 bg-[linear-gradient(135deg,#1F2B5E,#4A52C6)] px-4 text-xs font-black text-white shadow-[0_12px_26px_rgba(31,43,94,.24)]">
+            <span className="numo-primary-cta inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-xs font-black">
               <BookOpenCheck size={15} /> فتح المقرر <ChevronLeft size={15} />
             </span>
           </div>
@@ -630,8 +630,8 @@ export default function IntensivePortal() {
       </header>
 
       <main className="mx-auto w-full max-w-[1480px] overflow-x-clip px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-        <section className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#1F2B5E_0%,#26366F_58%,#1A244F_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
-          <div className="absolute inset-0 opacity-[.16] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:42px_42px]" />
+        <section className="numo-hero-radiance relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,#182248_0%,#1F2B5E_52%,#293873_100%)] text-white shadow-[0_34px_100px_rgba(31,43,94,.28)] sm:rounded-[2.6rem]">
+          <div className="numo-fine-grid absolute inset-0 opacity-[.72]" />
           <div className="absolute -right-24 -top-20 h-80 w-80 rounded-full bg-[#B1785C]/28 blur-3xl" />
           <div className="absolute -bottom-28 left-[12%] h-80 w-80 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute left-[44%] top-[12%] h-48 w-48 rounded-full bg-[#6366F1]/35 blur-2xl" />
@@ -697,22 +697,22 @@ export default function IntensivePortal() {
                   </div>
                 </div>
 
-                <div className="absolute left-[3%] top-[17%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                <div className="numo-icon-medallion absolute left-[3%] top-[17%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
                   <GraduationCap size={28} />
                 </div>
-                <div className="absolute right-[3%] top-[18%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                <div className="numo-icon-medallion absolute right-[3%] top-[18%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
                   <BookOpenCheck size={27} />
                 </div>
-                <div className="absolute left-[1%] top-[47%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                <div className="numo-icon-medallion absolute left-[1%] top-[47%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
                   <Target size={27} />
                 </div>
-                <div className="absolute right-[1%] top-[48%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                <div className="numo-icon-medallion absolute right-[1%] top-[48%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
                   <Trophy size={27} />
                 </div>
-                <div className="absolute bottom-[9%] left-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                <div className="numo-icon-medallion absolute bottom-[9%] left-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
                   <BarChart3 size={27} />
                 </div>
-                <div className="absolute bottom-[8%] right-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
+                <div className="numo-icon-medallion absolute bottom-[8%] right-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
                   <ShieldCheck size={27} />
                 </div>
 
@@ -784,7 +784,7 @@ export default function IntensivePortal() {
             return (
               <article
                 key={item.label}
-                className="group relative overflow-hidden rounded-[1.7rem] border border-white/80 bg-white/92 p-4 shadow-[0_16px_42px_rgba(31,43,94,.07)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,43,94,.12)] sm:p-5"
+                className="numo-card-lift numo-stat-glow group relative overflow-hidden rounded-[1.7rem] border border-white/80 bg-white/95 p-4 shadow-[0_16px_42px_rgba(31,43,94,.07)] sm:p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -906,7 +906,7 @@ export default function IntensivePortal() {
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
                   <div className="relative w-full max-w-[1220px] px-0 sm:px-3 lg:px-5 xl:px-8">
                     <div className="pointer-events-none absolute inset-x-[9%] bottom-[-24px] h-20 rounded-[50%] bg-black/40 blur-2xl" />
-                    <div className="course-showcase-frame relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
+                    <div className="course-showcase-frame numo-metal-border relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
                       <div className="rounded-[1.05rem] border border-[#e0dbe4] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2">
                         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[.8rem] bg-white sm:rounded-[1.6rem]">
                           <img
@@ -980,7 +980,7 @@ export default function IntensivePortal() {
                   {assignedCourseIds.has(activeCarouselCourse.id) ? (
                     <a
                       href={"/course/" + activeCarouselCourse.id}
-                      className="group relative inline-flex min-h-16 flex-1 items-center justify-center gap-3 overflow-hidden rounded-[1.15rem] border border-[#9CA0FF]/45 bg-[linear-gradient(135deg,#111A42_0%,#1F2B5E_42%,#4850C7_78%,#6366F1_100%)] px-7 text-[15px] font-black text-white shadow-[0_20px_46px_rgba(31,43,94,.34),0_0_0_1px_rgba(255,255,255,.10)_inset,0_0_26px_rgba(99,102,241,.12)] ring-1 ring-white/5 transition duration-300 hover:-translate-y-1.5 hover:scale-[1.015] hover:shadow-[0_28px_62px_rgba(31,43,94,.42),0_0_34px_rgba(99,102,241,.22)] sm:flex-none"
+                      className="numo-primary-cta group relative inline-flex min-h-16 flex-1 items-center justify-center gap-3 rounded-[1.15rem] px-7 text-[15px] font-black sm:flex-none"
                     >
                       <span className="pointer-events-none absolute inset-0 translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.16),transparent)] transition-transform duration-700 group-hover:-translate-x-full" />
                       <span className="relative grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,.16)]">
@@ -1042,7 +1042,7 @@ export default function IntensivePortal() {
                   {nextAction ? (
                     <a
                       href={"/exam/" + nextAction.exam.id}
-                      className="group relative inline-flex min-h-16 items-center justify-center gap-3 overflow-hidden rounded-[1.15rem] border border-[#F0C2AA]/65 bg-[linear-gradient(135deg,#7E4C38_0%,#B1785C_42%,#D99675_72%,#E8B094_100%)] px-7 text-[15px] font-black text-white shadow-[0_20px_46px_rgba(177,120,92,.34),0_0_0_1px_rgba(255,255,255,.14)_inset,0_0_24px_rgba(214,154,124,.12)] ring-1 ring-white/10 transition duration-300 hover:-translate-y-1.5 hover:scale-[1.015] hover:shadow-[0_28px_60px_rgba(177,120,92,.44),0_0_34px_rgba(214,154,124,.24)]"
+                      className="group relative inline-flex min-h-16 items-center justify-center gap-3 overflow-hidden rounded-[1.15rem] border border-[#E5AF94]/70 bg-[linear-gradient(135deg,#744431_0%,#9C6047_36%,#B1785C_72%,#C88768_100%)] px-7 text-[15px] font-black text-white shadow-[0_20px_46px_rgba(177,120,92,.32),0_1px_0_rgba(255,255,255,.15)_inset] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_58px_rgba(177,120,92,.40)]"
                     >
                       <span className="pointer-events-none absolute inset-0 translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.18),transparent)] transition-transform duration-700 group-hover:-translate-x-full" />
                       <span className="relative grid h-10 w-10 place-items-center rounded-2xl border border-white/18 bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,.18)]">
