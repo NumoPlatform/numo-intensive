@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 
 type SectionScore = {
@@ -152,8 +153,11 @@ export default function ResultHistoryPortal() {
           <div className="relative flex flex-wrap items-start justify-between gap-5">
             <div>
               <a href="/" className="mb-4 inline-flex items-center gap-2 text-xs font-black text-white/70 hover:text-white">
-                <ArrowLeft size={15} /> Student portal
+                <ArrowLeft size={15} /> العودة إلى {BRAND.nameAr}
               </a>
+              <div className="mb-2 text-[10px] font-black uppercase tracking-[.13em] text-white/55" dir="ltr">
+                {BRAND.nameEn}
+              </div>
               <div className="text-xs font-black tracking-[.14em] text-[#e9bda6]">
                 {data.course?.code ?? "NUMO"} · {data.exam.category}
               </div>
