@@ -462,7 +462,6 @@ export default function IntensivePortal() {
   const catalogCourses = data.catalogCourses?.length ? data.catalogCourses : data.courses;
   const assignedCourseIds = new Set(data.courses.map((course) => course.id));
   const activeCarouselCourse = catalogCourses[carouselIndex] ?? null;
-  const activeCarouselMetrics = activeCarouselCourse ? courseMetrics(activeCarouselCourse.id) : null;
   const previousCarouselCourse = catalogCourses.length
     ? catalogCourses[(carouselIndex - 1 + catalogCourses.length) % catalogCourses.length]
     : null;
@@ -495,9 +494,9 @@ export default function IntensivePortal() {
       <a
         key={course.id}
         href={"/course/" + course.id}
-        className="numo-card-lift numo-metal-border group relative overflow-hidden rounded-[1.85rem] border border-white/90 bg-white shadow-[0_18px_52px_rgba(31,43,94,.09)] ring-1 ring-[#e8e3ec]"
+        className="numo-card-lift numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
       >
-        <div className="relative aspect-[16/10] overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(99,102,241,.08),transparent_35%),linear-gradient(145deg,#ffffff,#f6f4f7)] sm:aspect-[16/9]">
+        <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f7f6fa)]">
           <img
             src={cover}
             alt={"غلاف " + course.code}
@@ -505,81 +504,72 @@ export default function IntensivePortal() {
             height={864}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-contain p-1.5 transition duration-500 group-hover:scale-[1.018] sm:p-2"
+            className="absolute inset-0 h-full w-full object-contain"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#10193f]/95 via-[#1F2B5E]/18 to-transparent" />
-
-          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 sm:p-4">
-            <span className="rounded-full border border-white/35 bg-white/95 px-3 py-1.5 text-[10px] font-black text-[#1F2B5E] shadow-sm backdrop-blur">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/82 via-[#1F2B5E]/10 to-transparent" />
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+            <span className="rounded-full border border-white/30 bg-white/90 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm backdrop-blur">
               {visual.level}
             </span>
-            {metrics.open ? (
-              <span className="numo-status-live inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black">
-                <span className="numo-live-dot" />
-                {metrics.open} اختبار متاح
-              </span>
-            ) : (
-              <span className="grid h-9 w-9 place-items-center rounded-xl border border-white/20 bg-[#1F2B5E]/80 text-white shadow-lg backdrop-blur">
-                <ArrowUpLeft size={15} />
-              </span>
-            )}
+            <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-[#1F2B5E]/75 text-white backdrop-blur">
+              <ArrowUpLeft size={17} />
+            </span>
           </div>
-
-          <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
-            <div className="inline-flex items-center gap-2">
-              <span className="rounded-lg bg-[#B1785C]/90 px-2.5 py-1 text-[10px] font-black tracking-[.12em] text-white shadow-sm" dir="ltr">
-                {course.code}
-              </span>
-              <span className="text-[9px] font-black uppercase tracking-[.14em] text-white/55" dir="ltr">
-                NUMO COURSE
-              </span>
-            </div>
-            <h3 className="mt-2 line-clamp-2 text-lg font-black leading-7 sm:text-xl" dir="auto">{course.title}</h3>
+          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+            <div className="text-xs font-black tracking-[.12em] text-[#efc4ae]" dir="ltr">{course.code}</div>
+            <h3 className="mt-1 text-xl font-black leading-7" dir="auto">{course.title}</h3>
           </div>
         </div>
 
-        <div className="p-4 sm:p-5">
+        <div className="p-5">
           <div className="grid grid-cols-3 gap-2">
-            {[
-              { value: metrics.sections.length, label: "الأقسام" },
-              { value: metrics.completed, label: "المكتمل" },
-              { value: metrics.best ? metrics.best.toFixed(0) + "%" : "—", label: "أفضل نتيجة" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-xl border border-[#ece9ef] bg-[#faf9fb] px-2 py-2.5 text-center">
-                <div className="text-base font-black text-[#1F2B5E] sm:text-lg">{item.value}</div>
-                <div className="mt-0.5 text-[9px] font-black text-[#8a8e9e] sm:text-[10px]">{item.label}</div>
+            <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+              <div className="text-lg font-black">{metrics.sections.length}</div>
+              <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Sections</div>
+            </div>
+            <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+              <div className="text-lg font-black">{metrics.completed}</div>
+              <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Completed</div>
+            </div>
+            <div className="rounded-xl bg-[#f8f7fa] px-3 py-3 text-center">
+              <div className="text-lg font-black">{metrics.best ? metrics.best.toFixed(0) + "%" : "—"}</div>
+              <div className="mt-0.5 text-[10px] font-bold text-[#888c9d]">Best</div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex items-center justify-between text-[11px] font-black">
+                <span className="text-[#74798b]">التقدم</span>
+                <span style={{ color: visual.accent }}>{metrics.progress}%</span>
               </div>
-            ))}
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-[#ece8ef] bg-[linear-gradient(135deg,#faf9fb,#fffaf7)] p-3.5">
-            <div className="mb-2 flex items-center justify-between gap-3 text-[11px] font-black">
-              <span className="text-[#74798b]">جاهزيتك في المقرر</span>
-              <span style={{ color: visual.accent }}>{metrics.progress}%</span>
+              <div className="h-2 overflow-hidden rounded-full bg-[#eeecf1]">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: metrics.progress + "%", background: visual.accent }}
+                />
+              </div>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[#ebe8ef]">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{ width: metrics.progress + "%", background: visual.gradient }}
-              />
-            </div>
-            <div className="mt-2 text-[10px] font-bold leading-5 text-[#8a8e9e]">
-              {metrics.open
-                ? "لديك اختبار متاح الآن — راجع بسرعة ثم اختبر جاهزيتك."
-                : "استعرض محتوى المقرر، نتائجك ومحاولاتك من مكان واحد."}
+            <div
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+              style={{ background: visual.accentSoft, color: visual.accent }}
+            >
+              <BookOpenCheck size={19} />
             </div>
           </div>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="mt-4 grid gap-2 border-t border-[#efedf2] pt-4 sm:grid-cols-[1fr_auto] sm:items-center">
             <span className={
-              "inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-black " +
-              (metrics.open ? "numo-status-live" : "bg-[#f6f5f8] text-[#7f8393]")
+              "inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-black " +
+              (metrics.open
+                ? "numo-status-live"
+                : "bg-[#f7f7fa] text-[#8d91a0]")
             }>
               {metrics.open ? <span className="numo-live-dot" /> : <BookOpenCheck size={14} />}
-              {metrics.open ? "اختبر نفسك الآن" : "المقرر جاهز للمراجعة"}
+              {metrics.open ? metrics.open + " اختبار متاح الآن" : "عرض تفاصيل المقرر"}
             </span>
-            <span className="numo-primary-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 text-xs font-black">
-              <BookOpenCheck size={16} /> فتح المقرر <ChevronLeft size={15} />
+            <span className="numo-primary-cta inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-xs font-black">
+              <BookOpenCheck size={15} /> فتح المقرر <ChevronLeft size={15} />
             </span>
           </div>
         </div>
@@ -838,7 +828,7 @@ export default function IntensivePortal() {
         {catalogCourses.length && activeCarouselCourse ? (
           <section
             ref={carouselRef}
-            className="mt-8 overflow-hidden rounded-[2rem] border border-[#dcd6e2] bg-[#0f1738] shadow-[0_34px_110px_rgba(31,43,94,.18)] ring-1 ring-white/90 sm:rounded-[3rem]"
+            className="-mx-3 mt-8 overflow-hidden rounded-none border-y border-[#dcd6e2] bg-[#0f1738] shadow-[0_34px_110px_rgba(31,43,94,.18)] ring-1 ring-white/90 sm:mx-0 sm:rounded-[3rem] sm:border"
             onMouseEnter={() => setCarouselPaused(true)}
             onMouseLeave={() => setCarouselPaused(false)}
             onFocusCapture={() => setCarouselPaused(true)}
@@ -871,11 +861,11 @@ export default function IntensivePortal() {
                     NUMO ACADEMIC COLLECTION
                   </div>
                   <h2 className="mt-3 text-2xl font-black leading-[1.35] text-white sm:text-3xl lg:text-[2.55rem]">
-                    اختر مقررك. راجع. اختبر نفسك.
+                    المجموعة الأكاديمية
                   </h2>
                   <div className="mt-4 max-w-3xl rounded-[1.35rem] border border-[#E8B59E]/30 bg-[linear-gradient(110deg,rgba(255,255,255,.11),rgba(177,120,92,.10),rgba(99,102,241,.08))] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_10px_30px_rgba(7,12,36,.14)] backdrop-blur-md sm:px-5 sm:py-4">
                     <p className="text-[16px] font-black leading-8 text-[#FFF7F2] drop-shadow-[0_1px_1px_rgba(0,0,0,.20)] sm:text-[17px] sm:leading-8">
-                      كل مقرر أمامك كتجربة متكاملة: مراجعة، محاكاة، نتيجة فورية، ثم معرفة نقاط التحسين.
+                      مقررات ودورات منصة نُمو في واجهة أكاديمية فاخرة، واضحة ومتكاملة.
                     </p>
                   </div>
                 </div>
@@ -891,7 +881,7 @@ export default function IntensivePortal() {
                 </div>
               </div>
 
-              <div className="relative mt-6 min-h-[260px] sm:mt-9 sm:min-h-[540px] lg:min-h-[680px] xl:min-h-[760px]">
+              <div className="relative mt-6 min-h-[360px] sm:mt-9 sm:min-h-[540px] lg:min-h-[680px] xl:min-h-[760px]">
                 {catalogCourses.length > 2 && previousCarouselCourse ? (
                   <button
                     type="button"
@@ -937,7 +927,7 @@ export default function IntensivePortal() {
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
                   <div className="relative w-full max-w-[1220px] px-0 sm:px-3 lg:px-5 xl:px-8">
                     <div className="pointer-events-none absolute inset-x-[9%] bottom-[-24px] h-20 rounded-[50%] bg-black/40 blur-2xl" />
-                    <div className="course-showcase-frame numo-metal-border relative mx-4 rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_30px_80px_rgba(3,8,30,.48),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:mx-0 sm:rounded-[2.5rem] sm:p-3 sm:shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] lg:p-4">
+                    <div className="course-showcase-frame numo-metal-border relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
                       <div className="rounded-[1.05rem] border border-[#e0dbe4] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2">
                         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[.8rem] bg-white sm:rounded-[1.6rem]">
                           <img
@@ -1005,20 +995,6 @@ export default function IntensivePortal() {
                   <p className="mt-2 max-w-3xl text-sm font-medium leading-7 text-[#777c8f]">
                     {activeCarouselCourse.description || "تجربة أكاديمية مصممة بعناية ضمن منظومة NUMO التعليمية."}
                   </p>
-                  {assignedCourseIds.has(activeCarouselCourse.id) && activeCarouselMetrics ? (
-                    <div className="mt-4 grid grid-cols-3 gap-2">
-                      {[
-                        { label: "اختبارات متاحة", value: activeCarouselMetrics.open },
-                        { label: "التقدم", value: activeCarouselMetrics.progress + "%" },
-                        { label: "أفضل نتيجة", value: activeCarouselMetrics.best ? activeCarouselMetrics.best.toFixed(0) + "%" : "—" },
-                      ].map((item) => (
-                        <div key={item.label} className="rounded-xl border border-[#ece8ef] bg-[#faf9fb] px-2 py-2.5 text-center">
-                          <div className="text-base font-black text-[#1F2B5E]">{item.value}</div>
-                          <div className="mt-0.5 text-[9px] font-black text-[#8a8e9e] sm:text-[10px]">{item.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
@@ -1032,8 +1008,8 @@ export default function IntensivePortal() {
                         <BookOpenCheck size={20} />
                       </span>
                       <span className="relative">
-                        <span className="block text-[15px] font-black">فتح المقرر والبدء</span>
-                        <span className="mt-0.5 block text-[9px] font-bold tracking-[.12em] text-white/60" dir="ltr">REVIEW · TEST · IMPROVE</span>
+                        <span className="block text-[15px] font-black">فتح المقرر</span>
+                        <span className="mt-0.5 block text-[9px] font-bold tracking-[.12em] text-white/60" dir="ltr">OPEN COURSE</span>
                       </span>
                       <ChevronLeft className="relative transition-transform duration-300 group-hover:-translate-x-1" size={18} />
                     </a>
