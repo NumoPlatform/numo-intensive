@@ -134,8 +134,8 @@ export default function SettingsPortal(){
               </section>
               <section className="rounded-[1.7rem] border border-[#e2dfe8] bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-2"><Globe2 size={20} className="text-[#B1785C]"/><h2 className="font-black">النطاق</h2></div>
-                <div className="mt-3 text-sm font-black" dir="ltr">intensive.numo.academy</div>
-                <div className="mt-1 text-xs leading-6 text-[#85899a]">تمت إضافته إلى مشروع Vercel، ويحتاج سجل DNS لدى مزود النطاق قبل إصدار شهادة SSL.</div>
+                <div className="mt-3 text-sm font-black">{BRAND.nameAr}</div><div className="mt-1 text-[10px] font-black tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
+                <div className="mt-1 text-xs leading-6 text-[#85899a]">النطاق التشغيلي وإعدادات DNS تبقى مُدارة في مشروع Vercel دون تغيير ضمن إعادة التموضع النصي.</div>
               </section>
             </aside>
           </form>
