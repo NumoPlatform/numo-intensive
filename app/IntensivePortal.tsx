@@ -685,35 +685,46 @@ export default function IntensivePortal() {
 
             <div className="order-2 lg:order-1">
               <div className="lg:hidden">
-                <div className="mx-auto max-w-[360px] rounded-[1.65rem] border border-white/15 bg-white/[.07] p-3.5 shadow-[0_22px_58px_rgba(7,13,42,.26)] backdrop-blur">
-                  <div className="rounded-[1.35rem] border border-white/75 bg-white p-4 text-[#1F2B5E] shadow-[0_16px_34px_rgba(8,16,51,.20)]">
-                    <div className="flex items-center gap-3">
-                      <NumoBrand className="w-[4.8rem]" priority />
-                      <div className="min-w-0">
-                        <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
-                        <div className="mt-1 text-base font-black">{BRAND.nameAr}</div>
-                        <div className="mt-1 text-[10px] font-bold leading-5 text-[#7a7f90]">راجع. اختبر. اعرف مستواك.</div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="relative mx-auto aspect-square w-[78vw] max-w-[300px]">
+                  <div className="absolute inset-[7%] rounded-full border border-white/20 bg-white/[.035] shadow-[0_0_54px_rgba(99,102,241,.24)] backdrop-blur-sm" />
+                  <div className="absolute inset-[17%] rounded-full border border-white/16 bg-[radial-gradient(circle,rgba(255,255,255,.14),rgba(255,255,255,.035)_58%,transparent_61%)]" />
+                  <div className="pointer-events-none absolute inset-[3%] rounded-full bg-[conic-gradient(from_35deg,rgba(177,120,92,.16),transparent_18%,rgba(99,102,241,.16)_42%,transparent_62%,rgba(255,255,255,.08)_82%,transparent)] blur-[1px]" />
 
-                  <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="relative z-10 grid h-full w-full grid-cols-3 grid-rows-3 place-items-center p-1.5">
                     {[
-                      { icon: GraduationCap, label: "مقرراتك", tone: "text-[#6366F1]" },
-                      { icon: BookOpenCheck, label: "المراجعة", tone: "text-[#1F2B5E]" },
-                      { icon: Target, label: "الاختبارات", tone: "text-[#B1785C]" },
-                      { icon: Trophy, label: "النتائج", tone: "text-[#6366F1]" },
-                      { icon: BarChart3, label: "التقدم", tone: "text-[#1F2B5E]" },
-                      { icon: ShieldCheck, label: "جهاز موثوق", tone: "text-[#B1785C]" },
-                    ].map(({ icon: Icon, label, tone }) => (
-                      <div key={label} className="rounded-[1rem] border border-white/15 bg-white/[.09] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
-                        <div className={"mx-auto grid h-9 w-9 place-items-center rounded-xl border border-white/70 bg-white shadow-sm " + tone}>
-                          <Icon size={18} />
-                        </div>
-                        <div className="mt-2 text-[9px] font-black text-white/80">{label}</div>
+                      { icon: GraduationCap, tone: "text-[#6366F1]", cell: "col-start-1 row-start-1" },
+                      { icon: BookOpenCheck, tone: "text-[#1F2B5E]", cell: "col-start-3 row-start-1" },
+                      { icon: Target, tone: "text-[#B1785C]", cell: "col-start-1 row-start-2" },
+                      { icon: Trophy, tone: "text-[#6366F1]", cell: "col-start-3 row-start-2" },
+                      { icon: BarChart3, tone: "text-[#1F2B5E]", cell: "col-start-1 row-start-3" },
+                      { icon: ShieldCheck, tone: "text-[#B1785C]", cell: "col-start-3 row-start-3" },
+                    ].map(({ icon: Icon, tone, cell }, index) => (
+                      <div
+                        key={index}
+                        className={
+                          "numo-icon-medallion " +
+                          cell +
+                          " grid h-11 w-11 place-items-center rounded-xl border border-white/75 bg-white/95 shadow-[0_10px_24px_rgba(8,16,51,.18)] " +
+                          tone
+                        }
+                      >
+                        <Icon size={20} />
                       </div>
                     ))}
                   </div>
+
+                  <div className="absolute left-1/2 top-1/2 z-20 grid h-[34%] w-[34%] min-h-[92px] min-w-[92px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.55rem] border border-white/30 bg-white text-[#1F2B5E] shadow-[0_22px_48px_rgba(10,18,52,.28)]">
+                    <div className="text-center">
+                      <NumoBrand className="mx-auto w-14" priority />
+                      <div className="mt-2 text-[6px] font-black uppercase tracking-[.09em] text-[#B1785C]" dir="ltr">
+                        {BRAND.nameEn}
+                      </div>
+                      <div className="mt-1 text-[11px] font-black">{BRAND.nameAr}</div>
+                    </div>
+                  </div>
+
+                  <div className="absolute left-1/2 top-[2%] z-30 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#efc2ab] shadow-[0_0_14px_rgba(239,194,171,.9)]" />
+                  <div className="absolute bottom-[2%] left-1/2 z-30 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white shadow-[0_0_14px_rgba(255,255,255,.9)]" />
                 </div>
               </div>
 
