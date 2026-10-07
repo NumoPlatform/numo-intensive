@@ -4,7 +4,7 @@ import type { FormEvent } from "react";
 import NumoBrand from "@/app/components/NumoBrand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpLeft,
   BarChart3,
@@ -12,6 +12,7 @@ import {
   BookOpenCheck,
   CheckCircle2,
   ChevronLeft,
+  ChevronRight,
   GraduationCap,
   LayoutDashboard,
   Layers3,
@@ -33,6 +34,14 @@ type Dashboard = {
     role: "ADMIN" | "STUDENT";
   };
   courses: Array<{
+    id: string;
+    code: string;
+    title: string;
+    description: string | null;
+    default_cover_url: string | null;
+    cover_path: string | null;
+  }>;
+  catalogCourses: Array<{
     id: string;
     code: string;
     title: string;
@@ -119,6 +128,10 @@ export default function IntensivePortal() {
   const [message, setMessage] = useState("");
   const [data, setData] = useState<Dashboard | null>(null);
   const [form, setForm] = useState({ username: "", password: "" });
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [carouselInView, setCarouselInView] = useState(false);
+  const [carouselPaused, setCarouselPaused] = useState(false);
+  const carouselRef = useRef<HTMLElement | null>(null);
 
   async function loadDashboard() {
     const response = await intensiveFetch("/api/dashboard", { cache: "no-store" });
@@ -135,6 +148,37 @@ export default function IntensivePortal() {
   useEffect(() => {
     loadDashboard().catch(() => setStage("login"));
   }, []);
+
+  useEffect(() => {
+    const node = carouselRef.current;
+    if (!node || stage !== "portal") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setCarouselInView(entry.isIntersecting && entry.intersectionRatio >= 0.32),
+      { threshold: [0, 0.32, 0.6] },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [stage, data?.catalogCourses?.length]);
+
+  useEffect(() => {
+    const count = data?.catalogCourses?.length ?? data?.courses?.length ?? 0;
+    if (count < 2 || !carouselInView || carouselPaused) return;
+
+    const timer = window.setInterval(() => {
+      setCarouselIndex((current) => (current + 1) % count);
+    }, 4600);
+    return () => window.clearInterval(timer);
+  }, [carouselInView, carouselPaused, data?.catalogCourses?.length, data?.courses?.length]);
+
+  useEffect(() => {
+    const count = data?.catalogCourses?.length ?? data?.courses?.length ?? 0;
+    if (!count) {
+      setCarouselIndex(0);
+      return;
+    }
+    setCarouselIndex((current) => current % count);
+  }, [data?.catalogCourses?.length, data?.courses?.length]);
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -393,6 +437,17 @@ export default function IntensivePortal() {
   const recommendedCourse = nextAction
     ? data.courses.find((course) => course.id === nextAction.exam.course_id) ?? null
     : data.courses[0] ?? null;
+
+  const catalogCourses = data.catalogCourses?.length ? data.catalogCourses : data.courses;
+  const assignedCourseIds = new Set(data.courses.map((course) => course.id));
+  const activeCarouselCourse = catalogCourses[carouselIndex] ?? catalogCourses[0] ?? null;
+
+  function goCarousel(direction: 1 | -1) {
+    if (!catalogCourses.length) return;
+    setCarouselPaused(true);
+    setCarouselIndex((current) => (current + direction + catalogCourses.length) % catalogCourses.length);
+    window.setTimeout(() => setCarouselPaused(false), 6500);
+  }
 
   const generalCourses = data.courses.filter((course) => {
     const code = course.code.trim().toUpperCase();
@@ -716,51 +771,199 @@ export default function IntensivePortal() {
           })}
         </section>
 
-        {nextAction && recommendedCourse ? (
-          <section className="mt-7 overflow-hidden rounded-[1.9rem] border border-[#e1dde6] bg-white shadow-[0_18px_55px_rgba(31,43,94,.07)]">
-            <div className="grid lg:grid-cols-[minmax(0,1fr)_360px]">
-              <div className="p-5 sm:p-7 lg:p-8">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[11px] font-black text-[#9a6249]">
-                  <PlayCircle size={14} /> CONTINUE LEARNING
-                </div>
-                <h2 className="text-2xl font-black sm:text-3xl">خطوتك الأكاديمية التالية</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-[#74798c]">
-                  {nextAction.inProgress
-                    ? "لديك محاولة قيد التنفيذ. يمكنك العودة مباشرة ومتابعة الـSection من آخر نقطة."
-                    : "يوجد اختبار متاح الآن. اختر الـSection الذي يناسبك وابدأ عندما تكون جاهزا."}
-                </p>
+        {catalogCourses.length ? (
+          <section
+            ref={carouselRef}
+            className="mt-7 overflow-hidden rounded-[2rem] border border-[#ded9e4] bg-white shadow-[0_22px_70px_rgba(31,43,94,.10)]"
+            onMouseEnter={() => setCarouselPaused(true)}
+            onMouseLeave={() => setCarouselPaused(false)}
+            onFocusCapture={() => setCarouselPaused(true)}
+            onBlurCapture={() => setCarouselPaused(false)}
+            aria-label="عرض المقررات والكورسات"
+          >
+            <div className="grid lg:grid-cols-[minmax(0,.88fr)_minmax(460px,1.12fr)]">
+              <div className="relative flex flex-col justify-center overflow-hidden p-5 sm:p-7 lg:p-9">
+                <div className="absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#6366F1]/10 blur-3xl" />
+                <div className="absolute -bottom-24 left-2 h-52 w-52 rounded-full bg-[#B1785C]/10 blur-3xl" />
+                <div className="relative">
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[11px] font-black text-[#9a6249]">
+                    <PlayCircle size={14} /> CONTINUE LEARNING
+                  </div>
+                  <h2 className="text-2xl font-black sm:text-3xl">خطوتك الأكاديمية التالية</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-7 text-[#74798c]">
+                    {nextAction
+                      ? nextAction.inProgress
+                        ? "لديك محاولة قيد التنفيذ. يمكنك العودة مباشرة ومتابعة الاختبار من آخر نقطة."
+                        : "يوجد اختبار متاح الآن. يمكنك البدء مباشرة، بينما يعرض الكاروسيل جميع مقررات وكورسات نمو النشطة."
+                      : "استكشف جميع مقررات وكورسات نمو في العرض المتحرك، وتظهر مقرراتك الممنوحة لك من الإدارة في قسمك الأكاديمي بالأسفل."}
+                  </p>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <a
-                    href={"/exam/" + nextAction.exam.id}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(31,43,94,.20)] transition hover:-translate-y-0.5"
-                  >
-                    <PlayCircle size={18} />
-                    {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
-                  </a>
-                  <a
-                    href={"/course/" + recommendedCourse.id}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#ded9e4] bg-white px-5 text-sm font-black"
-                  >
-                    تفاصيل المقرر <ChevronLeft size={17} />
-                  </a>
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
+                    {nextAction ? (
+                      <a
+                        href={"/exam/" + nextAction.exam.id}
+                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(31,43,94,.20)] transition hover:-translate-y-0.5"
+                      >
+                        <PlayCircle size={18} />
+                        {nextAction.inProgress ? "متابعة الاختبار" : "فتح الاختبار"}
+                      </a>
+                    ) : (
+                      <a
+                        href="#course-portfolio"
+                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(31,43,94,.20)]"
+                      >
+                        <BookOpenCheck size={18} /> عرض مقرراتي
+                      </a>
+                    )}
+                    {recommendedCourse ? (
+                      <a
+                        href={"/course/" + recommendedCourse.id}
+                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#ded9e4] bg-white px-5 text-sm font-black"
+                      >
+                        تفاصيل المقرر <ChevronLeft size={17} />
+                      </a>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-7 grid grid-cols-3 gap-2">
+                    <div className="rounded-2xl bg-[#f7f7fb] p-3 text-center">
+                      <div className="text-xl font-black text-[#1F2B5E]">{catalogCourses.length}</div>
+                      <div className="mt-1 text-[10px] font-black text-[#898d9d]">في كتالوج نمو</div>
+                    </div>
+                    <div className="rounded-2xl bg-[#fbf4ef] p-3 text-center">
+                      <div className="text-xl font-black text-[#9b654d]">{data.courses.length}</div>
+                      <div className="mt-1 text-[10px] font-black text-[#9a806f]">ممنوحة لك</div>
+                    </div>
+                    <div className="rounded-2xl bg-[#f1f2ff] p-3 text-center">
+                      <div className="text-xl font-black text-[#5b5fd5]">{openExams.length}</div>
+                      <div className="mt-1 text-[10px] font-black text-[#7f82a0]">اختبار متاح</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="relative aspect-[16/9] min-h-[230px] overflow-hidden bg-white">
-                <img
-                  src={courseCover(recommendedCourse.code, recommendedCourse.default_cover_url)}
-                  alt={"غلاف " + recommendedCourse.code}
-                  width={1536}
-                  height={864}
-                  decoding="async"
-                  className="absolute inset-0 h-full w-full object-contain"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/84 via-[#1F2B5E]/8 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <div className="text-xs font-black text-[#efc4ae]" dir="ltr">{recommendedCourse.code}</div>
-                  <div className="mt-1 text-xl font-black" dir="auto">{recommendedCourse.title}</div>
-                  <div className="mt-2 text-xs font-bold text-white/65" dir="ltr">{nextAction.exam.title}</div>
+              <div className="relative min-h-[340px] overflow-hidden bg-[radial-gradient(circle_at_78%_14%,rgba(177,120,92,.24),transparent_24%),radial-gradient(circle_at_18%_86%,rgba(99,102,241,.25),transparent_27%),linear-gradient(135deg,#121b43_0%,#1F2B5E_48%,#2f3d80_100%)] p-3 sm:min-h-[430px] sm:p-5">
+                <div className="pointer-events-none absolute inset-0 opacity-[.15] [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:34px_34px]" />
+                <div className="pointer-events-none absolute -right-12 top-5 h-44 w-44 rounded-full border border-white/10" />
+                <div className="pointer-events-none absolute -right-4 top-14 h-28 w-28 rounded-full border border-[#B1785C]/25" />
+
+                <div className="relative flex h-full min-h-[316px] items-center justify-center sm:min-h-[390px]">
+                  {catalogCourses.map((course, index) => {
+                    const assigned = assignedCourseIds.has(course.id);
+                    const active = index === carouselIndex;
+                    const visual = courseVisual(course.code);
+                    return (
+                      <article
+                        key={course.id}
+                        aria-hidden={!active}
+                        className={
+                          "absolute inset-0 flex items-center justify-center transition-all duration-700 ease-out " +
+                          (active
+                            ? "pointer-events-auto translate-x-0 scale-100 opacity-100"
+                            : "pointer-events-none translate-x-8 scale-[.965] opacity-0")
+                        }
+                      >
+                        <div className="relative w-full max-w-[760px]">
+                          <div className="absolute -inset-3 rounded-[2rem] border border-white/10 bg-white/[.035] shadow-[0_28px_80px_rgba(5,10,35,.34)] backdrop-blur" />
+                          <div className="relative overflow-hidden rounded-[1.65rem] border border-white/20 bg-white shadow-[0_24px_65px_rgba(5,10,35,.30)]">
+                            <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f3f3f7)]">
+                              <img
+                                src={courseCover(course.code, course.default_cover_url)}
+                                alt={"غلاف " + course.code}
+                                width={1536}
+                                height={864}
+                                loading={active ? "eager" : "lazy"}
+                                decoding="async"
+                                className="absolute inset-0 h-full w-full object-contain transition duration-700"
+                              />
+                              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101938]/50 via-transparent to-white/5" />
+                              <div className="absolute left-3 top-3 rounded-full border border-white/50 bg-white/92 px-3 py-1.5 text-[10px] font-black text-[#1F2B5E] shadow-lg backdrop-blur">
+                                {visual.level}
+                              </div>
+                              <div className={
+                                "absolute right-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black shadow-lg backdrop-blur " +
+                                (assigned ? "bg-emerald-100/95 text-emerald-800" : "bg-[#1F2B5E]/88 text-white")
+                              }>
+                                {assigned ? "ممنوح لك" : "كتالوج نمو"}
+                              </div>
+                            </div>
+
+                            <div className="grid gap-3 border-t border-[#ece8ef] bg-white p-4 sm:grid-cols-[1fr_auto] sm:items-center sm:p-5">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-xs font-black tracking-[.12em] text-[#B1785C]" dir="ltr">{course.code}</span>
+                                  <span className="h-1 w-1 rounded-full bg-[#d0cbd4]" />
+                                  <span className="text-[10px] font-black text-[#8c90a0]" dir="ltr">
+                                    {String(index + 1).padStart(2, "0")} / {String(catalogCourses.length).padStart(2, "0")}
+                                  </span>
+                                </div>
+                                <h3 className="mt-1 truncate text-lg font-black text-[#1F2B5E] sm:text-xl" dir="auto">{course.title}</h3>
+                                <p className="mt-1 line-clamp-1 text-xs font-medium text-[#7d8192]">
+                                  {course.description || "NUMO Premium Academic Course"}
+                                </p>
+                              </div>
+                              {assigned ? (
+                                <a
+                                  href={"/course/" + course.id}
+                                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-xs font-black text-white"
+                                >
+                                  فتح المقرر <ChevronLeft size={15} />
+                                </a>
+                              ) : (
+                                <span className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e5d8d0] bg-[#fbf4ef] px-4 text-xs font-black text-[#9a6249]">
+                                  يمنح من الإدارة
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                {catalogCourses.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => goCarousel(1)}
+                      className="absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#111a40]/72 text-white shadow-xl backdrop-blur transition hover:bg-[#1F2B5E]"
+                      aria-label="المقرر التالي"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goCarousel(-1)}
+                      className="absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#111a40]/72 text-white shadow-xl backdrop-blur transition hover:bg-[#1F2B5E]"
+                      aria-label="المقرر السابق"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                    <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center gap-1.5">
+                      {catalogCourses.map((course, index) => (
+                        <button
+                          key={course.id}
+                          type="button"
+                          onClick={() => {
+                            setCarouselIndex(index);
+                            setCarouselPaused(true);
+                            window.setTimeout(() => setCarouselPaused(false), 6500);
+                          }}
+                          className={
+                            "h-1.5 rounded-full transition-all duration-300 " +
+                            (index === carouselIndex ? "w-8 bg-[#d89b7c]" : "w-2 bg-white/35")
+                          }
+                          aria-label={"عرض " + course.code}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+
+                <div className="absolute left-4 top-4 z-20 hidden items-center gap-2 rounded-full border border-white/10 bg-white/[.08] px-3 py-1.5 text-[9px] font-black uppercase tracking-[.16em] text-white/70 backdrop-blur sm:inline-flex" dir="ltr">
+                  <Sparkles size={12} className="text-[#e9b59c]" />
+                  AUTO PLAY · SCROLL ACTIVATED
                 </div>
               </div>
             </div>
@@ -775,11 +978,11 @@ export default function IntensivePortal() {
               </div>
               <h2 className="mt-1 text-2xl font-black sm:text-3xl">مقرراتك الأكاديمية</h2>
               <p className="mt-2 text-sm font-medium text-[#7d8192]">
-                اختر المقرر للوصول إلى Sections والمحاولات والنتائج والمراجعة التفصيلية.
+                تظهر هنا فقط المقررات والكورسات التي منحها لك مدير النظام، ومنها تصل إلى الاختبارات والمحاولات والنتائج والمراجعة التفصيلية.
               </p>
             </div>
             <div className="rounded-xl border border-[#e4e0e8] bg-white px-3 py-2 text-xs font-black text-[#73788b]">
-              {data.courses.length} Active Courses
+              {data.courses.length} Assigned Courses
             </div>
           </div>
 
