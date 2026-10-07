@@ -498,7 +498,7 @@ export default function AdminPortal() {
 
         <main className="min-w-0 max-w-full px-3 pb-[calc(env(safe-area-inset-bottom)+2rem)] pt-3 sm:px-5 sm:pb-10 sm:pt-5 lg:p-8 lg:pb-10">
           <div className="mx-auto max-w-[1500px]">
-            <div className="mb-3 flex items-center justify-between rounded-[1.35rem] border border-white/80 bg-white/80 p-3 shadow-[0_12px_35px_rgba(31,43,94,.07)] backdrop-blur-xl lg:hidden">
+            <div className="numo-premium-surface mb-3 flex items-center justify-between rounded-[1.35rem] p-3 lg:hidden">
               <div className="flex min-w-0 items-center gap-3">
                 <NumoBrand className="w-[4.6rem]" priority />
                 <div className="min-w-0">
@@ -534,7 +534,7 @@ export default function AdminPortal() {
               ))}
             </nav>
 
-            <header className={"deluxe-hero relative mb-4 overflow-hidden rounded-[1.75rem] p-4 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8 " + (tab === "dashboard" ? "" : "hidden lg:block")}>
+            <header className={"deluxe-hero numo-hero-radiance numo-metal-border relative mb-4 overflow-hidden rounded-[1.75rem] p-4 text-white shadow-[0_24px_70px_rgba(18,31,76,.24)] sm:mb-6 sm:rounded-[2.2rem] sm:p-8 " + (tab === "dashboard" ? "" : "hidden lg:block")}>
               <div className="deluxe-orbit deluxe-orbit-one" />
               <div className="deluxe-orbit deluxe-orbit-two" />
               <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -590,10 +590,10 @@ export default function AdminPortal() {
                     { label: "الاختبارات", value: data.exams.length, icon: CalendarClock, accent: "#BC247D", soft: "#FCEAF5" },
                     { label: "الأسئلة", value: data.sections.reduce((sum, item) => sum + (item.question_count || 0), 0), icon: ClipboardList, accent: "#F07F00", soft: "#FFF2DF" },
                   ].map(({ label, value, icon: Icon, accent, soft }) => (
-                    <div key={label} className="deluxe-stat-card relative overflow-hidden rounded-[1.4rem] p-4 sm:rounded-[1.7rem] sm:p-5">
+                    <div key={label} className="deluxe-stat-card numo-card-lift numo-stat-glow relative overflow-hidden rounded-[1.4rem] p-4 sm:rounded-[1.7rem] sm:p-5">
                       <div className="absolute -left-7 -top-8 h-24 w-24 rounded-full opacity-20 blur-2xl" style={{ backgroundColor: accent }} />
                       <div className="relative mb-5 flex items-center justify-between sm:mb-6">
-                        <div className="grid h-10 w-10 place-items-center rounded-xl sm:h-11 sm:w-11" style={{ backgroundColor: soft, color: accent }}>
+                        <div className="numo-icon-medallion grid h-10 w-10 place-items-center rounded-xl sm:h-11 sm:w-11" style={{ backgroundColor: soft, color: accent }}>
                           <Icon size={21} />
                         </div>
                         <span className="h-1.5 w-8 rounded-full" style={{ backgroundColor: accent }} />
@@ -614,7 +614,7 @@ export default function AdminPortal() {
                       const studentCount = data.enrollments.filter((item) => item.course_id === course.id && item.is_active).length;
                       const examCount = data.exams.filter((exam) => exam.course_id === course.id).length;
                       return (
-                        <article key={course.id} className="group overflow-hidden rounded-[1.55rem] border border-black/[.06] bg-white shadow-[0_14px_38px_rgba(31,43,94,.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_55px_rgba(31,43,94,.15)]">
+                        <article key={course.id} className="numo-card-lift numo-metal-border group overflow-hidden rounded-[1.55rem] border border-black/[.06] bg-white shadow-[0_14px_38px_rgba(31,43,94,.08)]">
                           <div className="relative h-52 overflow-hidden sm:h-56 2xl:h-48">
                             <img
                               src={courseCover(course.code, course.default_cover_url)}
@@ -673,13 +673,13 @@ export default function AdminPortal() {
                       { title: "إنشاء الاختبارات", note: "المواعيد، المحاولات، الأقسام", action: () => setTab("exams"), tone: "#1F2B5E" },
                       { title: "إضافة الأسئلة", note: "Grammar · Vocabulary · Reading", action: () => setTab("questions"), tone: "#B1785C" },
                     ].map((item) => (
-                      <button key={item.title} type="button" onClick={item.action} className="rounded-2xl border border-[#e7e3eb] bg-[#faf9fb] p-4 text-right transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md">
+                      <button key={item.title} type="button" onClick={item.action} className="numo-card-lift rounded-2xl border border-[#e7e3eb] bg-[#faf9fb] p-4 text-right hover:bg-white">
                         <div className="mb-3 h-1.5 w-12 rounded-full" style={{backgroundColor:item.tone}} />
                         <div className="font-black text-[#1F2B5E]">{item.title}</div>
                         <div className="mt-1 text-xs leading-5 text-[#818596]">{item.note}</div>
                       </button>
                     ))}
-                    <a href="/admin/grading" className="rounded-2xl border border-[#e7e3eb] bg-[#faf9fb] p-4 text-right transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md">
+                    <a href="/admin/grading" className="numo-card-lift rounded-2xl border border-[#e7e3eb] bg-[#faf9fb] p-4 text-right hover:bg-white">
                       <div className="mb-3 h-1.5 w-12 rounded-full bg-emerald-500" />
                       <div className="font-black text-[#1F2B5E]">التصحيح والنتائج</div>
                       <div className="mt-1 text-xs leading-5 text-[#818596]">اعتماد النتائج ومراجعة الكتابي</div>
