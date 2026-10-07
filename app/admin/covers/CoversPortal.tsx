@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { ArrowRight, Image as ImageIcon, Loader2, Save, Sparkles } from "lucide-react";
 
@@ -91,7 +92,7 @@ export default function CoversPortal() {
         <header className="mb-7 overflow-hidden rounded-[1.5rem] sm:rounded-[1.8rem] bg-gradient-to-l from-[#1F2B5E] via-[#2c3d7e] to-[#6366F1] p-5 text-white sm:p-7 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#e9c0ab]"><Sparkles size={16}/> NUMO INTENSIVE</div>
+              <div className="mb-2 inline-flex items-center gap-2 text-sm font-black text-[#e9c0ab]"><Sparkles size={16}/> {BRAND.adminTitleEn}</div>
               <h1 className="text-2xl font-black sm:text-3xl">أغلفة المواد</h1>
               <p className="mt-2 text-sm leading-7 text-white/70">استخدم صورة مرفوعة أو رابط HTTPS خارجي لكل مادة.</p>
             </div>
@@ -112,7 +113,7 @@ export default function CoversPortal() {
                   <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-[#1F2B5E] via-[#35478e] to-[#6366F1]">
                     <div className="absolute inset-0 grid place-items-center p-5 text-center text-white">
                       <div>
-                        <div className="text-sm font-black text-[#e8c0ab]">NUMO INTENSIVE</div>
+                        <div className="text-sm font-black text-[#e8c0ab]">{BRAND.nameEn}</div>
                         <div dir="ltr" className="mt-2 text-2xl font-black sm:text-3xl">{course.code}</div>
                         <div dir="ltr" className="mt-1 text-sm text-white/70">{course.title}</div>
                       </div>
