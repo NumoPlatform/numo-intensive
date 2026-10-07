@@ -1729,68 +1729,67 @@ export default function ExamRunner() {
               {isImmediateReferenceMode && currentInlineFeedbackLoading ? (
                 <div dir="rtl" className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5 text-sm font-black text-[#1F2B5E]">
                   <Loader2 size={18} className="animate-spin" />
-                  جاري التحقق من الإجابة وفتح المرجع المعتمد...
+                  جاري التحقق من الإجابة...
                 </div>
               ) : null}
 
               {isImmediateReferenceMode && currentInlineFeedback ? (
-                <div dir="rtl" className="mt-6 space-y-3 text-right">
-                  <div className={
-                    "rounded-2xl border p-5 " +
-                    (currentInlineFeedback.isCorrect
-                      ? "border-emerald-200 bg-emerald-50"
-                      : "border-rose-200 bg-rose-50")
-                  }>
-                    <div className={
-                      "flex items-center justify-end gap-2 text-lg font-black " +
-                      (currentInlineFeedback.isCorrect ? "text-emerald-800" : "text-rose-800")
-                    }>
-                      <span>{currentInlineFeedback.isCorrect ? "إجابة صحيحة" : "إجابة غير صحيحة"}</span>
+                currentInlineFeedback.isCorrect ? (
+                  <div dir="rtl" className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-right">
+                    <div className="flex items-center justify-end gap-2 text-lg font-black text-emerald-800">
+                      <span>إجابة صحيحة</span>
                       <CheckCircle2 size={20} />
                     </div>
-                    <p className="mt-2 text-sm font-bold leading-7 text-[#4d5368]">
-                      {currentInlineFeedback.correction}
-                    </p>
-                    {!currentInlineFeedback.isCorrect ? (
+                  </div>
+                ) : (
+                  <div dir="rtl" className="mt-6 space-y-3 text-right">
+                    <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
+                      <div className="flex items-center justify-end gap-2 text-lg font-black text-rose-800">
+                        <span>إجابة غير صحيحة</span>
+                        <CheckCircle2 size={20} />
+                      </div>
+                      <p className="mt-2 text-sm font-bold leading-7 text-[#4d5368]">
+                        {currentInlineFeedback.correction}
+                      </p>
                       <div className="mt-4 rounded-xl border border-emerald-100 bg-white p-4">
                         <div className="text-xs font-black text-emerald-700">الإجابة الصحيحة</div>
                         <div className="mt-1 text-base font-black text-emerald-900">
                           {currentInlineFeedback.correctAnswer}
                         </div>
                       </div>
-                    ) : null}
-                  </div>
+                    </div>
 
-                  {currentInlineFeedback.referenceEvidence ? (
-                    <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
-                      <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
-                        <span>التصحيح والدليل المباشر من المنهج</span>
-                        <BookOpen size={18} />
-                      </div>
-                      <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
-                        {currentInlineFeedback.referenceEvidence}
-                      </p>
-                    </div>
-                  ) : null}
-
-                  <div className="rounded-2xl border border-[#eadfd8] bg-white p-5 shadow-sm">
-                    <div className="text-xs font-black text-[#B1785C]">الموضع المباشر في المنهج</div>
-                    <div className="mt-2 text-sm font-black leading-7 text-[#1F2B5E]">
-                      {currentInlineFeedback.referenceSource || "المرجع المعتمد للمقرر"}
-                    </div>
-                    <div className="mt-1 text-sm font-bold leading-7 text-[#62687d]">
-                      {currentInlineFeedback.referenceUnit ? currentInlineFeedback.referenceUnit + " · " : ""}
-                      {currentInlineFeedback.referencePage
-                        ? "صفحة " + currentInlineFeedback.referencePage
-                        : "الصفحة غير محددة"}
-                    </div>
-                    {currentInlineFeedback.referencePage ? (
-                      <div className="mt-3 inline-flex rounded-full bg-[#f5efe9] px-3 py-1.5 text-xs font-black text-[#8d5b45]">
-                        راجع مباشرة الصفحة {currentInlineFeedback.referencePage} في المنهج
+                    {currentInlineFeedback.referenceEvidence ? (
+                      <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
+                        <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
+                          <span>التصحيح والدليل المباشر من المنهج</span>
+                          <BookOpen size={18} />
+                        </div>
+                        <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
+                          {currentInlineFeedback.referenceEvidence}
+                        </p>
                       </div>
                     ) : null}
+
+                    <div className="rounded-2xl border border-[#eadfd8] bg-white p-5 shadow-sm">
+                      <div className="text-xs font-black text-[#B1785C]">الموضع المباشر في المنهج</div>
+                      <div className="mt-2 text-sm font-black leading-7 text-[#1F2B5E]">
+                        {currentInlineFeedback.referenceSource || "المرجع المعتمد للمقرر"}
+                      </div>
+                      <div className="mt-1 text-sm font-bold leading-7 text-[#62687d]">
+                        {currentInlineFeedback.referenceUnit ? currentInlineFeedback.referenceUnit + " · " : ""}
+                        {currentInlineFeedback.referencePage
+                          ? "صفحة " + currentInlineFeedback.referencePage
+                          : "الصفحة غير محددة"}
+                      </div>
+                      {currentInlineFeedback.referencePage ? (
+                        <div className="mt-3 inline-flex rounded-full bg-[#f5efe9] px-3 py-1.5 text-xs font-black text-[#8d5b45]">
+                          راجع مباشرة الصفحة {currentInlineFeedback.referencePage} في المنهج
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
+                )
               ) : null}
             </section>
           </div>
