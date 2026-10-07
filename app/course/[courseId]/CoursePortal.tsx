@@ -16,6 +16,7 @@ import {
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import NumoBrand from "@/app/components/NumoBrand";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
@@ -190,7 +191,13 @@ export default function CoursePortal() {
           <a href="/" className="inline-flex items-center gap-2 text-sm font-black text-[#6f7488]">
             <ArrowRight size={17} /> العودة للرئيسية
           </a>
-          <NumoBrand horizontal className="w-auto" />
+          <div className="flex min-w-0 items-center gap-3">
+            <NumoBrand horizontal className="w-auto" />
+            <div className="hidden min-w-0 sm:block">
+              <div className="truncate text-xs font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
+              <div className="mt-1 truncate text-[9px] font-black tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
+            </div>
+          </div>
         </div>
 
         <section className="overflow-hidden rounded-[1.8rem] border border-[#e4e0e8] bg-white shadow-[0_22px_64px_rgba(31,43,94,.12)] sm:rounded-[2rem]">
