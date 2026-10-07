@@ -684,45 +684,45 @@ export default function IntensivePortal() {
             </div>
 
             <div className="order-2 lg:order-1">
-              <div className="relative mx-auto aspect-square w-full max-w-[470px]">
-                <div className="absolute inset-[10%] rounded-full border border-white/16 bg-white/[.04] shadow-[0_0_70px_rgba(99,102,241,.26)] backdrop-blur-sm" />
-                <div className="absolute inset-[19%] rounded-full border border-white/20 bg-[radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,.04)_58%,transparent_60%)]" />
-                <div className="absolute inset-[27%] grid place-items-center rounded-[2.3rem] border border-white/20 bg-white shadow-[0_24px_60px_rgba(14,20,55,.28)]">
+              <div className="relative mx-auto aspect-square w-full max-w-[300px] sm:max-w-[390px] lg:max-w-[470px]">
+                <div className="absolute inset-[8%] rounded-full border border-white/16 bg-white/[.04] shadow-[0_0_54px_rgba(99,102,241,.22)] backdrop-blur-sm sm:inset-[10%] sm:shadow-[0_0_70px_rgba(99,102,241,.26)]" />
+                <div className="absolute inset-[18%] rounded-full border border-white/20 bg-[radial-gradient(circle,rgba(255,255,255,.15),rgba(255,255,255,.035)_58%,transparent_60%)] sm:inset-[19%]" />
+                <div className="absolute inset-[29%] grid place-items-center rounded-[1.55rem] border border-white/20 bg-white shadow-[0_18px_46px_rgba(14,20,55,.24)] sm:inset-[27%] sm:rounded-[2.3rem] sm:shadow-[0_24px_60px_rgba(14,20,55,.28)]">
                   <div className="text-center">
-                    <NumoBrand className="mx-auto w-24 sm:w-28" priority />
-                    <div className="mt-4 text-[9px] font-black uppercase tracking-[.14em] text-[#B1785C]" dir="ltr">
+                    <NumoBrand className="mx-auto w-16 sm:w-24 lg:w-28" priority />
+                    <div className="mt-2 text-[6px] font-black uppercase tracking-[.10em] text-[#B1785C] sm:mt-4 sm:text-[9px] sm:tracking-[.14em]" dir="ltr">
                       {BRAND.nameEn}
                     </div>
-                    <div className="mt-1 text-sm font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
+                    <div className="mt-1 text-[11px] font-black text-[#1F2B5E] sm:text-sm">{BRAND.nameAr}</div>
                   </div>
                 </div>
 
-                <div className="numo-icon-medallion absolute left-[3%] top-[17%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
-                  <GraduationCap size={28} />
+                <div className="numo-icon-medallion absolute left-[8%] top-[14%] grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_10px_24px_rgba(16,25,63,.16)] sm:left-[3%] sm:top-[17%] sm:h-[72px] sm:w-[72px] sm:rounded-2xl sm:shadow-[0_14px_30px_rgba(16,25,63,.18)]">
+                  <GraduationCap size={22} className="sm:h-7 sm:w-7" />
                 </div>
-                <div className="numo-icon-medallion absolute right-[3%] top-[18%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
-                  <BookOpenCheck size={27} />
+                <div className="numo-icon-medallion absolute right-[8%] top-[14%] grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_10px_24px_rgba(16,25,63,.16)] sm:right-[3%] sm:top-[18%] sm:h-[72px] sm:w-[72px] sm:rounded-2xl sm:shadow-[0_14px_30px_rgba(16,25,63,.18)]">
+                  <BookOpenCheck size={22} className="sm:h-7 sm:w-7" />
                 </div>
-                <div className="numo-icon-medallion absolute left-[1%] top-[47%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
-                  <Target size={27} />
+                <div className="numo-icon-medallion absolute left-[4%] top-[46%] grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_10px_24px_rgba(16,25,63,.16)] sm:left-[1%] sm:top-[47%] sm:h-[72px] sm:w-[72px] sm:rounded-2xl sm:shadow-[0_14px_30px_rgba(16,25,63,.18)]">
+                  <Target size={22} className="sm:h-7 sm:w-7" />
                 </div>
-                <div className="numo-icon-medallion absolute right-[1%] top-[48%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
-                  <Trophy size={27} />
+                <div className="numo-icon-medallion absolute right-[4%] top-[46%] grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/95 text-[#6366F1] shadow-[0_10px_24px_rgba(16,25,63,.16)] sm:right-[1%] sm:top-[48%] sm:h-[72px] sm:w-[72px] sm:rounded-2xl sm:shadow-[0_14px_30px_rgba(16,25,63,.18)]">
+                  <Trophy size={22} className="sm:h-7 sm:w-7" />
                 </div>
-                <div className="numo-icon-medallion absolute bottom-[9%] left-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
-                  <BarChart3 size={27} />
+                <div className="numo-icon-medallion absolute bottom-[9%] left-[19%] grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/95 text-[#1F2B5E] shadow-[0_10px_24px_rgba(16,25,63,.16)] sm:left-[16%] sm:h-[72px] sm:w-[72px] sm:rounded-2xl sm:shadow-[0_14px_30px_rgba(16,25,63,.18)]">
+                  <BarChart3 size={22} className="sm:h-7 sm:w-7" />
                 </div>
-                <div className="numo-icon-medallion absolute bottom-[8%] right-[16%] grid h-16 w-16 place-items-center rounded-2xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_14px_30px_rgba(16,25,63,.18)] sm:h-[72px] sm:w-[72px]">
-                  <ShieldCheck size={27} />
+                <div className="numo-icon-medallion absolute bottom-[9%] right-[19%] grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/95 text-[#B1785C] shadow-[0_10px_24px_rgba(16,25,63,.16)] sm:bottom-[8%] sm:right-[16%] sm:h-[72px] sm:w-[72px] sm:rounded-2xl sm:shadow-[0_14px_30px_rgba(16,25,63,.18)]">
+                  <ShieldCheck size={22} className="sm:h-7 sm:w-7" />
                 </div>
 
-                <div className="absolute left-1/2 top-[5%] h-2 w-2 -translate-x-1/2 rounded-full bg-[#e8b59b] shadow-[0_0_18px_rgba(232,181,155,.9)]" />
-                <div className="absolute bottom-[4%] left-[48%] h-2 w-2 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,.9)]" />
+                <div className="absolute left-1/2 top-[4%] h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#e8b59b] shadow-[0_0_14px_rgba(232,181,155,.9)] sm:top-[5%] sm:h-2 sm:w-2" />
+                <div className="absolute bottom-[3%] left-[49%] h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_14px_rgba(255,255,255,.9)] sm:bottom-[4%] sm:h-2 sm:w-2" />
               </div>
             </div>
           </div>
 
-          <div className="relative grid border-t border-white/10 bg-black/5 sm:grid-cols-3">
+          <div className="relative grid grid-cols-3 border-t border-white/10 bg-black/5">
             {[
               { label: "التقدم الأكاديمي", value: overallProgress + "%", note: completedSections + " من " + (totalSections || 0) + " مكتمل", icon: BarChart3 },
               { label: "أفضل نتيجة", value: bestPublishedResult ? (bestPublishedResult.percentage ?? 0) + "%" : "—", note: "Best Published Score", icon: Medal },
@@ -730,14 +730,14 @@ export default function IntensivePortal() {
             ].map((item, index) => {
               const Icon = item.icon;
               return (
-                <div key={item.label} className={"flex items-center gap-3 px-5 py-4 sm:px-6 " + (index ? "border-t border-white/10 sm:border-r-0 sm:border-t-0 sm:border-s" : "")}>
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-[#edc2ad]">
-                    <Icon size={18} />
+                <div key={item.label} className={"flex min-w-0 flex-col items-center gap-1 px-2 py-3 text-center sm:flex-row sm:items-center sm:gap-3 sm:px-6 sm:py-4 sm:text-right " + (index ? "border-s border-white/10" : "")}>
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/10 text-[#edc2ad] sm:h-10 sm:w-10 sm:rounded-xl">
+                    <Icon size={16} className="sm:h-[18px] sm:w-[18px]" />
                   </div>
-                  <div>
-                    <div className="text-[10px] font-black text-white/50">{item.label}</div>
-                    <div className="mt-0.5 text-2xl font-black">{item.value}</div>
-                    <div className="text-[10px] font-bold text-white/45" dir="auto">{item.note}</div>
+                  <div className="min-w-0">
+                    <div className="truncate text-[8px] font-black text-white/50 sm:text-[10px]">{item.label}</div>
+                    <div className="mt-0.5 text-xl font-black sm:text-2xl">{item.value}</div>
+                    <div className="hidden text-[10px] font-bold text-white/45 sm:block" dir="auto">{item.note}</div>
                   </div>
                 </div>
               );
