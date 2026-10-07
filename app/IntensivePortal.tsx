@@ -781,7 +781,7 @@ export default function IntensivePortal() {
         {catalogCourses.length && activeCarouselCourse ? (
           <section
             ref={carouselRef}
-            className="mt-8 overflow-hidden rounded-[2.4rem] border border-[#dcd6e2] bg-[#0f1738] shadow-[0_34px_110px_rgba(31,43,94,.18)] ring-1 ring-white/90 sm:rounded-[3rem]"
+            className="-mx-3 mt-8 overflow-hidden rounded-none border-y border-[#dcd6e2] bg-[#0f1738] shadow-[0_34px_110px_rgba(31,43,94,.18)] ring-1 ring-white/90 sm:mx-0 sm:rounded-[3rem] sm:border"
             onMouseEnter={() => setCarouselPaused(true)}
             onMouseLeave={() => setCarouselPaused(false)}
             onFocusCapture={() => setCarouselPaused(true)}
@@ -801,23 +801,23 @@ export default function IntensivePortal() {
             }}
             aria-label="معرض المقررات الفاخر"
           >
-            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_14%_12%,rgba(99,102,241,.34),transparent_26%),radial-gradient(circle_at_86%_14%,rgba(177,120,92,.28),transparent_24%),linear-gradient(135deg,#0d1432_0%,#1F2B5E_46%,#303f86_100%)] px-4 pb-6 pt-6 sm:px-7 sm:pb-8 sm:pt-8 lg:px-10 lg:pb-10">
+            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_14%_12%,rgba(99,102,241,.34),transparent_26%),radial-gradient(circle_at_86%_14%,rgba(177,120,92,.28),transparent_24%),linear-gradient(135deg,#0d1432_0%,#1F2B5E_46%,#303f86_100%)] px-0 pb-7 pt-6 sm:px-7 sm:pb-9 sm:pt-8 lg:px-10 lg:pb-11">
               <div className="pointer-events-none absolute inset-0 opacity-[.10] [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:42px_42px]" />
               <div className="pointer-events-none absolute -left-24 top-12 h-72 w-72 rounded-full border border-white/[.07]" />
               <div className="pointer-events-none absolute -right-24 bottom-[-5rem] h-96 w-96 rounded-full border border-[#B1785C]/16" />
               <div className="pointer-events-none absolute left-[42%] top-[-8rem] h-72 w-72 rounded-full bg-white/[.06] blur-3xl" />
 
-              <div className="relative flex flex-wrap items-end justify-between gap-4">
+              <div className="relative flex flex-wrap items-end justify-between gap-4 px-5 sm:px-0">
                 <div className="max-w-3xl">
                   <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[.07] px-3 py-1.5 text-[10px] font-black uppercase tracking-[.18em] text-[#edc1aa] backdrop-blur" dir="ltr">
                     <Sparkles size={13} />
-                    NUMO SIGNATURE COLLECTION
+                    NUMO ACADEMIC COLLECTION
                   </div>
                   <h2 className="mt-3 text-2xl font-black leading-[1.35] text-white sm:text-3xl lg:text-[2.55rem]">
-                    تجربة عرض أكاديمية بمستوى عالمي
+                    المجموعة الأكاديمية
                   </h2>
                   <p className="mt-2 max-w-2xl text-sm font-semibold leading-7 text-white/58">
-                    الأغلفة تظهر كاملة 100% دون أي قص أو كتابة فوقها، مع انتقال سينمائي هادئ وSwipe للجوال.
+                    مقررات ودورات منصة نمو في واجهة واحدة أنيقة ومتكاملة.
                   </p>
                 </div>
 
@@ -828,14 +828,11 @@ export default function IntensivePortal() {
                       {String(carouselIndex + 1).padStart(2, "0")} / {String(catalogCourses.length).padStart(2, "0")}
                     </div>
                   </div>
-                  <div className="hidden rounded-2xl border border-[#B1785C]/25 bg-[#B1785C]/10 px-4 py-2.5 text-center backdrop-blur sm:block">
-                    <div className="text-[9px] font-black uppercase tracking-[.14em] text-[#e9bca6]" dir="ltr">AUTO ROTATION</div>
-                    <div className="mt-1 text-xs font-black text-white/85">{carouselPaused ? "PAUSED" : "ACTIVE"}</div>
-                  </div>
+
                 </div>
               </div>
 
-              <div className="relative mt-7 min-h-[300px] sm:mt-9 sm:min-h-[460px] lg:min-h-[560px]">
+              <div className="relative mt-6 min-h-[360px] sm:mt-9 sm:min-h-[540px] lg:min-h-[680px] xl:min-h-[760px]">
                 {catalogCourses.length > 2 && previousCarouselCourse ? (
                   <button
                     type="button"
@@ -879,11 +876,11 @@ export default function IntensivePortal() {
                 ) : null}
 
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
-                  <div className="relative w-full max-w-[960px] px-1 sm:px-5 lg:px-12">
+                  <div className="relative w-full max-w-[1220px] px-0 sm:px-3 lg:px-5 xl:px-8">
                     <div className="pointer-events-none absolute inset-x-[9%] bottom-[-24px] h-20 rounded-[50%] bg-black/40 blur-2xl" />
-                    <div className="course-showcase-frame relative rounded-[1.9rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-2.5 shadow-[0_40px_100px_rgba(3,8,30,.52),0_0_0_1px_rgba(255,255,255,.62)_inset] sm:rounded-[2.5rem] sm:p-4">
-                      <div className="rounded-[1.45rem] border border-[#e0dbe4] bg-white p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2.5">
-                        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.1rem] bg-white sm:rounded-[1.6rem]">
+                    <div className="course-showcase-frame relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
+                      <div className="rounded-[1.05rem] border border-[#e0dbe4] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2">
+                        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[.8rem] bg-white sm:rounded-[1.6rem]">
                           <img
                             key={activeCarouselCourse.id}
                             src={courseCover(activeCarouselCourse.code, activeCarouselCourse.default_cover_url)}
@@ -906,7 +903,7 @@ export default function IntensivePortal() {
                     <button
                       type="button"
                       onClick={() => goCarousel(-1)}
-                      className="absolute left-1 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#0c1435]/86 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:left-3 sm:h-12 sm:w-12"
+                      className="absolute left-2 bottom-0 z-30 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-[#0c1435]/92 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:left-3 sm:bottom-auto sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
                       aria-label="المقرر السابق"
                     >
                       <ChevronLeft size={21} />
@@ -914,7 +911,7 @@ export default function IntensivePortal() {
                     <button
                       type="button"
                       onClick={() => goCarousel(1)}
-                      className="absolute right-1 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#0c1435]/86 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:right-3 sm:h-12 sm:w-12"
+                      className="absolute right-2 bottom-0 z-30 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-[#0c1435]/92 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:right-3 sm:bottom-auto sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
                       aria-label="المقرر التالي"
                     >
                       <ChevronRight size={21} />
@@ -993,11 +990,6 @@ export default function IntensivePortal() {
                   <div className="h-px flex-1 bg-[linear-gradient(90deg,#ddd7e2,transparent)]" />
                 </div>
               ) : null}
-
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[.14em] text-[#a5a8b4]" dir="ltr">
-                <span>AUTO-PLAY ON VIEW · SWIPE ENABLED · FULL COVER MODE</span>
-                <span>{carouselPaused ? "PAUSED BY INTERACTION" : "CINEMATIC ROTATION"}</span>
-              </div>
 
               <div className="mt-5 grid gap-3 border-t border-[#ece8ef] pt-5 sm:grid-cols-[1fr_auto] sm:items-center">
                 <div>
