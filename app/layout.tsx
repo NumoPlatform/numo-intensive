@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -12,11 +13,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_ORIGIN || "https://intensive.numo.academy"),
   title: {
-    default: "NUMO INTENSIVE",
-    template: "%s | NUMO INTENSIVE",
+    default: `${BRAND.nameAr} | ${BRAND.nameEn}`,
+    template: `%s | ${BRAND.nameAr}`,
   },
-  applicationName: "NUMO INTENSIVE",
-  description: "منصة نمو للدورات المكثفة واختبارات اللغة الإنجليزية.",
+  applicationName: BRAND.nameAr,
+  description: BRAND.metadataDescription,
+  openGraph: {
+    title: `${BRAND.nameAr} | ${BRAND.nameEn}`,
+    description: BRAND.metadataDescription,
+    siteName: BRAND.nameAr,
+    type: "website",
+    locale: "ar_SA",
+  },
+  twitter: {
+    card: "summary",
+    title: `${BRAND.nameAr} | ${BRAND.nameEn}`,
+    description: BRAND.metadataDescription,
+  },
+  manifest: "/manifest.webmanifest",
   robots: { index: false, follow: false },
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
