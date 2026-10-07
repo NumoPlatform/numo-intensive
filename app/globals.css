@@ -973,3 +973,101 @@ textarea {
     animation: none !important;
   }
 }
+
+
+/* NUMO Luxurious Course Sway */
+@keyframes luxuriousSway {
+  0%,
+  100% {
+    transform: rotate(-0.45deg) translateY(0) translateZ(0);
+  }
+
+  50% {
+    transform: rotate(0.45deg) translateY(-3px) translateZ(0);
+  }
+}
+
+@keyframes luxuriousShowcaseSway {
+  0%,
+  100% {
+    transform: rotate(-0.22deg) translateY(0) translateZ(0);
+  }
+
+  50% {
+    transform: rotate(0.22deg) translateY(-2px) translateZ(0);
+  }
+}
+
+.numo-course-sway {
+  animation: luxuriousSway 6.2s infinite;
+  animation-timing-function: cubic-bezier(.445,.05,.55,.95);
+  backface-visibility: hidden;
+  transform-origin: center center;
+  will-change: transform;
+  transition:
+    translate .3s ease,
+    box-shadow .3s ease,
+    border-color .3s ease;
+}
+
+.numo-course-sway:nth-child(3n + 2) {
+  animation-delay: -2.05s;
+}
+
+.numo-course-sway:nth-child(3n + 3) {
+  animation-delay: -4.1s;
+}
+
+.numo-showcase-sway {
+  animation:
+    numoFramePulse 5.8s ease-in-out infinite,
+    luxuriousShowcaseSway 7.4s cubic-bezier(.445,.05,.55,.95) infinite;
+  backface-visibility: hidden;
+  transform-origin: center center;
+  will-change: transform;
+  transition:
+    translate .3s ease,
+    box-shadow .3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .numo-course-sway:hover {
+    animation-play-state: paused;
+    translate: 0 -5px;
+    box-shadow:
+      0 24px 54px rgba(99,102,241,.15),
+      0 20px 40px rgba(31,43,94,.10),
+      0 2px 0 rgba(255,255,255,.96) inset;
+  }
+
+  .numo-showcase-sway:hover {
+    animation-play-state: paused;
+    translate: 0 -4px;
+    box-shadow:
+      0 48px 120px rgba(3,8,30,.56),
+      0 0 42px rgba(99,102,241,.14),
+      0 0 0 1px rgba(255,255,255,.72) inset;
+  }
+}
+
+@media (max-width: 639px) {
+  .numo-course-sway {
+    animation-duration: 6.8s;
+  }
+
+  .numo-showcase-sway {
+    animation:
+      numoFramePulse 6.2s ease-in-out infinite,
+      luxuriousShowcaseSway 8s cubic-bezier(.445,.05,.55,.95) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numo-course-sway,
+  .numo-showcase-sway {
+    animation: none !important;
+    translate: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}

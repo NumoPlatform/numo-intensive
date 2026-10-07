@@ -494,7 +494,7 @@ export default function IntensivePortal() {
       <a
         key={course.id}
         href={"/course/" + course.id}
-        className="numo-card-lift numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
+        className="numo-course-sway numo-card-lift numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f7f6fa)]">
           <img
@@ -926,7 +926,7 @@ export default function IntensivePortal() {
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
                   <div className="relative w-full max-w-[1220px] px-0 sm:px-3 lg:px-5 xl:px-8">
                     <div className="pointer-events-none absolute inset-x-[9%] bottom-[-24px] h-20 rounded-[50%] bg-black/40 blur-2xl" />
-                    <div className="course-showcase-frame numo-metal-border relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
+                    <div className="course-showcase-frame numo-showcase-sway numo-metal-border relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
                       <div className="rounded-[1.05rem] border border-[#e0dbe4] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2">
                         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[.8rem] bg-white sm:rounded-[1.6rem]">
                           <img
