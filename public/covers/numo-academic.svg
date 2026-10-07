@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" role="img" aria-labelledby="title desc">
+  <title id="title">NUMO Academic Simulator</title>
+  <desc id="desc">Generic NUMO academic course cover</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#1F2B5E"/>
+      <stop offset="1" stop-color="#172047"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.15" r="0.58">
+      <stop offset="0" stop-color="#6366F1" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="1600" rx="48" fill="#F7F4F0"/>
+  <rect x="56" y="56" width="1088" height="1488" rx="36" fill="url(#bg)"/>
+  <rect x="56" y="56" width="1088" height="1488" rx="36" fill="url(#glow)"/>
+  <path d="M170 350 600 118l430 232-202 122-228-124-228 124Z" fill="none" stroke="#F6F2ED" stroke-linecap="round" stroke-linejoin="round" stroke-width="54"/>
+  <path d="M370 470 600 340l230 130v262L600 875 370 732Z" fill="#fff" stroke="#F6F2ED" stroke-linecap="round" stroke-linejoin="round" stroke-width="54"/>
+  <path d="m545 520 186 106-186 107Z" fill="#B1785C"/>
+  <path d="M171 354v283" fill="none" stroke="#F6F2ED" stroke-linecap="round" stroke-width="46"/>
+  <circle cx="171" cy="660" r="31" fill="#F6F2ED"/>
+  <path d="M171 691v106" fill="none" stroke="#F6F2ED" stroke-linecap="round" stroke-width="38"/>
+  <rect x="170" y="1010" width="860" height="3" fill="#B1785C" opacity=".8"/>
+  <text x="600" y="1115" text-anchor="middle" fill="#F6F2ED" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="2">NUMO ACADEMIC</text>
+  <text x="600" y="1200" text-anchor="middle" fill="#F6F2ED" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="2">SIMULATOR</text>
+  <text x="600" y="1310" text-anchor="middle" fill="#E7B79F" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="5">ACADEMIC TRAINING &amp; ASSESSMENT</text>
+</svg>
