@@ -37,6 +37,8 @@ type AnswerRow = {
 };
 
 type ReferenceRow = {
+  skill: string | null;
+  explanation: string | null;
   reference_source: string | null;
   reference_unit: string | null;
   reference_page: string | null;
@@ -113,7 +115,7 @@ export async function GET(request: NextRequest) {
       serviceRequest<ReferenceRow[]>(
         "/rest/v1/intensive_questions?" +
           new URLSearchParams({
-            select: "reference_source,reference_unit,reference_page,reference_evidence",
+            select: "skill,explanation,reference_source,reference_unit,reference_page,reference_evidence",
             id: "eq." + questionId,
             limit: "1",
           }).toString(),
@@ -132,7 +134,8 @@ export async function GET(request: NextRequest) {
             new URLSearchParams({ select: "code", id: "eq." + courseId, limit: "1" }).toString(),
         )
       : [];
-    if ((courses[0]?.code ?? "").trim().toUpperCase() !== "GR101") {
+    const courseCode = (courses[0]?.code ?? "").trim().toUpperCase();
+    if (!["GR101", "EL098"].includes(courseCode)) {
       return NextResponse.json({ ok: false, message: "التصحيح الفوري غير مفعل لهذا المقرر." }, { status: 403 });
     }
 
@@ -161,14 +164,52 @@ export async function GET(request: NextRequest) {
     const earned = Number(answer.score ?? 0);
     const reference = references[0] ?? null;
 
+    const isCorrect = maxMarks > 0 && earned >= maxMarks;
+    const skill = (reference?.skill ?? "").trim().toUpperCase();
+
+    if (courseCode === "EL098") {
+      const whyIncorrect =
+        skill === "READING"
+          ? `الخيار «${selectedAnswer}» لا يطابق الإجابة المدعومة في القطعة أو مفتاح المصدر المعتمد.`
+          : skill === "VOCABULARY"
+            ? `الخيار «${selectedAnswer}» لا يحقق المعنى المطلوب في سياق الجملة، لذلك لا يصلح هنا.`
+            : `الخيار «${selectedAnswer}» لا يطابق التركيب أو القاعدة المطلوبة في هذا السؤال.`;
+
+      return NextResponse.json({
+        ok: true,
+        feedback: isCorrect
+          ? {
+              questionId,
+              isCorrect: true,
+              selectedAnswer,
+              correctAnswer,
+            }
+          : {
+              questionId,
+              isCorrect: false,
+              selectedAnswer,
+              correctAnswer,
+              correction: "إجابتك خاطئة",
+              whyIncorrect,
+              whyCorrect: reference?.explanation ?? `الإجابة الصحيحة المعتمدة هي «${correctAnswer}».`,
+              academicExplanation:
+                reference?.reference_evidence ?? reference?.explanation ?? null,
+              referenceSource: reference?.reference_source ?? null,
+              referenceUnit: reference?.reference_unit ?? null,
+              referencePage: reference?.reference_page ?? null,
+              referenceEvidence: reference?.reference_evidence ?? null,
+            },
+      });
+    }
+
     return NextResponse.json({
       ok: true,
       feedback: {
         questionId,
-        isCorrect: maxMarks > 0 && earned >= maxMarks,
+        isCorrect,
         selectedAnswer,
         correctAnswer,
-        correction: maxMarks > 0 && earned >= maxMarks
+        correction: isCorrect
           ? "إجابتك صحيحة وفق المرجع المعتمد."
           : "إجابتك غير صحيحة. راجع الإجابة الصحيحة والدليل من المنهج أدناه.",
         referenceSource: reference?.reference_source ?? null,
