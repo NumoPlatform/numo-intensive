@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, reused: true, assessment: assessmentPayload(previousSame[0]) });
     }
 
-    const aiToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+    const aiToken = process.env.AI_GATEWAY_API_KEY || request.headers.get("x-vercel-oidc-token") || process.env.VERCEL_OIDC_TOKEN;
     if (!aiToken) {
       return NextResponse.json(
         { ok: false, code: "AI_UNAVAILABLE", message: "تعذر تشغيل محرك تقييم الكتابة حالياً. لم تُسجل أي درجة." },
