@@ -44,7 +44,7 @@ function validate(context: Context, result: Record<string, unknown>): El098Wrong
   return { whyIncorrect, whyCorrect, academicExplanation, supportingQuote: supportingQuote || null };
 }
 
-export async function getEl098WrongFeedback(context: Context): Promise<El098WrongFeedback | null> {
+export async function getEl098WrongFeedback(context: Context, cacheOnly = false): Promise<El098WrongFeedback | null> {
   if (!context.selectedOptionId || !context.correctOptionId ||
       context.selectedOptionId === context.correctOptionId) return null;
 
@@ -70,6 +70,8 @@ export async function getEl098WrongFeedback(context: Context): Promise<El098Wron
   } catch {
     // Cache can be unavailable on previews before the accompanying migration.
   }
+
+  if (cacheOnly) return null;
 
   const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
   if (!token) return null;
