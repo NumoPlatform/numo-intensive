@@ -171,6 +171,7 @@ export async function GET(request: NextRequest) {
     const skill = (reference?.skill ?? "").trim().toUpperCase();
 
     if (courseCode === "EL098") {
+      const explanationRequested = request.nextUrl.searchParams.get("explain") === "1";
       // Source-locked answer verification remains unchanged. AI never chooses the key.
       // Generate detailed feedback only AFTER a student's incorrect choice was saved.
       const wrongFeedback = isCorrect
@@ -184,7 +185,7 @@ export async function GET(request: NextRequest) {
             selectedAnswer,
             correctAnswer,
             passageBody: question.passage?.body ?? null,
-          });
+          }, !explanationRequested);
 
       return NextResponse.json({
         ok: true,
@@ -201,6 +202,7 @@ export async function GET(request: NextRequest) {
               selectedAnswer,
               correctAnswer,
               correction: "إجابتك خاطئة",
+              explanationPending: !explanationRequested && !wrongFeedback,
               whyIncorrect: wrongFeedback?.whyIncorrect ?? null,
               whyCorrect: wrongFeedback?.whyCorrect ?? null,
               academicExplanation: wrongFeedback?.academicExplanation ?? null,
