@@ -185,7 +185,7 @@ export async function GET(request: NextRequest) {
             selectedAnswer,
             correctAnswer,
             passageBody: question.passage?.body ?? null,
-          }, !explanationRequested);
+          }, !explanationRequested, request.headers.get("x-vercel-oidc-token"));
 
       return NextResponse.json({
         ok: true,
