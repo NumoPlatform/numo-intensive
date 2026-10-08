@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getEl098WrongFeedback } from "@/lib/intensive/el098-wrong-feedback";
 import {
   authenticateRequest,
   serviceRequest,
@@ -11,6 +12,8 @@ type SnapshotQuestion = {
   marks: number;
   type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
   options: SnapshotOption[] | null;
+  prompt?: string;
+  passage?: null | { body?: string; title?: string };
 };
 
 type AttemptRow = {
@@ -168,12 +171,20 @@ export async function GET(request: NextRequest) {
     const skill = (reference?.skill ?? "").trim().toUpperCase();
 
     if (courseCode === "EL098") {
-      const whyIncorrect =
-        skill === "READING"
-          ? `الخيار «${selectedAnswer}» لا يطابق الإجابة المدعومة في القطعة أو مفتاح المصدر المعتمد.`
-          : skill === "VOCABULARY"
-            ? `الخيار «${selectedAnswer}» لا يحقق المعنى المطلوب في سياق الجملة، لذلك لا يصلح هنا.`
-            : `الخيار «${selectedAnswer}» لا يطابق التركيب أو القاعدة المطلوبة في هذا السؤال.`;
+      // Source-locked answer verification remains unchanged. AI never chooses the key.
+      // Generate detailed feedback only AFTER a student's incorrect choice was saved.
+      const wrongFeedback = isCorrect
+        ? null
+        : await getEl098WrongFeedback({
+            questionId,
+            selectedOptionId: selectedRaw,
+            correctOptionId: key.correctOptionId ?? "",
+            skill,
+            prompt: question.prompt ?? "",
+            selectedAnswer,
+            correctAnswer,
+            passageBody: question.passage?.body ?? null,
+          });
 
       return NextResponse.json({
         ok: true,
@@ -190,14 +201,13 @@ export async function GET(request: NextRequest) {
               selectedAnswer,
               correctAnswer,
               correction: "إجابتك خاطئة",
-              whyIncorrect,
-              whyCorrect: reference?.explanation ?? `الإجابة الصحيحة المعتمدة هي «${correctAnswer}».`,
-              academicExplanation:
-                reference?.reference_evidence ?? reference?.explanation ?? null,
+              whyIncorrect: wrongFeedback?.whyIncorrect ?? null,
+              whyCorrect: wrongFeedback?.whyCorrect ?? null,
+              academicExplanation: wrongFeedback?.academicExplanation ?? null,
               referenceSource: reference?.reference_source ?? null,
               referenceUnit: reference?.reference_unit ?? null,
               referencePage: reference?.reference_page ?? null,
-              referenceEvidence: reference?.reference_evidence ?? null,
+              referenceEvidence: wrongFeedback?.supportingQuote ?? null,
             },
       });
     }
