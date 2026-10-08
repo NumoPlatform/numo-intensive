@@ -44,7 +44,7 @@ function validate(context: Context, result: Record<string, unknown>): El098Wrong
   return { whyIncorrect, whyCorrect, academicExplanation, supportingQuote: supportingQuote || null };
 }
 
-export async function getEl098WrongFeedback(context: Context, cacheOnly = false): Promise<El098WrongFeedback | null> {
+export async function getEl098WrongFeedback(context: Context, cacheOnly = false, oidcToken?: string | null): Promise<El098WrongFeedback | null> {
   if (!context.selectedOptionId || !context.correctOptionId ||
       context.selectedOptionId === context.correctOptionId) return null;
   // Never cite irrelevant text as support for an answer when the source passage
@@ -79,7 +79,7 @@ export async function getEl098WrongFeedback(context: Context, cacheOnly = false)
 
   if (cacheOnly) return null;
 
-  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  const token = process.env.AI_GATEWAY_API_KEY || oidcToken || process.env.VERCEL_OIDC_TOKEN;
   if (!token) return null;
 
   try {
