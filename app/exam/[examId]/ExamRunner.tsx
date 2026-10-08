@@ -1789,14 +1789,25 @@ export default function ExamRunner() {
                       option.value && option.value !== option.label ? option.value : option.label;
                     const compactLabel = option.label.trim().length <= 3;
                     const selected = answer === option.id;
+                    const feedbackCorrect =
+                      Boolean(currentInlineFeedback) &&
+                      optionText === currentInlineFeedback?.correctAnswer;
+                    const feedbackWrong =
+                      Boolean(currentInlineFeedback) &&
+                      !currentInlineFeedback?.isCorrect &&
+                      optionText === currentInlineFeedback?.selectedAnswer;
                     return (
                       <label
                         key={option.id}
                         className={
                           "group flex min-h-[4.5rem] w-full min-w-0 cursor-pointer items-center gap-3 rounded-2xl border px-4 py-4 transition-all duration-200 sm:px-5 " +
-                          (selected
-                            ? "border-[#6366F1] bg-[#f3f3ff] shadow-[0_10px_28px_rgba(99,102,241,.12)] ring-1 ring-[#6366F1]/20"
-                            : "border-[#e1dde7] bg-white hover:-translate-y-0.5 hover:border-[#B1785C]/55 hover:shadow-[0_10px_24px_rgba(31,43,94,.07)]")
+                          (feedbackCorrect
+                            ? "border-emerald-300 bg-emerald-50 shadow-[0_10px_28px_rgba(16,185,129,.10)] ring-1 ring-emerald-200"
+                            : feedbackWrong
+                              ? "border-rose-300 bg-rose-50 shadow-[0_10px_28px_rgba(244,63,94,.08)] ring-1 ring-rose-200"
+                              : selected
+                                ? "border-[#6366F1] bg-[#f3f3ff] shadow-[0_10px_28px_rgba(99,102,241,.12)] ring-1 ring-[#6366F1]/20"
+                                : "border-[#e1dde7] bg-white hover:-translate-y-0.5 hover:border-[#B1785C]/55 hover:shadow-[0_10px_24px_rgba(31,43,94,.07)]")
                         }
                       >
                         <input
@@ -1811,9 +1822,13 @@ export default function ExamRunner() {
                           <span
                             className={
                               "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-base font-black transition " +
-                              (selected
-                                ? "bg-[#1F2B5E] text-white"
-                                : "bg-[#eef0f7] text-[#1F2B5E] group-hover:bg-[#fbf2ed] group-hover:text-[#8f5b43]")
+                              (feedbackCorrect
+                                ? "bg-emerald-600 text-white"
+                                : feedbackWrong
+                                  ? "bg-rose-600 text-white"
+                                  : selected
+                                    ? "bg-[#1F2B5E] text-white"
+                                    : "bg-[#eef0f7] text-[#1F2B5E] group-hover:bg-[#fbf2ed] group-hover:text-[#8f5b43]")
                             }
                           >
                             {option.label}
@@ -1828,7 +1843,11 @@ export default function ExamRunner() {
                         >
                           {optionText}
                         </span>
-                        {selected ? <CheckCircle2 className="shrink-0 text-[#6366F1]" size={21} /> : null}
+                        {feedbackCorrect ? (
+                          <CheckCircle2 className="shrink-0 text-emerald-600" size={22} />
+                        ) : selected ? (
+                          <CheckCircle2 className={"shrink-0 " + (feedbackWrong ? "text-rose-600" : "text-[#6366F1]")} size={21} />
+                        ) : null}
                       </label>
                     );
                   })}
