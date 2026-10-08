@@ -50,6 +50,7 @@ type Question = {
     imageUrl?: string | null;
   };
   options: QuestionOption[] | null;
+  tags?: string[] | null;
 };
 type SectionState = {
   id: string;
@@ -167,11 +168,38 @@ type InlineFeedback = {
   isCorrect: boolean;
   selectedAnswer: string;
   correctAnswer: string;
-  correction: string;
-  referenceSource: string | null;
-  referenceUnit: string | null;
-  referencePage: string | null;
-  referenceEvidence: string | null;
+  correction?: string;
+  whyIncorrect?: string | null;
+  whyCorrect?: string | null;
+  academicExplanation?: string | null;
+  referenceSource?: string | null;
+  referenceUnit?: string | null;
+  referencePage?: string | null;
+  referenceEvidence?: string | null;
+};
+
+type WritingAssessment = {
+  id: string;
+  topicIndex: number;
+  topicText: string;
+  originalText: string;
+  wordCount: number;
+  score: number;
+  performanceLevel: string;
+  criteria: {
+    taskAchievement: number;
+    grammarAccuracy: number;
+    vocabularyUsage: number;
+    organizationCoherence: number;
+    spellingPunctuation: number;
+  };
+  corrections: Array<{ original: string; corrected: string; reasonAr: string }>;
+  strengths: string[];
+  improvements: string[];
+  improvedVersion: string;
+  rubricVersion: string;
+  modelId: string;
+  createdAt: string;
 };
 
 function formatDate(value: string) {
@@ -193,7 +221,22 @@ function formatRemaining(ms: number) {
 function hasAnswerValue(value: unknown) {
   if (value === undefined || value === null) return false;
   if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "object" && !Array.isArray(value)) {
+    const row = value as Record<string, unknown>;
+    if ("text" in row || "topicIndex" in row) {
+      return Number(row.topicIndex ?? 0) > 0 && String(row.text ?? "").trim().length > 0;
+    }
+  }
   return true;
+}
+
+function writingTag(tags: string[] | null | undefined, prefix: string) {
+  const match = (tags ?? []).find((item) => item.startsWith(prefix));
+  return match ? match.slice(prefix.length) : "";
+}
+
+function writingWordCount(value: string) {
+  return value.trim().split(/\s+/).filter(Boolean).length;
 }
 
 export default function ExamRunner() {
@@ -221,6 +264,9 @@ export default function ExamRunner() {
   const [courseCode, setCourseCode] = useState("");
   const [inlineFeedback, setInlineFeedback] = useState<Record<string, InlineFeedback>>({});
   const [inlineFeedbackLoading, setInlineFeedbackLoading] = useState<Record<string, boolean>>({});
+  const [writingAssessment, setWritingAssessment] = useState<WritingAssessment | null>(null);
+  const [writingHistory, setWritingHistory] = useState<WritingAssessment[]>([]);
+  const [writingAssessmentLoading, setWritingAssessmentLoading] = useState(false);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
@@ -355,10 +401,20 @@ export default function ExamRunner() {
   }, [answers, attempt, flags]);
 
   function updateAnswer(questionId: string, value: unknown) {
-    const immediateReferenceMode = courseCode.trim().toUpperCase() === "GR101";
+    const normalized = courseCode.trim().toUpperCase();
+    const targetQuestion = attempt?.questions.find((item) => item.id === questionId);
+    const immediateReferenceMode =
+      (normalized === "GR101" || normalized === "EL098") &&
+      targetQuestion?.skill !== "Writing";
     if (immediateReferenceMode && inlineFeedback[questionId]) return;
 
     setAnswers((current) => ({ ...current, [questionId]: value }));
+
+    if (targetQuestion?.skill === "Writing") {
+      setWritingAssessment(null);
+      queueSave(questionId, value, Boolean(flags[questionId]));
+      return;
+    }
 
     if (immediateReferenceMode) {
       void (async () => {
@@ -371,6 +427,51 @@ export default function ExamRunner() {
     }
 
     queueSave(questionId, value, Boolean(flags[questionId]));
+  }
+
+  async function evaluateWriting(question: Question) {
+    if (!attempt || writingAssessmentLoading) return;
+    const value = answers[question.id];
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      setMessage("اختر موضوعًا واكتب الفقرة أولاً.");
+      return;
+    }
+    const row = value as Record<string, unknown>;
+    const words = writingWordCount(String(row.text ?? ""));
+    if (Number(row.topicIndex ?? 0) < 1) {
+      setMessage("اختر أحد موضوعَي Writing قبل التقييم.");
+      return;
+    }
+    if (words < 100) {
+      setMessage(`الفقرة الحالية ${words} كلمة. المطلوب 100 كلمة على الأقل.`);
+      return;
+    }
+
+    setWritingAssessmentLoading(true);
+    setMessage("");
+    try {
+      if (saveTimers.current[question.id]) clearTimeout(saveTimers.current[question.id]);
+      const saved = await saveAnswer(question.id, value, Boolean(flags[question.id]));
+      if (!saved) throw new Error("تعذر حفظ الكتابة قبل التقييم.");
+
+      const response = await intensiveFetch("/api/exam/writing/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attemptId: attempt.attempt_id,
+          questionId: question.id,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "تعذر تقييم الكتابة.");
+      setWritingAssessment(payload.assessment as WritingAssessment);
+      setWritingHistory((payload.history ?? []) as WritingAssessment[]);
+    } catch (error) {
+      setWritingAssessment(null);
+      setMessage(error instanceof Error ? error.message : "تعذر تقييم الكتابة. لم تُسجل أي درجة.");
+    } finally {
+      setWritingAssessmentLoading(false);
+    }
   }
 
   function toggleFlag(questionId: string) {
@@ -524,6 +625,8 @@ export default function ExamRunner() {
       }
 
       setSectionResult(null);
+      setWritingAssessment(null);
+      setWritingHistory([]);
       setCurrentIndex(0);
       setRemaining(Math.max(0, new Date(expiresAt).getTime() - Date.now()));
       setStage("active");
@@ -586,6 +689,14 @@ export default function ExamRunner() {
         return;
       }
 
+      const writingQuestion = active.find((question) => question.skill === "Writing");
+      if (writingQuestion && !writingAssessment) {
+        setCurrentIndex(Math.max(0, active.findIndex((question) => question.id === writingQuestion.id)));
+        setMessage("سلّم كتابة Writing للتقييم الذكي أولاً. لن تُسجل درجة غير مقيّمة.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
       const confirmed = window.confirm(
         "هل تريد إنهاء هذا القسم؟ ستظهر درجتك والأخطاء والتصحيح مباشرة، ويمكنك إعادة المحاولة إذا بقيت لديك محاولات.",
       );
@@ -636,7 +747,7 @@ export default function ExamRunner() {
     } finally {
       setAdvancing(false);
     }
-  }, [advancing, answers, attempt, flushCurrentSection, submitting]);
+  }, [advancing, answers, attempt, flushCurrentSection, submitting, writingAssessment]);
 
   useEffect(() => {
     if (stage !== "active" || !attempt?.current_section_expires_at) return;
@@ -673,18 +784,17 @@ export default function ExamRunner() {
   const normalizedCourseCode = courseCode.trim().toUpperCase();
   const isArabicGeneralExam = /^(AR|GR)/.test(normalizedCourseCode);
   const isTextbookReferencedExam = ["AR112", "GR101"].includes(normalizedCourseCode);
-  const isImmediateReferenceMode = normalizedCourseCode === "GR101";
+  const isInstantFeedbackCourse = ["GR101", "EL098"].includes(normalizedCourseCode);
   const activeSectionId = attempt?.current_section_id ?? null;
   const activeQuestions = useMemo(
     () => questions.filter((question) => question.sectionId === activeSectionId),
     [activeSectionId, questions],
   );
   const current = activeQuestions[currentIndex];
+  const isImmediateReferenceMode =
+    isInstantFeedbackCourse && current?.skill !== "Writing";
   const answeredCount = useMemo(
-    () => activeQuestions.filter((question) => {
-      const value = answers[question.id];
-      return value !== undefined && value !== null && String(value).trim() !== "";
-    }).length,
+    () => activeQuestions.filter((question) => hasAnswerValue(answers[question.id])).length,
     [activeQuestions, answers],
   );
   const activeSectionIndex = Math.max(
@@ -693,7 +803,7 @@ export default function ExamRunner() {
   );
   const activeSectionTitle = sections[activeSectionIndex]?.title ?? "";
   const isReadingSection =
-    activeSectionTitle.toLowerCase() === "reading" &&
+    activeSectionTitle.toLowerCase().includes("reading") &&
     activeQuestions.some((question) => Boolean(question.passage));
 
   const passageIds = isReadingSection
@@ -718,10 +828,9 @@ export default function ExamRunner() {
     visibleQuestionEntries.findIndex(({ globalIndex }) => globalIndex === currentIndex),
   );
 
-  const passageAnsweredCount = visibleQuestionEntries.filter(({ question }) => {
-    const value = answers[question.id];
-    return value !== undefined && value !== null && String(value).trim() !== "";
-  }).length;
+  const passageAnsweredCount = visibleQuestionEntries.filter(({ question }) =>
+    hasAnswerValue(answers[question.id]),
+  ).length;
 
   const hasNextPassage =
     isReadingSection && currentPassageIndex < passageIds.length - 1;
@@ -1433,6 +1542,16 @@ export default function ExamRunner() {
   const currentInlineFeedbackLoading = Boolean(inlineFeedbackLoading[current.id]);
   const questionAnswerLocked =
     answerLocked || (isImmediateReferenceMode && Boolean(currentInlineFeedback));
+  const isWritingQuestion = normalizedCourseCode === "EL098" && current.skill === "Writing";
+  const writingAnswer =
+    isWritingQuestion && answer && typeof answer === "object" && !Array.isArray(answer)
+      ? (answer as Record<string, unknown>)
+      : { topicIndex: 0, text: "" };
+  const writingTopics = isWritingQuestion
+    ? [writingTag(current.tags, "TOPIC1="), writingTag(current.tags, "TOPIC2=")].filter(Boolean)
+    : [];
+  const currentWritingText = String(writingAnswer.text ?? "");
+  const currentWritingWords = writingWordCount(currentWritingText);
   const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
 
   return (
@@ -1737,7 +1856,7 @@ export default function ExamRunner() {
                 </div>
               ) : null}
 
-              {current.type === "SHORT_ANSWER" ? (
+              {current.type === "SHORT_ANSWER" && !isWritingQuestion ? (
                 <textarea
                   className="field mt-7 min-h-44 text-base leading-8"
                   placeholder="اكتب إجابتك هنا..."
@@ -1746,6 +1865,185 @@ export default function ExamRunner() {
                   disabled={questionAnswerLocked}
                   onChange={(event) => updateAnswer(current.id, event.target.value)}
                 />
+              ) : null}
+
+              {isWritingQuestion ? (
+                <div className="mt-7 space-y-5" dir="ltr">
+                  <div className="rounded-2xl border border-[#e5ddd7] bg-[#FAF9F6] p-5">
+                    <div className="text-xs font-black uppercase tracking-[.15em] text-[#B1785C]">Choose one topic</div>
+                    <div className="mt-3 grid gap-3">
+                      {writingTopics.map((topic, index) => {
+                        const topicIndex = index + 1;
+                        const selected = Number(writingAnswer.topicIndex ?? 0) === topicIndex;
+                        return (
+                          <label
+                            key={topic}
+                            className={
+                              "flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition " +
+                              (selected
+                                ? "border-[#6366F1] bg-white shadow-sm"
+                                : "border-[#e2dce5] bg-white/70 hover:border-[#B1785C]")
+                            }
+                          >
+                            <input
+                              type="radio"
+                              name={"writing-topic-" + current.id}
+                              checked={selected}
+                              onChange={() =>
+                                updateAnswer(current.id, {
+                                  topicIndex,
+                                  text: currentWritingText,
+                                })
+                              }
+                              className="mt-1"
+                            />
+                            <span className="text-sm font-bold leading-7 text-[#303750]">
+                              <strong className="mr-2 text-[#1F2B5E]">Topic {topicIndex}</strong>
+                              {topic}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-[#e3dfe8] bg-white p-5 shadow-sm">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-black uppercase tracking-[.15em] text-[#B1785C]">NUMO Smart Writing</div>
+                        <div className="mt-1 text-sm font-bold text-[#73788d]">Write one paragraph of at least 100 words.</div>
+                      </div>
+                      <div
+                        className={
+                          "rounded-full px-3 py-1.5 text-xs font-black " +
+                          (currentWritingWords >= 100
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700")
+                        }
+                      >
+                        {currentWritingWords} / 100 words
+                      </div>
+                    </div>
+                    <div className="mb-3 h-2 overflow-hidden rounded-full bg-[#eceaf0]">
+                      <div
+                        className="h-full rounded-full bg-[#6366F1] transition-all"
+                        style={{ width: Math.min(100, currentWritingWords) + "%" }}
+                      />
+                    </div>
+                    <textarea
+                      className="field min-h-72 resize-y text-base leading-8"
+                      placeholder="Write your paragraph here..."
+                      dir="ltr"
+                      value={currentWritingText}
+                      onChange={(event) =>
+                        updateAnswer(current.id, {
+                          topicIndex: Number(writingAnswer.topicIndex ?? 0),
+                          text: event.target.value,
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void evaluateWriting(current)}
+                      disabled={
+                        writingAssessmentLoading ||
+                        Number(writingAnswer.topicIndex ?? 0) < 1 ||
+                        currentWritingWords < 100
+                      }
+                      className="btn mt-4 w-full sm:w-auto"
+                    >
+                      {writingAssessmentLoading ? <Loader2 size={18} className="animate-spin" /> : <Target size={18} />}
+                      تسليم وتقييم الكتابة
+                    </button>
+                    <p className="mt-3 text-xs font-semibold leading-6 text-[#73788d]" dir="rtl">
+                      التقييم تدريبي لمستوى EL098، ولا يمثل توزيع الدرجات الرسمي للجامعة.
+                    </p>
+                  </div>
+
+                  {writingAssessment ? (
+                    <div className="space-y-4 rounded-[1.5rem] border border-[#ddd8e4] bg-[#fbfaf8] p-5 shadow-sm" dir="rtl">
+                      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#e4ded8] pb-4">
+                        <div>
+                          <div className="text-xs font-black uppercase tracking-[.14em] text-[#B1785C]">Overall Writing Score</div>
+                          <div className="mt-2 text-4xl font-black text-[#1F2B5E]">
+                            {writingAssessment.score.toFixed(1)} <span className="text-base text-[#73788d]">/ 25</span>
+                          </div>
+                        </div>
+                        <div className="rounded-full border border-[#dfe4f2] bg-white px-4 py-2 text-sm font-black text-[#6366F1]">
+                          {writingAssessment.performanceLevel}
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                        {[
+                          ["Task Achievement", writingAssessment.criteria.taskAchievement, 8],
+                          ["Grammar Accuracy", writingAssessment.criteria.grammarAccuracy, 7],
+                          ["Vocabulary Usage", writingAssessment.criteria.vocabularyUsage, 5],
+                          ["Organization", writingAssessment.criteria.organizationCoherence, 3],
+                          ["Spelling & Punctuation", writingAssessment.criteria.spellingPunctuation, 2],
+                        ].map(([label, score, max]) => (
+                          <div key={String(label)} className="rounded-xl border border-[#e3dfe8] bg-white p-4">
+                            <div className="text-xs font-black text-[#73788d]">{String(label)}</div>
+                            <div className="mt-2 text-xl font-black text-[#1F2B5E]">{Number(score).toFixed(1)} / {Number(max)}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {writingAssessment.corrections.length ? (
+                        <div className="rounded-2xl border border-[#eadfd8] bg-white p-5">
+                          <h3 className="font-black text-[#1F2B5E]">Grammar & Language Corrections</h3>
+                          <div className="mt-4 space-y-3">
+                            {writingAssessment.corrections.map((item, index) => (
+                              <div key={index} className="rounded-xl bg-[#faf9f6] p-4">
+                                <div className="text-sm font-bold text-rose-700" dir="ltr">{item.original}</div>
+                                <div className="mt-2 text-sm font-black text-emerald-700" dir="ltr">{item.corrected}</div>
+                                <div className="mt-2 text-sm font-semibold leading-7 text-[#4d5368]">{item.reasonAr}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+                          <h3 className="font-black text-emerald-800">Writing Strengths</h3>
+                          <ul className="mt-3 space-y-2 text-sm font-semibold leading-7 text-[#3f465d]">
+                            {writingAssessment.strengths.map((item, index) => <li key={index}>• {item}</li>)}
+                          </ul>
+                        </div>
+                        <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-5">
+                          <h3 className="font-black text-amber-800">Areas for Improvement</h3>
+                          <ul className="mt-3 space-y-2 text-sm font-semibold leading-7 text-[#3f465d]">
+                            {writingAssessment.improvements.map((item, index) => <li key={index}>• {item}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-[#dfe4f2] bg-white p-5">
+                        <h3 className="font-black text-[#1F2B5E]">Improved Writing Version</h3>
+                        <p className="mt-3 whitespace-pre-wrap text-left text-sm font-semibold leading-8 text-[#3f465d]" dir="ltr">
+                          {writingAssessment.improvedVersion}
+                        </p>
+                        <p className="mt-3 text-xs font-bold text-[#73788d]">
+                          نسختك الأصلية محفوظة ولم يتم استبدالها بهذه النسخة المحسّنة.
+                        </p>
+                      </div>
+
+                      {writingHistory.length > 1 ? (
+                        <div className="rounded-2xl border border-[#e3dfe8] bg-white p-5">
+                          <h3 className="font-black text-[#1F2B5E]">Writing Attempts</h3>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {writingHistory.map((item, index) => (
+                              <span key={item.id} className="rounded-full bg-[#f1f2ff] px-3 py-1.5 text-xs font-black text-[#1F2B5E]">
+                                #{writingHistory.length - index}: {item.score.toFixed(1)}/25
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
 
               {isImmediateReferenceMode && currentInlineFeedbackLoading ? (
@@ -1759,7 +2057,7 @@ export default function ExamRunner() {
                 currentInlineFeedback.isCorrect ? (
                   <div dir="rtl" className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-right">
                     <div className="flex items-center justify-end gap-2 text-lg font-black text-emerald-800">
-                      <span>إجابة صحيحة</span>
+                      <span>{normalizedCourseCode === "EL098" ? "أحسنت! إجابتك صحيحة" : "إجابة صحيحة"}</span>
                       <CheckCircle2 size={20} />
                     </div>
                   </div>
@@ -1767,21 +2065,44 @@ export default function ExamRunner() {
                   <div dir="rtl" className="mt-6 space-y-3 text-right">
                     <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
                       <div className="flex items-center justify-end gap-2 text-lg font-black text-rose-800">
-                        <span>إجابة غير صحيحة</span>
+                        <span>إجابتك خاطئة</span>
                         <CheckCircle2 size={20} />
                       </div>
-                      <p className="mt-2 text-sm font-bold leading-7 text-[#4d5368]">
-                        {currentInlineFeedback.correction}
-                      </p>
-                      <div className="mt-4 rounded-xl border border-emerald-100 bg-white p-4">
-                        <div className="text-xs font-black text-emerald-700">الإجابة الصحيحة</div>
-                        <div className="mt-1 text-base font-black text-emerald-900">
-                          {currentInlineFeedback.correctAnswer}
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-xl border border-rose-100 bg-white p-4">
+                          <div className="text-xs font-black text-rose-700">إجابتك</div>
+                          <div className="mt-1 text-base font-black text-rose-900">{currentInlineFeedback.selectedAnswer}</div>
+                        </div>
+                        <div className="rounded-xl border border-emerald-100 bg-white p-4">
+                          <div className="text-xs font-black text-emerald-700">الإجابة الصحيحة</div>
+                          <div className="mt-1 text-base font-black text-emerald-900">{currentInlineFeedback.correctAnswer}</div>
                         </div>
                       </div>
                     </div>
 
-                    {currentInlineFeedback.referenceEvidence ? (
+                    {normalizedCourseCode === "EL098" ? (
+                      <>
+                        <div className="rounded-2xl border border-[#f1d7d2] bg-white p-5">
+                          <div className="text-xs font-black uppercase tracking-[.12em] text-rose-700">Why Your Answer Is Incorrect</div>
+                          <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyIncorrect}</p>
+                        </div>
+                        <div className="rounded-2xl border border-emerald-100 bg-white p-5">
+                          <div className="text-xs font-black uppercase tracking-[.12em] text-emerald-700">Why This Answer Is Correct</div>
+                          <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyCorrect}</p>
+                        </div>
+                        {currentInlineFeedback.academicExplanation ? (
+                          <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
+                            <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
+                              <span>Academic Explanation</span>
+                              <BookOpen size={18} />
+                            </div>
+                            <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
+                              {currentInlineFeedback.academicExplanation}
+                            </p>
+                          </div>
+                        ) : null}
+                      </>
+                    ) : currentInlineFeedback.referenceEvidence ? (
                       <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
                         <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
                           <span>التصحيح والدليل المباشر من المنهج</span>
