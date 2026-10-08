@@ -19,6 +19,7 @@ import {
   RotateCcw,
   Target,
   Lightbulb,
+  XCircle,
 } from "lucide-react";
 
 type ExamInfo = {
@@ -2114,8 +2115,8 @@ export default function ExamRunner() {
                   <div dir="rtl" className="mt-6 space-y-3 text-right">
                     <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
                       <div className="flex items-center justify-end gap-2 text-lg font-black text-rose-800">
-                        <span>إجابتك خاطئة</span>
-                        <CheckCircle2 size={20} />
+                        <span>إجابتك خاطئة — راجع التصحيح والتفسير أدناه</span>
+                        <XCircle size={20} />
                       </div>
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         <div className="rounded-xl border border-rose-100 bg-white p-4">
@@ -2137,17 +2138,17 @@ export default function ExamRunner() {
                       ) : currentInlineFeedback.whyIncorrect && currentInlineFeedback.whyCorrect ? (
                         <>
                         <div className="rounded-2xl border border-[#f1d7d2] bg-white p-5">
-                          <div className="text-xs font-black uppercase tracking-[.12em] text-rose-700">Why Your Answer Is Incorrect</div>
+                          <div className="text-sm font-black text-rose-700">لماذا إجابتك غير صحيحة؟ · Why Incorrect</div>
                           <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyIncorrect}</p>
                         </div>
                         <div className="rounded-2xl border border-emerald-100 bg-white p-5">
-                          <div className="text-xs font-black uppercase tracking-[.12em] text-emerald-700">Why This Answer Is Correct</div>
+                          <div className="text-sm font-black text-emerald-700">لماذا هذه هي الإجابة الصحيحة؟ · Why Correct</div>
                           <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyCorrect}</p>
                         </div>
                         {currentInlineFeedback.academicExplanation ? (
                           <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
                             <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
-                              <span>Academic Explanation</span>
+                              <span>التفسير والدليل الأكاديمي · Academic Explanation</span>
                               <BookOpen size={18} />
                             </div>
                             <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
