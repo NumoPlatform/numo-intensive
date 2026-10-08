@@ -62,6 +62,61 @@ function optionText(question: SnapshotQuestion, optionId: string) {
   return option.value && option.value !== option.label ? option.value : option.label;
 }
 
+/**
+ * The EL098 question bank already contains source-checked explanations.
+ * Always show these immediately; an unavailable AI gateway must never hide
+ * the student's selected option, authoritative answer, or academic reason.
+ */
+function sourceLockedExplanation(args: {
+  skill: string;
+  prompt: string;
+  selectedAnswer: string;
+  correctAnswer: string;
+  reference: ReferenceRow | null;
+}) {
+  const { skill, prompt, selectedAnswer, correctAnswer, reference } = args;
+  const reason = (reference?.explanation ?? "").trim();
+  const evidence = (reference?.reference_evidence ?? "").trim();
+  const subject =
+    skill === "READING" ? "معلومات قطعة القراءة" :
+    skill === "VOCABULARY" ? "معنى الكلمة وسياق الجملة" :
+    "القاعدة أو تركيب الجملة";
+
+  // A known internal inconsistency between the supplied reading passage
+  // ("ate salad") and its supplied answer key ("True"). Preserve the source
+  // answer but never invent a supporting quotation or present it as proven.
+  if (prompt.trim() === "At lunchtime, Tom had a burger and fries.") {
+    return {
+      whyIncorrect: `اختيارك «${selectedAnswer}» يختلف عن مفتاح التجميعات المعتمد، الذي يحدد «${correctAnswer}».`,
+      whyCorrect: `الإجابة المعتمدة في ملف الأسئلة هي «${correctAnswer}»، لكن نص القطعة يقول إن Tom أكل سلطة وقت الغداء (ate salad)، وهذا لا يدعم مفتاح الإجابة الوارد.`,
+      academicExplanation: "تنبيه أكاديمي: يوجد تعارض بين الإجابة المعلّمة في المصدر ومحتوى القطعة. تم الحفاظ على المفتاح الأصلي ولم نغيّره أو ننسب إليه دليلاً غير موجود.",
+      supportingQuote: null as string | null,
+    };
+  }
+  if (prompt.trim() === "Did people have an easy life after the war in 1945?") {
+    return {
+      whyIncorrect: `الاختيار «${selectedAnswer}» يخالف الإجابة «${correctAnswer}» المحددة في ملف التجميعات.`,
+      whyCorrect: `المفتاح المرفق يعتمد «${correctAnswer}» لهذا البند، لكن سؤال الصح والخطأ هنا لا يرفق نصًا تاريخيًا لإثبات المعلومة.`,
+      academicExplanation: "التصحيح يعكس مفتاح التجميعات كما ورد، وليس تحققًا مستقلًا من حقيقة الحدث التاريخي.",
+      supportingQuote: null as string | null,
+    };
+  }
+
+  const rationale = reason || (evidence && !evidence.includes("الاختيار المعتمد") ? evidence : "");
+  const whyIncorrect = rationale
+    ? `الاختيار «${selectedAnswer}» لا يحقق المطلوب في ${subject}. ${rationale}`
+    : `الاختيار «${selectedAnswer}» لا يطابق الإجابة «${correctAnswer}» المحددة في المصدر. لا يتوفر تعليل تفصيلي موثّق لهذا البند.`;
+  const whyCorrect = rationale
+    ? `الإجابة الصحيحة هي «${correctAnswer}». ${rationale}`
+    : `المصدر المعتمد يحدد «${correctAnswer}» باعتبارها الإجابة الصحيحة.`;
+  return {
+    whyIncorrect,
+    whyCorrect,
+    academicExplanation: evidence && evidence !== reason ? evidence : null,
+    supportingQuote: null as string | null,
+  };
+}
+
 export async function GET(request: NextRequest) {
   const auth = await authenticateRequest(request);
   if (!auth) {
@@ -187,6 +242,15 @@ export async function GET(request: NextRequest) {
             passageBody: question.passage?.body ?? null,
           }, !explanationRequested, request.headers.get("x-vercel-oidc-token"));
 
+      const sourceFeedback = isCorrect ? null : sourceLockedExplanation({
+        skill,
+        prompt: question.prompt ?? "",
+        selectedAnswer,
+        correctAnswer,
+        reference,
+      });
+      const resolvedFeedback = wrongFeedback ?? sourceFeedback;
+
       return NextResponse.json({
         ok: true,
         feedback: isCorrect
@@ -202,14 +266,14 @@ export async function GET(request: NextRequest) {
               selectedAnswer,
               correctAnswer,
               correction: "إجابتك خاطئة",
-              explanationPending: !explanationRequested && !wrongFeedback,
-              whyIncorrect: wrongFeedback?.whyIncorrect ?? null,
-              whyCorrect: wrongFeedback?.whyCorrect ?? null,
-              academicExplanation: wrongFeedback?.academicExplanation ?? null,
+              explanationPending: false,
+              whyIncorrect: resolvedFeedback?.whyIncorrect ?? null,
+              whyCorrect: resolvedFeedback?.whyCorrect ?? null,
+              academicExplanation: resolvedFeedback?.academicExplanation ?? null,
               referenceSource: reference?.reference_source ?? null,
               referenceUnit: reference?.reference_unit ?? null,
               referencePage: reference?.reference_page ?? null,
-              referenceEvidence: wrongFeedback?.supportingQuote ?? null,
+              referenceEvidence: wrongFeedback?.supportingQuote ?? sourceFeedback?.academicExplanation ?? null,
             },
       });
     }
