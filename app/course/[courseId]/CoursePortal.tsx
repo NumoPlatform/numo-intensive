@@ -157,6 +157,8 @@ export default function CoursePortal() {
   const normalizedCourseCode = course.code.trim().toUpperCase();
   const isGeneralCourse =
     normalizedCourseCode.startsWith("GR") || normalizedCourseCode.startsWith("AR");
+  const isEl098Quiz2 = normalizedCourseCode === "EL098";
+  const el098ModelIcons = [ClipboardCheck, FileCheck2, GraduationCap, BookOpenCheck] as const;
   const generalExamDefinitions = [
     {
       category: "QUIZ 1",
@@ -239,17 +241,19 @@ export default function CoursePortal() {
                 <p className="mt-3 text-sm leading-7 text-white/75">
                   {isGeneralCourse
                     ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار 4 محاولات؛ الكويز 30 دقيقة والميد ترم 60 دقيقة، وتظهر النتيجة مباشرة بعد التسليم."
-                    : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
+                    : isEl098Quiz2
+                      ? "QUIZ 2 — أربعة نماذج تدريبية مستقلة. اختر أي نموذج ثم أي قسم: Grammar & Vocabulary أو Reading أو Writing. التصحيح الموضوعي فوري والمحاولات مفتوحة."
+                      : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
                 </p>
               </div>
 
               <div className="relative mt-5 grid grid-cols-3 gap-2">
                 <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
                   <div className="text-xl font-black sm:text-2xl">
-                    {isGeneralCourse ? 3 : (sectionCount || exams.length)}
+                    {isGeneralCourse ? 3 : isEl098Quiz2 ? 4 : (sectionCount || exams.length)}
                   </div>
                   <div className="mt-1 text-[10px] font-bold text-white/55">
-                    {isGeneralCourse ? "الاختبارات" : "الأقسام"}
+                    {isGeneralCourse ? "الاختبارات" : isEl098Quiz2 ? "النماذج" : "الأقسام"}
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
@@ -267,7 +271,7 @@ export default function CoursePortal() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-4 md:grid-cols-3">
+        <section className={"mt-6 grid gap-4 " + (isEl098Quiz2 ? "md:grid-cols-2" : "md:grid-cols-3")}>
           {isGeneralCourse ? (
             generalExamDefinitions.map((definition) => {
               const exam = exams.find((item) => item.category === definition.category) ?? null;
@@ -408,6 +412,128 @@ export default function CoursePortal() {
                 </article>
               );
             })
+          ) : isEl098Quiz2 ? (
+            [...exams]
+              .sort((a, b) => a.title.localeCompare(b.title, "en"))
+              .map((exam, modelIndex) => {
+                const modelSections = courseSections.filter((section) => section.exam_id === exam.id);
+                const attempts = data.attempts.filter((item) => item.exam_id === exam.id);
+                const results = data.results.filter((item) => item.exam_id === exam.id);
+                const activeAttempt =
+                  attempts.find((item) => item.status === "IN_PROGRESS") ??
+                  [...attempts].sort((a, b) => Number(b.attempt_number) - Number(a.attempt_number))[0];
+                const completedSectionCount = modelSections.filter((section) =>
+                  Boolean(activeAttempt?.section_progress?.[section.id]?.completed_at),
+                ).length;
+                const bestResult = [...results]
+                  .filter((item) => item.percentage !== null)
+                  .sort((a, b) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0))[0];
+                const questionCount = modelSections.reduce(
+                  (sum, section) => sum + Number(section.question_count ?? 0),
+                  0,
+                );
+                const now = Date.now();
+                const isOpen =
+                  now >= new Date(exam.starts_at).getTime() &&
+                  now <= new Date(exam.ends_at).getTime();
+                const canEnter = isOpen && questionCount === 29;
+                const progress = modelSections.length
+                  ? Math.round((completedSectionCount / modelSections.length) * 100)
+                  : 0;
+                const stateLabel =
+                  bestResult || completedSectionCount === modelSections.length
+                    ? "مكتمل"
+                    : activeAttempt
+                      ? "قيد التقدم"
+                      : "جاهز للبدء";
+                const Icon = el098ModelIcons[modelIndex % el098ModelIcons.length];
+                const modelLabel = exam.title.split("—")[0]?.trim() || `MODEL 0${modelIndex + 1}`;
+                const arabicLabel = exam.title.split("—")[1]?.trim() || `النموذج ${modelIndex + 1}`;
+
+                return (
+                  <article
+                    key={exam.id}
+                    className="group numo-card-lift relative overflow-hidden rounded-[1.8rem] border border-[#B1785C]/35 bg-[#FAF9F6] shadow-[0_16px_42px_rgba(31,43,94,.08)] transition-all duration-300 hover:-translate-y-1 hover:border-[#B1785C]/70 hover:shadow-[0_24px_58px_rgba(31,43,94,.13)] motion-reduce:transform-none motion-reduce:transition-none"
+                  >
+                    <div className="h-2 bg-[#1F2B5E]" />
+                    <div className="p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div
+                            dir="ltr"
+                            className="text-[11px] font-black uppercase tracking-[.2em] text-[#B1785C]"
+                            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+                          >
+                            EL098 · QUIZ 2
+                          </div>
+                          <h2
+                            dir="ltr"
+                            className="mt-2 break-words text-3xl font-black tracking-tight text-[#1F2B5E] sm:text-4xl"
+                            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+                          >
+                            {modelLabel}
+                          </h2>
+                          <div className="mt-1 text-base font-black text-[#555b73]">{arabicLabel}</div>
+                        </div>
+                        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#B1785C]/20 bg-white text-[#6366F1] shadow-sm transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 motion-reduce:transform-none">
+                          <Icon size={25} />
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+                        <div className="rounded-xl border border-[#ebe6e1] bg-white p-3">
+                          <div className="text-lg font-black text-[#1F2B5E]">20</div>
+                          <div className="mt-1 text-[10px] font-bold text-[#7b8091]">Grammar & Vocab</div>
+                        </div>
+                        <div className="rounded-xl border border-[#ebe6e1] bg-white p-3">
+                          <div className="text-lg font-black text-[#1F2B5E]">8</div>
+                          <div className="mt-1 text-[10px] font-bold text-[#7b8091]">Reading</div>
+                        </div>
+                        <div className="rounded-xl border border-[#ebe6e1] bg-white p-3">
+                          <div className="text-lg font-black text-[#1F2B5E]">1</div>
+                          <div className="mt-1 text-[10px] font-bold text-[#7b8091]">Writing</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-5">
+                        <div className="mb-2 flex items-center justify-between text-xs font-black">
+                          <span className="text-[#73788d]">تقدم النموذج</span>
+                          <span className="text-[#6366F1]">{progress}%</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-[#e9e7ec]">
+                          <div
+                            className="h-full rounded-full bg-[#6366F1] transition-all duration-300"
+                            style={{ width: progress + "%" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs font-black">
+                        <span className="rounded-full bg-[#eef0f7] px-3 py-1.5 text-[#1F2B5E]">{stateLabel}</span>
+                        <span className="rounded-full bg-[#f8efe9] px-3 py-1.5 text-[#9a6147]">محاولات مفتوحة ∞</span>
+                        {bestResult ? (
+                          <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
+                            أفضل نتيجة {bestResult.percentage}%
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {canEnter ? (
+                        <a
+                          href={"/exam/" + exam.id}
+                          className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 font-black text-white shadow-[0_12px_28px_rgba(31,43,94,.18)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(31,43,94,.25)] motion-reduce:transform-none"
+                        >
+                          استعراض النموذج <PlayCircle size={18} />
+                        </a>
+                      ) : (
+                        <div className="mt-5 rounded-xl border border-[#e1dde7] bg-white p-3 text-center text-xs font-black text-[#888c9e]">
+                          النموذج غير متاح حالياً.
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                );
+              })
           ) : (
             (["Grammar", "Vocabulary", "Reading"] as const).map((name) => {
               const section =
