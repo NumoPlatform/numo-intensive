@@ -172,6 +172,7 @@ type InlineFeedback = {
   whyIncorrect?: string | null;
   whyCorrect?: string | null;
   academicExplanation?: string | null;
+  explanationPending?: boolean;
   referenceSource?: string | null;
   referenceUnit?: string | null;
   referencePage?: string | null;
@@ -352,10 +353,39 @@ export default function ExamRunner() {
       );
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر تحميل التصحيح.");
-      setInlineFeedback((current) => ({
-        ...current,
-        [questionId]: payload.feedback as InlineFeedback,
-      }));
+      const initial = payload.feedback as InlineFeedback;
+      setInlineFeedback((current) => ({ ...current, [questionId]: initial }));
+      if (!initial.isCorrect && initial.explanationPending) {
+        // The grade and correct choice are already visible before AI is contacted.
+        // The second request only adds verified teaching explanations.
+        void (async () => {
+          try {
+            const followup = await intensiveFetch(
+              "/api/exam/feedback?attemptId=" +
+                encodeURIComponent(attempt.attempt_id) +
+                "&questionId=" +
+                encodeURIComponent(questionId) +
+                "&explain=1",
+              { cache: "no-store" },
+            );
+            if (!followup.ok) throw new Error("Explanation unavailable");
+            const updated = await followup.json();
+            if (updated.feedback?.questionId === questionId) {
+              setInlineFeedback((current) => ({
+                ...current,
+                [questionId]: updated.feedback as InlineFeedback,
+              }));
+              return;
+            }
+          } catch {
+            // Keep the original source-locked correction even when AI fails.
+          }
+          setInlineFeedback((current) => ({
+            ...current,
+            [questionId]: { ...(current[questionId] ?? initial), explanationPending: false },
+          }));
+        })();
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "تعذر تحميل التصحيح الفوري.");
     } finally {
@@ -2100,7 +2130,12 @@ export default function ExamRunner() {
                     </div>
 
                     {normalizedCourseCode === "EL098" ? (
-                      <>
+                      currentInlineFeedback.explanationPending ? (
+                        <div role="status" aria-live="polite" className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
+                          تم تصحيح الإجابة وفق مفتاح المصدر. جاري إعداد شرح أكاديمي موثوق لهذا الاختيار...
+                        </div>
+                      ) : currentInlineFeedback.whyIncorrect && currentInlineFeedback.whyCorrect ? (
+                        <>
                         <div className="rounded-2xl border border-[#f1d7d2] bg-white p-5">
                           <div className="text-xs font-black uppercase tracking-[.12em] text-rose-700">Why Your Answer Is Incorrect</div>
                           <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyIncorrect}</p>
@@ -2120,7 +2155,12 @@ export default function ExamRunner() {
                             </p>
                           </div>
                         ) : null}
-                      </>
+                        </>
+                      ) : (
+                        <div className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
+                          تم إظهار الإجابة المعتمدة من الملف، لكن تعذر التحقق من تفسير تعليمي موثوق لهذا الاختيار حالياً.
+                        </div>
+                      )
                     ) : currentInlineFeedback.referenceEvidence ? (
                       <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
                         <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
