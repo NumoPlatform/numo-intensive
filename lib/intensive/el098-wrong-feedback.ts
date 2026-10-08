@@ -47,6 +47,12 @@ function validate(context: Context, result: Record<string, unknown>): El098Wrong
 export async function getEl098WrongFeedback(context: Context, cacheOnly = false): Promise<El098WrongFeedback | null> {
   if (!context.selectedOptionId || !context.correctOptionId ||
       context.selectedOptionId === context.correctOptionId) return null;
+  // Never cite irrelevant text as support for an answer when the source passage
+  // does not substantiate its own answer key. The source key is not modified.
+  if (context.skill.toUpperCase() === "READING" &&
+      context.prompt.trim() === "At lunchtime, Tom had a burger and fries." &&
+      context.correctAnswer.trim().toLowerCase() === "true") return null;
+
 
   // Cache is server-only. No answer key is sent before a student submits an answer.
   try {
