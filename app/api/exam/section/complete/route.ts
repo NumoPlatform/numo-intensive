@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateRequest, serviceRequest, userRequest, verifyStudentDevice } from "@/lib/intensive/server";
 import { enrichSectionReview, type RawSectionReviewItem } from "@/lib/intensive/section-review";
+import { getSectionWritingReport } from "@/lib/intensive/writing-result";
 
 type CompleteSectionResult = {
   finished: boolean;
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
         }).toString(),
     );
     const pending = pendingRows[0] ?? null;
+    const writingReport = pending ? null : await getSectionWritingReport(result.section_attempt_id, auth.profile.id);
     return NextResponse.json({
       ok: true,
       result: {
@@ -71,6 +73,7 @@ export async function POST(request: NextRequest) {
         percentage: pending ? null : Number(result.percentage ?? 0),
         gradingStatus: pending ? "PENDING" : "GRADED",
         pendingQuestionId: pending?.question_id ?? null,
+        writingReport,
         correctCount: Number(result.correct_count ?? 0),
         wrongCount: Number(result.wrong_count ?? 0),
         questionCount: Number(result.question_count ?? 0),
