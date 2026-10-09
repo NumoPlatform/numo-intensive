@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateRequest, userRequest, verifyStudentDevice } from "@/lib/intensive/server";
+import { authenticateRequest, serviceRequest, userRequest, verifyStudentDevice } from "@/lib/intensive/server";
 import { enrichSectionReview, type RawSectionReviewItem } from "@/lib/intensive/section-review";
+import { getSectionWritingReport } from "@/lib/intensive/writing-result";
 
 type CompleteSectionResult = {
   finished: boolean;
@@ -46,6 +47,18 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({ p_attempt_id: body.attemptId }),
       },
     );
+    const pendingRows = await serviceRequest<Array<{ question_id: string }>>(
+      "/rest/v1/intensive_writing_pending?" +
+        new URLSearchParams({
+          select: "question_id",
+          section_attempt_id: "eq." + result.section_attempt_id,
+          student_id: "eq." + auth.profile.id,
+          status: "eq.PENDING",
+          limit: "1",
+        }).toString(),
+    );
+    const pending = pendingRows[0] ?? null;
+    const writingReport = pending ? null : await getSectionWritingReport(result.section_attempt_id, auth.profile.id);
     return NextResponse.json({
       ok: true,
       result: {
@@ -55,9 +68,12 @@ export async function POST(request: NextRequest) {
         sectionAttemptNumber: Number(result.section_attempt_number ?? 1),
         attemptsAllowed: Number(result.attempts_allowed ?? 1),
         attemptsRemaining: Number(result.attempts_remaining ?? 0),
-        score: Number(result.score ?? 0),
+        score: pending ? null : Number(result.score ?? 0),
         totalMarks: Number(result.total_marks ?? 0),
-        percentage: Number(result.percentage ?? 0),
+        percentage: pending ? null : Number(result.percentage ?? 0),
+        gradingStatus: pending ? "PENDING" : "GRADED",
+        pendingQuestionId: pending?.question_id ?? null,
+        writingReport,
         correctCount: Number(result.correct_count ?? 0),
         wrongCount: Number(result.wrong_count ?? 0),
         questionCount: Number(result.question_count ?? 0),
