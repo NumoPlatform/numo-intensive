@@ -283,17 +283,24 @@ export async function GET(request: NextRequest) {
         correctAnswer,
         reference,
       });
-      const resolvedFeedback = wrongFeedback ?? sourceFeedback;
       const sourceReason = (reference?.explanation ?? "").trim();
-      const supportedSourceExplanation =
-        sourceReason.length >= 100 &&
-        !/^(?:الإجابة المعتمدة|مفتاح الإجابة|الإجابة الصحيحة هي)/.test(sourceReason);
+      // Existing one-sentence bank notes cannot substitute for the requested
+      // extended academic lesson. Display reliable grading immediately, then
+      // request detailed teaching asynchronously, caching by source question
+      // and selected wrong option.
+      const hasRealSourceTeaching =
+        sourceReason.length >= 200 &&
+        /(?:قاعدة|الملكية|الجملة|السبب|نستخدم|تستخدم|تدل|تعني)/.test(sourceReason);
+      const keyCannotBeExplainedFromSource =
+        question.prompt?.trim() === "At lunchtime, Tom had a burger and fries." ||
+        question.prompt?.trim() === "Did people have an easy life after the war in 1945?";
+      const sourceLesson = hasRealSourceTeaching || keyCannotBeExplainedFromSource
+        ? sourceFeedback : null;
+      const resolvedAcademicFeedback = wrongFeedback ?? sourceLesson;
       const isPendingAcademicExplanation =
-        !isCorrect && !wrongFeedback && !supportedSourceExplanation && !explanationRequested;
-
-      const missingSourceTeaching =
-        !sourceReason && !wrongFeedback && explanationRequested;
-      const resolvedAcademicFeedback = missingSourceTeaching ? null : resolvedFeedback;
+        !isCorrect && !wrongFeedback && !keyCannotBeExplainedFromSource &&
+        !explanationRequested &&
+        (skill !== "READING" || Boolean(question.passage?.body));
 
       return NextResponse.json({
         ok: true,
