@@ -834,7 +834,6 @@ export default function ExamRunner() {
   );
   const activeSectionTitle = sections[activeSectionIndex]?.title ?? "";
   const isReadingSection =
-    activeSectionTitle.toLowerCase().includes("reading") &&
     activeQuestions.some((question) => Boolean(question.passage));
 
   const passageIds = isReadingSection
@@ -1573,13 +1572,13 @@ export default function ExamRunner() {
   const currentInlineFeedbackLoading = Boolean(inlineFeedbackLoading[current.id]);
   const questionAnswerLocked =
     answerLocked || (isImmediateReferenceMode && Boolean(currentInlineFeedback));
-  const isWritingQuestion = normalizedCourseCode === "EL098" && current.skill === "Writing";
+  const isWritingQuestion = ["EL098", "EL097_EL099E"].includes(normalizedCourseCode) && current.skill === "Writing";
   const writingAnswer =
     isWritingQuestion && answer && typeof answer === "object" && !Array.isArray(answer)
       ? (answer as Record<string, unknown>)
       : { topicIndex: 0, text: "" };
   const writingTopics = isWritingQuestion
-    ? [writingTag(current.tags, "TOPIC1="), writingTag(current.tags, "TOPIC2=")].filter(Boolean)
+    ? Array.from({ length: 7 }, (_, index) => writingTag(current.tags, `TOPIC${index + 1}=`)).filter(Boolean)
     : [];
   const currentWritingText = String(writingAnswer.text ?? "");
   const currentWritingWords = writingWordCount(currentWritingText);
