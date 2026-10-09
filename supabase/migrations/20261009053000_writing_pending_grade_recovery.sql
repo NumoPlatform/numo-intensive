@@ -99,6 +99,30 @@ create trigger intensive_pending_writing_after
 after update of status on public.intensive_section_attempts
 for each row execute function public.intensive_enqueue_pending_writing();
 
+-- Save retries with unchanged Writing text must never erase a valid AI grade.
+-- Changing the text legitimately clears the score for a fresh assessment.
+create or replace function public.intensive_preserve_graded_writing_answer()
+returns trigger language plpgsql security definer set search_path=pg_catalog,public as $
+declare v_course text;
+begin
+  if old.score is null or new.score is not null
+     or old.answer is distinct from new.answer then return new; end if;
+  select c.code into v_course from public.intensive_questions q
+    join public.intensive_courses c on c.id=q.course_id
+    where q.id=new.question_id and q.skill='Writing' and q.exam_category='QUIZ 2';
+  if v_course in ('EL098','EL097_EL099E') then
+    new.score:=old.score;
+    new.auto_graded:=old.auto_graded;
+    new.admin_feedback:=old.admin_feedback;
+    new.graded_at:=old.graded_at;
+  end if;
+  return new;
+end $;
+drop trigger if exists intensive_preserve_graded_writing on public.intensive_student_answers;
+create trigger intensive_preserve_graded_writing
+before update of answer,score on public.intensive_student_answers
+for each row execute function public.intensive_preserve_graded_writing_answer();
+
 -- Server-only atomic resolution. A student cannot supply a score by calling an RPC.
 create or replace function public.intensive_resolve_pending_writing(
   p_section_attempt_id uuid, p_score numeric, p_report jsonb
