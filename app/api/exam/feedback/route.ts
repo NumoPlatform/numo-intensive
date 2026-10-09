@@ -88,16 +88,22 @@ function sourceLockedExplanation(args: {
       correctAnswer.trim().toLowerCase() === "my sister's") {
     const selected = selectedAnswer.trim().toLowerCase();
     const wrongReason = selected === "my sister"
-      ? "'my sister' تعني «أختي» فقط. قبل كلمة flowers نحتاج صيغة الملكية sister's للتعبير عن «زهور أختي»."
+      ? "my sister تعني «أختي»، وهي عبارة صحيحة لوحدها، لكنها لا تعبّر عن ملكية الزهور. نحتاج أن نربط sister بكلمة flowers بعلامة الملكية؛ لذلك لا تكفي my sister."
       : selected === "my sisters"
-        ? "'my sisters' تعني «أخواتي» ولا تحتوي على علامة الملكية. إذا كانت الزهور ملكًا لأخوات عدة نقول my sisters' flowers."
+        ? "my sisters تعني «أخواتي» بصيغة الجمع، لكن العبارة لا تحتوي على علامة الملكية. وإذا كان الشيء يخص أكثر من أخت، فإن الصياغة تكون my sisters' flowers، لا my sisters flowers."
         : selected === "mine sister's"
-          ? "'mine' ضمير ملكية مستقل لا يأتي قبل اسم sister؛ الصحيح استعمال my مع الاسم، ثم إضافة 's للملكية."
-          : "العبارة المختارة لا تبني صيغة الملكية الصحيحة لاسم مفرد قبل flowers.";
+          ? "mine ضمير ملكية مستقل نستخدمه دون اسم بعده، مثل This book is mine. أما sister فهو اسم يلي الضمير؛ لذا يجب استخدام my وليس mine: my sister's."
+          : "هذا الاختيار لا يوضح الملكية بالطريقة المناسبة قبل اسم flowers؛ ابحث عن علامة الملكية مع الاسم الذي يملك الزهور.";
     return {
-      whyIncorrect: `اخترت «${selectedAnswer}». ${wrongReason}`,
-      whyCorrect: `الإجابة «${correctAnswer}» صحيحة؛ نضيف apostrophe + s إلى الاسم المفرد: sister → sister's عندما يملك الشخص شيئًا.`,
-      academicExplanation: "Possessive Nouns — قاعدة أسماء الملكية: These are my sister's flowers. = هذه زهور أختي. انتبه إلى الفرق بين my sister (أختي)، my sister's (شيء يخص أختي)، وmy sisters' (شيء يخص أخواتي). لا نستخدم mine قبل الاسم.",
+      whyIncorrect: `اخترت «${selectedAnswer}». ${wrongReason} لاحظ أن المطلوب ليس تعريف الشخص فقط، بل توضيح أن الزهور تخصه؛ وهذه هي الفكرة التي أغفلها الاختيار.`,
+      whyCorrect: `الإجابة الصحيحة «${correctAnswer}» تحقق قاعدة Possessive Nouns: نضيف apostrophe ثم s إلى الاسم المفرد لنبين أن شيئًا يخص هذا الشخص. خطوات الحل: (1) نحدد المالك: sister. (2) نحدد الشيء المملوك: flowers. (3) نحول sister إلى sister's. وبذلك تصبح الجملة These are my sister's flowers، ومعناها «هذه زهور أختي».`,
+      academicExplanation: [
+        "القاعدة بالتفصيل: عندما نريد التعبير عن ملكية اسم مفرد في اللغة الإنجليزية، نضع علامة الفاصلة العليا (apostrophe) متبوعة بالحرف s بعد اسم المالك: sister → sister's. هذه العلامة تختلف تمامًا عن s الجمع.",
+        "طريقة الحل خطوة بخطوة: اقرأ الاسم الذي يأتي بعد الفراغ وهو flowers. اسأل نفسك: زهور مَن؟ الإجابة: الأخت. إذن نحتاج عبارة ملكية لا عبارة تصف الأخت فقط. لهذا نختار my sister's.",
+        "مثال تدريبي 1: This is my brother's bag. = هذه حقيبة أخي. أضفنا 's إلى brother لأن الحقيبة تخصه.",
+        "مثال تدريبي 2: Those are the teacher's books. = تلك كتب المعلم. أضفنا 's إلى teacher لأن الكتب تخص المعلم.",
+        "الخلاصة الذهبية: my sister = أختي؛ my sister's = شيء يخص أختي؛ my sisters' = شيء يخص أخواتي؛ mine ضمير ملكية مستقل لا يأتي قبل اسم مثل sister. في الاختبار، حدّد المالك والشيء المملوك أولًا، ثم اختر علامة الملكية المناسبة.",
+      ].join("\n\n"),
       supportingQuote: null as string | null,
     };
   }
@@ -283,17 +289,24 @@ export async function GET(request: NextRequest) {
         correctAnswer,
         reference,
       });
-      const resolvedFeedback = wrongFeedback ?? sourceFeedback;
       const sourceReason = (reference?.explanation ?? "").trim();
-      const supportedSourceExplanation =
-        sourceReason.length >= 100 &&
-        !/^(?:الإجابة المعتمدة|مفتاح الإجابة|الإجابة الصحيحة هي)/.test(sourceReason);
+      // Existing one-sentence bank notes cannot substitute for the requested
+      // extended academic lesson. Display reliable grading immediately, then
+      // request detailed teaching asynchronously, caching by source question
+      // and selected wrong option.
+      const hasRealSourceTeaching =
+        sourceReason.length >= 200 &&
+        /(?:قاعدة|الملكية|الجملة|السبب|نستخدم|تستخدم|تدل|تعني)/.test(sourceReason);
+      const keyCannotBeExplainedFromSource =
+        question.prompt?.trim() === "At lunchtime, Tom had a burger and fries." ||
+        question.prompt?.trim() === "Did people have an easy life after the war in 1945?";
+      const sourceLesson = hasRealSourceTeaching || keyCannotBeExplainedFromSource
+        ? sourceFeedback : null;
+      const resolvedAcademicFeedback = wrongFeedback ?? sourceLesson;
       const isPendingAcademicExplanation =
-        !isCorrect && !wrongFeedback && !supportedSourceExplanation && !explanationRequested;
-
-      const missingSourceTeaching =
-        !sourceReason && !wrongFeedback && explanationRequested;
-      const resolvedAcademicFeedback = missingSourceTeaching ? null : resolvedFeedback;
+        !isCorrect && !wrongFeedback && !keyCannotBeExplainedFromSource &&
+        !explanationRequested &&
+        (skill !== "READING" || Boolean(question.passage?.body));
 
       return NextResponse.json({
         ok: true,

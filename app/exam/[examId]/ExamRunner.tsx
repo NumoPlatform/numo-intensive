@@ -2330,36 +2330,46 @@ export default function ExamRunner() {
                     </div>
 
                     {currentInlineFeedback.explanationPending ? (
-                        <div role="status" aria-live="polite" className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
-                          تم تصحيح الإجابة وفق مفتاح المصدر. جاري إعداد شرح أكاديمي موثوق لهذا الاختيار...
+                      <div role="status" aria-live="polite" className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5 text-sm font-semibold leading-8 text-[#384b7b]">
+                        <div className="flex items-center gap-2 font-black">
+                          <Loader2 size={18} className="animate-spin" />
+                          إعداد درس أكاديمي موسّع لهذا السؤال
                         </div>
-                      ) : currentInlineFeedback.whyIncorrect && currentInlineFeedback.whyCorrect ? (
+                        <p className="mt-2">
+                          ظهرت الإجابة الصحيحة بالفعل. يجري الآن تحليل سبب الخطأ وشرح القاعدة خطوة بخطوة مع أمثلة إنجليزية مترجمة وتلميح للمراجعة.
+                        </p>
+                      </div>
+                    ) : null}
+                    {currentInlineFeedback.whyIncorrect && currentInlineFeedback.whyCorrect ? (
                         <>
                         <div className="rounded-2xl border border-[#f1d7d2] bg-white p-5">
-                          <div className="text-sm font-black text-rose-700">لماذا إجابتك غير صحيحة؟ · Why Incorrect</div>
-                          <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyIncorrect}</p>
+                          <div className="text-base font-black text-rose-700">01 | تحليل سبب الخطأ · Why Incorrect</div>
+                          <p className="mt-3 whitespace-pre-line text-[15px] font-semibold leading-9 text-[#3f465d]">{currentInlineFeedback.whyIncorrect}</p>
                         </div>
                         <div className="rounded-2xl border border-emerald-100 bg-white p-5">
-                          <div className="text-sm font-black text-emerald-700">لماذا هذه هي الإجابة الصحيحة؟ · Why Correct</div>
-                          <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">{currentInlineFeedback.whyCorrect}</p>
+                          <div className="text-base font-black text-emerald-700">02 | القاعدة الصحيحة وطريقة تطبيقها · Why Correct</div>
+                          <p className="mt-3 whitespace-pre-line text-[15px] font-semibold leading-9 text-[#3f465d]">{currentInlineFeedback.whyCorrect}</p>
                         </div>
                         {currentInlineFeedback.academicExplanation ? (
                           <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
                             <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
-                              <span>التفسير والدليل الأكاديمي · Academic Explanation</span>
+                              <span>03 | درس أكاديمي موسّع وأمثلة مترجمة · Academic Lesson</span>
                               <BookOpen size={18} />
                             </div>
-                            <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
+                            <p className="mt-4 whitespace-pre-line text-[15px] font-semibold leading-9 text-[#3f465d]">
                               {currentInlineFeedback.academicExplanation}
+                            </p>
+                            <p className="mt-4 border-t border-[#dfe4f2] pt-3 text-xs font-semibold leading-6 text-[#73788d]">
+                              الأمثلة التوضيحية من شرح نُمو التعليمي، وليست اقتباسات من ملف التجميعات.
                             </p>
                           </div>
                         ) : null}
                         </>
-                      ) : (
+                      ) : !currentInlineFeedback.explanationPending ? (
                         <div className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
-                          تم إظهار الإجابة المعتمدة من الملف، لكن تعذر التحقق من تفسير تعليمي موثوق لهذا الاختيار حالياً.
+                          ظهرت الإجابة المعتمدة، لكن لم يتوفر حتى الآن شرح أكاديمي موسّع يمكن التحقق من صحته. يمكنك مواصلة الاختبار وإعادة المحاولة للتدرب، دون تقديم تفسير غير موثّق.
                         </div>
-                      )}
+                      ) : null}
 
                     {(currentInlineFeedback.referenceSource || currentInlineFeedback.referenceUnit || currentInlineFeedback.referencePage) ? (
                     <div className="rounded-2xl border border-[#eadfd8] bg-white p-5 shadow-sm">
