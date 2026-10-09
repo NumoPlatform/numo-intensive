@@ -268,10 +268,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, reused: true, assessment: assessmentPayload(reused) });
     }
 
+    // Direct Google Gemini is an opt-in alternative when GEMINI_API_KEY is set.
+    const directGeminiKey = process.env.GEMINI_API_KEY?.trim() ?? "";
     const aiToken = process.env.AI_GATEWAY_API_KEY || request.headers.get("x-vercel-oidc-token") || process.env.VERCEL_OIDC_TOKEN;
-    if (!aiToken) {
+    if (!directGeminiKey && !aiToken) {
       return NextResponse.json(
-        { ok: false, code: "AI_UNAVAILABLE", message: "تعذر تشغيل محرك تقييم الكتابة حالياً. لم تُسجل أي درجة." },
+        { ok: false, code: "AI_SETUP_REQUIRED", message: "خدمة تقييم الكتابة غير مفعلة من إدارة نُمو. النص محفوظ ولم تُحتسب درجة. استخدم زر حفظ الكتابة للمراجعة ثم أعد المحاولة بعد التفعيل." },
         { status: 503 },
       );
     }
@@ -289,88 +291,140 @@ corrections (array of {original, corrected, reasonAr}), strengths (Arabic string
 Every correction.original must be an exact excerpt from the student text. Reasons must be concise Arabic.
 The improvedVersion must preserve the student's ideas and selected topic, only improving language and organization.`;
 
-    const aiResponse = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + aiToken,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL_ID,
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content:
-              "Selected topic:\n" + topicText +
-              "\n\nStudent paragraph (" + wordCount + " words):\n<student_text>\n" +
-              originalText + "\n</student_text>",
-          },
-        ],
-        stream: false,
-        temperature: 0.15,
-        response_format: {
-          type: "json",
-          name: "numo_foundation_writing_assessment",
-          description: "Validated foundation English writing rubric assessment",
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              taskAchievement: { type: "number" },
-              grammarAccuracy: { type: "number" },
-              vocabularyUsage: { type: "number" },
-              organizationCoherence: { type: "number" },
-              spellingPunctuation: { type: "number" },
-              performanceLevel: { type: "string" },
-              corrections: {
-                type: "array",
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  properties: {
-                    original: { type: "string" },
-                    corrected: { type: "string" },
-                    reasonAr: { type: "string" },
-                  },
-                  required: ["original", "corrected", "reasonAr"],
-                },
-              },
-              strengths: { type: "array", items: { type: "string" } },
-              improvements: { type: "array", items: { type: "string" } },
-              improvedVersion: { type: "string" },
+    const userPrompt = "Selected topic:\n" + topicText +
+      "\n\nStudent paragraph (" + wordCount + " words):\n<student_text>\n" +
+      originalText + "\n</student_text>";
+    let raw = "";
+    let modelUsed = MODEL_ID;
+    if (directGeminiKey) {
+      // Optional server-only direct Gemini. Only activated by the admin setting GEMINI_API_KEY.
+      const directModel = "gemini-2.5-flash";
+      const googleResponse = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/" + directModel + ":generateContent",
+        {
+          method: "POST",
+          headers: { "x-goog-api-key": directGeminiKey, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+            generationConfig: {
+              temperature: 0.15,
+              responseMimeType: "application/json",
+              maxOutputTokens: 4096,
             },
-            required: [
-              "taskAchievement",
-              "grammarAccuracy",
-              "vocabularyUsage",
-              "organizationCoherence",
-              "spellingPunctuation",
-              "performanceLevel",
-              "corrections",
-              "strengths",
-              "improvements",
-              "improvedVersion"
-            ],
-          },
+          }),
+          cache: "no-store",
         },
-        providerOptions: { gateway: { disallowPromptTraining: true } },
-      }),
-      cache: "no-store",
-    });
-
-    if (!aiResponse.ok) {
-      console.error("NUMO_WRITING_AI_FAILED", aiResponse.status, await aiResponse.text());
-      return NextResponse.json(
-        { ok: false, code: "AI_UNAVAILABLE", message: "تعذر إكمال التقييم الذكي. لم تُسجل أي درجة." },
-        { status: 502 },
       );
+      if (!googleResponse.ok) {
+        console.error("NUMO_DIRECT_GEMINI_FAILED", googleResponse.status);
+        return NextResponse.json({
+          ok: false,
+          code: googleResponse.status === 429 ? "AI_RATE_LIMITED" : "AI_UNAVAILABLE",
+          message: googleResponse.status === 429
+            ? "وصلت خدمة تصحيح Writing إلى حد الاستخدام المؤقت. النص محفوظ ويمكنك إعادة التقييم لاحقًا."
+            : "تعذّر الاتصال بـGemini المباشر. النص محفوظ ولم تُحتسب أي درجة. يرجى مراجعة إعدادات الخدمة مع إدارة نُمو.",
+        }, { status: 503 });
+      }
+      const googleBody = (await googleResponse.json()) as {
+        modelVersion?: string;
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      };
+      raw = (googleBody.candidates?.[0]?.content?.parts ?? []).map(part => part.text ?? "").join("");
+      modelUsed = googleBody.modelVersion || directModel;
+    } else {
+      const aiResponse = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + aiToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: MODEL_ID,
+          messages: [
+            { role: "system", content: systemPrompt },
+            {
+              role: "user",
+              content:
+                "Selected topic:\n" + topicText +
+                "\n\nStudent paragraph (" + wordCount + " words):\n<student_text>\n" +
+                originalText + "\n</student_text>",
+            },
+          ],
+          stream: false,
+          temperature: 0.15,
+          response_format: {
+            type: "json",
+            name: "numo_foundation_writing_assessment",
+            description: "Validated foundation English writing rubric assessment",
+            schema: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                taskAchievement: { type: "number" },
+                grammarAccuracy: { type: "number" },
+                vocabularyUsage: { type: "number" },
+                organizationCoherence: { type: "number" },
+                spellingPunctuation: { type: "number" },
+                performanceLevel: { type: "string" },
+                corrections: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      original: { type: "string" },
+                      corrected: { type: "string" },
+                      reasonAr: { type: "string" },
+                    },
+                    required: ["original", "corrected", "reasonAr"],
+                  },
+                },
+                strengths: { type: "array", items: { type: "string" } },
+                improvements: { type: "array", items: { type: "string" } },
+                improvedVersion: { type: "string" },
+              },
+              required: [
+                "taskAchievement",
+                "grammarAccuracy",
+                "vocabularyUsage",
+                "organizationCoherence",
+                "spellingPunctuation",
+                "performanceLevel",
+                "corrections",
+                "strengths",
+                "improvements",
+                "improvedVersion"
+              ],
+            },
+          },
+          providerOptions: { gateway: { disallowPromptTraining: true } },
+        }),
+        cache: "no-store",
+      });
+
+      if (!aiResponse.ok) {
+        const detail = (await aiResponse.text()).slice(0, 1100);
+        console.error("NUMO_WRITING_AI_FAILED", aiResponse.status, detail);
+        const cardRequired = aiResponse.status === 403 &&
+          (detail.includes("customer_verification_required") || detail.includes("valid credit card"));
+        return NextResponse.json(
+          { ok: false, code: cardRequired ? "AI_GATEWAY_BILLING_REQUIRED" : "AI_UNAVAILABLE",
+            message: cardRequired
+              ? "تقييم Writing متوقف لأن خدمة الذكاء الاصطناعي تحتاج تفعيلًا من إدارة نُمو. النص محفوظ ولم تُحتسب درجة. استخدم زر «حفظ الكتابة للمراجعة عند تعذر التقييم» ثم أعد التقييم لاحقًا."
+              : "تعذّر اتصال خدمة التقييم الذكي. النص محفوظ؛ يمكنك حفظ الكتابة للمراجعة وإعادة التقييم لاحقًا، ولم تُحتسب درجة." },
+          { status: 503 },
+        );
+      }
+      const aiEnvelope = (await aiResponse.json()) as {
+        model?: string;
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+      raw = aiEnvelope.choices?.[0]?.message?.content ?? "";
+      modelUsed = aiEnvelope.model || MODEL_ID;
+
     }
-    const aiEnvelope = (await aiResponse.json()) as {
-      model?: string;
-      choices?: Array<{ message?: { content?: string } }>;
-    };
-    const raw = aiEnvelope.choices?.[0]?.message?.content ?? "";
+
     let parsed: Record<string, unknown>;
     try {
       parsed = parseAiJson(raw);
@@ -467,7 +521,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       topicText,
       wordCount,
       rubricVersion,
-      modelId: aiEnvelope.model || MODEL_ID,
+      modelId: modelUsed,
     };
 
     if (!pending) {
@@ -512,7 +566,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
         improvements,
         improved_version: improvedVersion,
         rubric_version: rubricVersion,
-        model_id: aiEnvelope.model || MODEL_ID,
+        model_id: modelUsed,
         submission_hash: submissionHash,
       }),
     });
