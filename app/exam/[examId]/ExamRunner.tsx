@@ -148,9 +148,11 @@ type SectionResult = {
   sectionAttemptNumber: number;
   attemptsAllowed: number;
   attemptsRemaining: number;
-  score: number;
+  score: number | null;
   totalMarks: number;
-  percentage: number;
+  percentage: number | null;
+  gradingStatus?: "PENDING" | "GRADED";
+  pendingQuestionId?: string | null;
   correctCount: number;
   wrongCount: number;
   questionCount: number;
@@ -470,7 +472,7 @@ export default function ExamRunner() {
     const row = value as Record<string, unknown>;
     const words = writingWordCount(String(row.text ?? ""));
     if (Number(row.topicIndex ?? 0) < 1) {
-      setMessage("اختر أحد موضوعَي Writing قبل التقييم.");
+      setMessage("اختر موضوعًا واحدًا من موضوعات Writing قبل التقييم.");
       return;
     }
     if (words < 100) {
@@ -586,6 +588,30 @@ export default function ExamRunner() {
 
     setRemaining(0);
     setStage("section-select");
+  }
+
+  async function retryPendingWriting() {
+    if (!attempt || !sectionResult?.pendingQuestionId || !sectionResult.sectionAttemptId || writingAssessmentLoading) return;
+    setWritingAssessmentLoading(true);
+    setMessage("");
+    try {
+      const response = await intensiveFetch("/api/exam/writing/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attemptId: attempt.attempt_id,
+          questionId: sectionResult.pendingQuestionId,
+          sectionAttemptId: sectionResult.sectionAttemptId,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "ما زال التقييم غير متاح. نصك محفوظ.");
+      await loadSectionResult(sectionResult.sectionId);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "ما زال التقييم غير متاح. نصك محفوظ.");
+    } finally {
+      setWritingAssessmentLoading(false);
+    }
   }
 
   async function loadSectionResult(sectionId: string) {
@@ -1215,7 +1241,7 @@ export default function ExamRunner() {
             <div className="p-4 sm:p-7">
               <div className="grid gap-3 sm:grid-cols-4">
                 <div className="rounded-2xl bg-[#1F2B5E] p-5 text-center text-white">
-                  <div className="text-4xl font-black">{sectionResult.percentage.toFixed(0)}%</div>
+                  <div className="text-4xl font-black">{sectionResult.gradingStatus === "PENDING" ? "—" : (sectionResult.percentage ?? 0).toFixed(0) + "%"}</div>
                   <div className="mt-1 text-xs text-white/65">{isArabicGeneralExam ? "الدرجة" : "Section score"}</div>
                 </div>
                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-center">
@@ -1237,15 +1263,32 @@ export default function ExamRunner() {
               </div>
 
               <div className="mt-4 rounded-2xl border border-[#e7e2eb] bg-[#faf9fb] p-4 text-center">
-                <span className="font-black">{sectionResult.score} / {sectionResult.totalMarks}</span>
-                {sectionResult.bestPercentage !== undefined ? (
+                <span className="font-black">{sectionResult.gradingStatus === "PENDING" ? "بانتظار التصحيح — لم تُحتسب درجة" : `${sectionResult.score} / ${sectionResult.totalMarks}`}</span>
+                {sectionResult.gradingStatus !== "PENDING" && sectionResult.bestPercentage !== undefined ? (
                   <span className="mr-3 text-sm font-bold text-emerald-700">
                     · {isArabicGeneralExam ? "الأفضل" : "Best"}: {Number(sectionResult.bestPercentage).toFixed(0)}%
                   </span>
                 ) : null}
               </div>
 
-              {sectionResult.wrongCount === 0 ? (
+              {sectionResult.gradingStatus === "PENDING" ? (
+                <div className="mt-6 rounded-2xl border border-[#B1785C]/40 bg-[#FAF9F6] p-6 text-right" dir="rtl" role="status">
+                  <div className="text-lg font-black text-[#1F2B5E]">تم حفظ كتابة الطالبة — بانتظار التصحيح</div>
+                  <p className="mt-3 text-sm font-semibold leading-8 text-[#5b6177]">
+                    تم حفظ النص والموضوع دون فقدان. خدمة التقييم الذكي لم تُصدر درجة مؤكدة بعد،
+                    ولذلك لن تظهر درجة صفر غير صحيحة. يمكنك إعادة محاولة التقييم دون بدء اختبار جديد.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn mt-4 w-full sm:w-auto"
+                    onClick={() => void retryPendingWriting()}
+                    disabled={writingAssessmentLoading}
+                  >
+                    {writingAssessmentLoading ? <Loader2 size={17} className="animate-spin" /> : <RotateCcw size={17} />}
+                    إعادة محاولة التقييم
+                  </button>
+                </div>
+              ) : sectionResult.wrongCount === 0 ? (
                 <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-7 text-center">
                   <CheckCircle2 className="mx-auto mb-3 text-emerald-600" size={34} />
                   <div className="text-xl font-black text-emerald-800">ممتاز — جميع الإجابات صحيحة.</div>
@@ -2004,8 +2047,22 @@ export default function ExamRunner() {
                       {writingAssessmentLoading ? <Loader2 size={18} className="animate-spin" /> : <Target size={18} />}
                       تسليم وتقييم الكتابة
                     </button>
+                    {!writingAssessment && Number(writingAnswer.topicIndex ?? 0) >= 1 && currentWritingWords >= 100 ? (
+                      <button
+                        type="button"
+                        className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#d6c5b7] bg-white px-4 py-3 text-sm font-bold text-[#1F2B5E] sm:w-auto"
+                        disabled={writingAssessmentLoading || advancing}
+                        onClick={() => {
+                          if (window.confirm("هل تريد حفظ نص Writing وإنهاء القسم للمراجعة لاحقاً دون احتساب درجة صفر عند تعذّر التقييم؟")) {
+                            void completeSection(true);
+                          }
+                        }}
+                      >
+                        <Save size={17} /> حفظ الكتابة للمراجعة عند تعذّر التقييم
+                      </button>
+                    ) : null}
                     <p className="mt-3 text-xs font-semibold leading-6 text-[#73788d]" dir="rtl">
-                      التقييم تدريبي لمستوى EL098، ولا يمثل توزيع الدرجات الرسمي للجامعة.
+                      هذا تقييم تدريبي من منصة نُمو لمستوى {normalizedCourseCode === "EL098" ? "EL098" : "EL097"}، ولا يمثل الدرجة الرسمية للجامعة.
                     </p>
                   </div>
 
