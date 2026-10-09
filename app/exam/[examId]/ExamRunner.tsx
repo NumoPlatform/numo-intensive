@@ -1292,6 +1292,11 @@ export default function ExamRunner() {
                     تم حفظ النص والموضوع دون فقدان. خدمة التقييم الذكي لم تُصدر درجة مؤكدة بعد،
                     ولذلك لن تظهر درجة صفر غير صحيحة. يعيد النظام التقييم تلقائيًا مرة واحدة، ويمكنك المحاولة مجددًا دون بدء اختبار جديد إذا استمر تعذّر الخدمة.
                   </p>
+                  {message ? (
+                    <p role="alert" className="mt-3 rounded-xl border border-[#f0d4cb] bg-white px-4 py-3 text-sm font-bold leading-7 text-[#9a513d]">
+                      {message}
+                    </p>
+                  ) : null}
                   <button
                     type="button"
                     className="btn mt-4 w-full sm:w-auto"
