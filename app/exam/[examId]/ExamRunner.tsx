@@ -404,8 +404,8 @@ export default function ExamRunner() {
     );
     const pending = active.filter(
       (question) =>
-        answers[question.id] !== undefined ||
-        Boolean(flags[question.id]),
+        !(question.skill === "Writing" && writingAssessment) &&
+        (answers[question.id] !== undefined || Boolean(flags[question.id])),
     );
 
     if (!pending.length) return;
@@ -431,7 +431,7 @@ export default function ExamRunner() {
     }
 
     setSaveState("saved");
-  }, [answers, attempt, flags]);
+  }, [answers, attempt, flags, writingAssessment]);
 
   function updateAnswer(questionId: string, value: unknown) {
     const normalized = courseCode.trim().toUpperCase();
