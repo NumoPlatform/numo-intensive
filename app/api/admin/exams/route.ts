@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
           p_ends_at: body.endsAt,
           p_duration_minutes: Number(body.durationMinutes ?? 0),
           p_skills: skills,
-          p_attempts_allowed: Number(body.attemptsAllowed ?? 1),
+          p_attempts_allowed: 0, // Platform-wide unlimited attempts policy
           p_result_release: body.resultRelease ?? "MANUAL",
           p_section_times: sectionDurations,
         }),
