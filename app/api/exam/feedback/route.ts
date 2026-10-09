@@ -193,8 +193,10 @@ export async function GET(request: NextRequest) {
         )
       : [];
     const courseCode = (courses[0]?.code ?? "").trim().toUpperCase();
-    if (!["GR101", "EL098"].includes(courseCode)) {
-      return NextResponse.json({ ok: false, message: "التصحيح الفوري غير مفعل لهذا المقرر." }, { status: 403 });
+    // All NUMO objective questions use the per-attempt frozen answer key.
+    // Writing and free-response questions are never auto-explained by this route.
+    if (!["MULTIPLE_CHOICE", "TRUE_FALSE"].includes(question.type)) {
+      return NextResponse.json({ ok: false, message: "التصحيح الفوري مخصص للأسئلة الموضوعية." }, { status: 403 });
     }
 
     const key = (keys[0]?.key_data ?? []).find((item) => item.questionId === questionId);
@@ -203,7 +205,10 @@ export async function GET(request: NextRequest) {
     }
 
     const selectedRaw = scalar(answer.answer);
-    let selectedAnswer = selectedRaw || "لم تتم الإجابة";
+    if (!selectedRaw || selectedRaw === "null") {
+      return NextResponse.json({ ok: false, message: "أجب عن السؤال أولاً." }, { status: 409 });
+    }
+    let selectedAnswer = selectedRaw;
     let correctAnswer = "";
 
     if (question.type === "MULTIPLE_CHOICE") {
@@ -218,11 +223,18 @@ export async function GET(request: NextRequest) {
       correctAnswer = (key.acceptableAnswers ?? []).join(" / ");
     }
 
-    const maxMarks = Number(question.marks ?? key.marks ?? 0);
-    const earned = Number(answer.score ?? 0);
     const reference = references[0] ?? null;
-
-    const isCorrect = maxMarks > 0 && earned >= maxMarks;
+    // A correct answer is validated against the frozen option key and never
+    // guessed by Gemini or inferred from mutable bank content.
+    if (question.type === "MULTIPLE_CHOICE" && !key.correctOptionId) {
+      return NextResponse.json({ ok: false, message: "مفتاح الإجابة لهذا السؤال غير مكتمل." }, { status: 409 });
+    }
+    if (question.type === "TRUE_FALSE" && typeof key.correctBoolean !== "boolean") {
+      return NextResponse.json({ ok: false, message: "مفتاح الإجابة لهذا السؤال غير مكتمل." }, { status: 409 });
+    }
+    const isCorrect = question.type === "MULTIPLE_CHOICE"
+      ? selectedRaw === key.correctOptionId
+      : selectedRaw.toLowerCase() === String(key.correctBoolean);
     const skill = (reference?.skill ?? "").trim().toUpperCase();
 
     if (courseCode === "EL098") {
@@ -278,6 +290,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Never fabricate an academic rationale where the provided source only
+    // supplied a marked correct option. Show the verified key instantly.
+    const explanation = (reference?.explanation ?? "").trim();
+    const referenceEvidence = (reference?.reference_evidence ?? "").trim();
+    const rationale = explanation || referenceEvidence;
     return NextResponse.json({
       ok: true,
       feedback: {
@@ -286,8 +303,17 @@ export async function GET(request: NextRequest) {
         selectedAnswer,
         correctAnswer,
         correction: isCorrect
-          ? "إجابتك صحيحة وفق المرجع المعتمد."
-          : "إجابتك غير صحيحة. راجع الإجابة الصحيحة والدليل من المنهج أدناه.",
+          ? "إجابتك صحيحة وفق مفتاح الإجابة المعتمد."
+          : "إجابتك خاطئة — إليك التصحيح المعتمد.",
+        whyIncorrect: isCorrect ? null
+          : `اخترت «${selectedAnswer}»، وهذا لا يطابق الاختيار «${correctAnswer}» المثبت في مفتاح الاختبار.`,
+        whyCorrect: isCorrect ? null
+          : rationale
+            ? `الإجابة المعتمدة «${correctAnswer}». ${rationale}`
+            : `الإجابة المعتمدة في مفتاح الاختبار هي «${correctAnswer}». لا يتوفر شرح أكاديمي مفصل وموثّق لهذا السؤال في بنك الأسئلة الحالي.`,
+        academicExplanation: explanation && referenceEvidence && explanation !== referenceEvidence
+          ? referenceEvidence : null,
+        explanationPending: false,
         referenceSource: reference?.reference_source ?? null,
         referenceUnit: reference?.reference_unit ?? null,
         referencePage: reference?.reference_page ?? null,
