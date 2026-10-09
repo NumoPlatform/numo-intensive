@@ -273,6 +273,7 @@ export default function ExamRunner() {
   const [writingHistory, setWritingHistory] = useState<WritingAssessment[]>([]);
   const [writingAssessmentLoading, setWritingAssessmentLoading] = useState(false);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pendingAutoRetryOnce = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     async function loadExam() {
@@ -614,6 +615,17 @@ export default function ExamRunner() {
       setWritingAssessmentLoading(false);
     }
   }
+
+  // One automatic retry of each safely saved Writing section; if Gemini is
+  // still unavailable, the student can retry manually from the result card.
+  useEffect(() => {
+    if (stage !== "section-result" || sectionResult?.gradingStatus !== "PENDING"
+        || !sectionResult.pendingQuestionId || !attempt?.attempt_id) return;
+    const key = sectionResult.sectionAttemptId;
+    if (pendingAutoRetryOnce.current.has(key)) return;
+    pendingAutoRetryOnce.current.add(key);
+    void retryPendingWriting();
+  }, [stage, sectionResult?.sectionAttemptId, sectionResult?.gradingStatus, attempt?.attempt_id]);
 
   async function loadSectionResult(sectionId: string) {
     if (!attempt || sectionResultLoading) return;
@@ -1278,7 +1290,7 @@ export default function ExamRunner() {
                   <div className="text-lg font-black text-[#1F2B5E]">تم حفظ كتابة الطالبة — بانتظار التصحيح</div>
                   <p className="mt-3 text-sm font-semibold leading-8 text-[#5b6177]">
                     تم حفظ النص والموضوع دون فقدان. خدمة التقييم الذكي لم تُصدر درجة مؤكدة بعد،
-                    ولذلك لن تظهر درجة صفر غير صحيحة. يمكنك إعادة محاولة التقييم دون بدء اختبار جديد.
+                    ولذلك لن تظهر درجة صفر غير صحيحة. يعيد النظام التقييم تلقائيًا مرة واحدة، ويمكنك المحاولة مجددًا دون بدء اختبار جديد إذا استمر تعذّر الخدمة.
                   </p>
                   <button
                     type="button"
