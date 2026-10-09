@@ -53,7 +53,7 @@ export async function getIntensiveEnglishWrongFeedback(context: Context, cacheOn
   // does not substantiate its own answer key. The source key is not modified.
   if (context.skill.toUpperCase() === "READING" &&
       context.prompt.trim() === "At lunchtime, Tom had a burger and fries." &&
-      context.correctAnswer.trim().toLowerCase() === "true") return null;
+      ["true", "صح"].includes(context.correctAnswer.trim().toLowerCase())) return null;
 
 
   // Cache is server-only; True/False values are not option UUIDs.
