@@ -102,7 +102,7 @@ for each row execute function public.intensive_enqueue_pending_writing();
 -- Save retries with unchanged Writing text must never erase a valid AI grade.
 -- Changing the text legitimately clears the score for a fresh assessment.
 create or replace function public.intensive_preserve_graded_writing_answer()
-returns trigger language plpgsql security definer set search_path=pg_catalog,public as $
+returns trigger language plpgsql security definer set search_path=pg_catalog,public as $$
 declare v_course text;
 begin
   if old.score is null or new.score is not null
@@ -117,7 +117,7 @@ begin
     new.graded_at:=old.graded_at;
   end if;
   return new;
-end $;
+end $$;
 drop trigger if exists intensive_preserve_graded_writing on public.intensive_student_answers;
 create trigger intensive_preserve_graded_writing
 before update of answer,score on public.intensive_student_answers
