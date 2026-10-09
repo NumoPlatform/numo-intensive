@@ -158,6 +158,7 @@ export default function CoursePortal() {
   const isGeneralCourse =
     normalizedCourseCode.startsWith("GR") || normalizedCourseCode.startsWith("AR");
   const isEl098Quiz2 = normalizedCourseCode === "EL098";
+  const isEl097Quiz2 = normalizedCourseCode === "EL097_EL099E";
   const el098ModelIcons = [ClipboardCheck, FileCheck2, GraduationCap, BookOpenCheck] as const;
   const generalExamDefinitions = [
     {
@@ -243,7 +244,9 @@ export default function CoursePortal() {
                     ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار 4 محاولات؛ الكويز 30 دقيقة والميد ترم 60 دقيقة، وتظهر النتيجة مباشرة بعد التسليم."
                     : isEl098Quiz2
                       ? "QUIZ 2 — أربعة نماذج تدريبية مستقلة. اختر أي نموذج ثم أي قسم: Grammar & Vocabulary أو Reading أو Writing. التصحيح الموضوعي فوري والمحاولات مفتوحة."
-                      : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
+                      : isEl097Quiz2
+                        ? "EL097 — QUIZ 2 | سبعة أقسام بالترتيب الأصلي للملف: Grammar Foundations، Verbs & Prepositions، Vocabulary & Definitions، ثلاث قطع Reading مستقلة، ثم Writing بسبعة موضوعات. راجع الإجابات بعد تسليم كل قسم."
+                        : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
                 </p>
               </div>
 
@@ -408,6 +411,77 @@ export default function CoursePortal() {
                         <History size={15} /> سجل النتائج
                       </a>
                     ) : null}
+                  </div>
+                </article>
+              );
+            })
+          ) : isEl097Quiz2 ? (
+            courseSections.map((section) => {
+              const exam = exams.find((item) => item.id === section.exam_id) ?? primaryExam;
+              const attempts = exam ? data.attempts.filter((item) => item.exam_id === exam.id) : [];
+              const latest = [...attempts].sort((a, b) => b.attempt_number - a.attempt_number)[0];
+              const progress = latest?.section_progress?.[section.id];
+              const done = Boolean(progress?.completed_at);
+              const isOpen = Boolean(
+                exam &&
+                Date.now() >= new Date(exam.starts_at).getTime() &&
+                Date.now() <= new Date(exam.ends_at).getTime()
+              );
+              const explanations: Record<number, string> = {
+                1: "Pronouns, possessives & articles",
+                2: "Verb forms and preposition choices",
+                3: "Words, definitions & usage",
+                4: "Reading Comprehension · Passage 01",
+                5: "Reading Comprehension · Passage 02",
+                6: "Reading Comprehension · Passage 03",
+                7: "Choose ONE topic from the seven Writing prompts"
+              };
+              const Icon = section.position <= 2 ? ClipboardCheck :
+                section.position === 3 ? BookOpenCheck :
+                section.position <= 6 ? GraduationCap : FileCheck2;
+              return (
+                <article key={section.id} className="group relative overflow-hidden rounded-[1.6rem] border border-[#dedbe5] bg-white shadow-[0_14px_36px_rgba(31,43,94,.07)] transition duration-300 hover:-translate-y-1 hover:border-[#B1785C]/60 hover:shadow-[0_24px_48px_rgba(31,43,94,.12)] motion-reduce:transform-none">
+                  <div className="h-1.5 bg-[#1F2B5E]" />
+                  <div className="p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-black tracking-[.13em] text-[#B1785C]" dir="ltr">
+                          {String(section.position).padStart(2, "0")} / EL097 QUIZ 2
+                        </div>
+                        <h3 className="mt-2 text-xl font-black leading-8 text-[#1F2B5E]" dir="ltr">{section.title}</h3>
+                      </div>
+                      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#eef0f7] text-[#6366F1]">
+                        <Icon size={23} />
+                      </div>
+                    </div>
+                    <p className="mt-2 min-h-10 text-sm font-semibold leading-6 text-[#72788e]" dir="ltr">
+                      {explanations[section.position]}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
+                      <span className="rounded-full bg-[#f1f2f9] px-3 py-1.5 text-[#1F2B5E]">
+                        {section.position === 7 ? "7 writing topics" : `${section.question_count ?? 0} questions`}
+                      </span>
+                      <span className="rounded-full bg-[#faf0ea] px-3 py-1.5 text-[#9c644a]">
+                        {section.time_limit_minutes} دقيقة
+                      </span>
+                      <span className={"rounded-full px-3 py-1.5 " + (done ? "bg-emerald-50 text-emerald-700" : "bg-[#f1f2f9] text-[#73788f]")}>
+                        {done ? "مكتمل" : "جاهز للتدريب"}
+                      </span>
+                    </div>
+                    {progress?.best_percentage !== undefined ? (
+                      <div className="mt-3 text-sm font-black text-emerald-700">
+                        أفضل نتيجة {Number(progress.best_percentage).toFixed(0)}%
+                      </div>
+                    ) : null}
+                    {exam && isOpen ? (
+                      <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white transition hover:bg-[#303f7e]">
+                        <PlayCircle size={18} /> فتح الاختبار واختيار القسم
+                      </a>
+                    ) : (
+                      <div className="mt-5 rounded-xl bg-[#f1f0f5] px-4 py-3 text-center text-sm font-bold text-[#777c90]">
+                        القسم غير متاح حالياً
+                      </div>
+                    )}
                   </div>
                 </article>
               );
@@ -659,9 +733,9 @@ export default function CoursePortal() {
                     ["3", "راجع نتيجتك", "الدرجة والمراجعة تظهران مباشرة"],
                   ]
                 : [
-                    ["1", "اختر القسم", "Grammar أو Vocabulary أو Reading"],
-                    ["2", "أكمل الأسئلة", "الوقت يبدأ عند دخول المحاولة"],
-                    ["3", "راجع نتيجتك", "الدرجة والأخطاء تظهر مباشرة"],
+                    ["1", "اختر القسم", isEl097Quiz2 ? "اختر من الأقسام السبعة المعتمدة في الملف" : "Grammar أو Vocabulary أو Reading"],
+                    ["2", "أكمل الأسئلة", isEl097Quiz2 ? "30 دقيقة لكل قسم؛ Writing اختر موضوعاً من سبعة" : "الوقت يبدأ عند دخول المحاولة"],
+                    ["3", "راجع نتيجتك", "الدرجة والأخطاء تظهر مباشرة بعد التسليم"],
                   ]
               ).map(([n,title,note]) => (
                 <div key={n} className="rounded-2xl bg-[#f8f7fa] p-4">
