@@ -301,8 +301,8 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
     // A NUMO-specific Google Gemini API key bypasses Vercel AI Gateway billing
     // entirely. Keep it server-side in this Vercel project's env settings.
     // Without that key, use the existing Gateway when its billing is enabled.
-    const directModel = "gemini-3.8-flash";
-    const aiResponse = directGeminiKey
+    let directModel = "gemini-3.8-flash";
+    let aiResponse = directGeminiKey
       ? await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + directModel + ":generateContent", {
           method: "POST",
           headers: {
@@ -375,6 +375,33 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
           }),
           cache: "no-store",
         });
+
+    // Temporary Google 503 / 429 errors do not mean the student's essay is invalid.
+    // Retry once with a stable Gemini model before marking Writing as pending.
+    if (directGeminiKey && (aiResponse.status === 503 || aiResponse.status === 429)) {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      const fallbackModel = "gemini-2.5-flash";
+      const fallback = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/" + fallbackModel + ":generateContent",
+        {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": directGeminiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: "user", parts: [{ text: studentPrompt }] }],
+            generationConfig: { responseMimeType: "application/json", temperature: 0.15 },
+          }),
+          cache: "no-store",
+        },
+      );
+      if (fallback.ok) {
+        aiResponse = fallback;
+        directModel = fallbackModel;
+      }
+    }
 
     if (!aiResponse.ok) {
       const body = (await aiResponse.text()).slice(0, 1000);
@@ -503,23 +530,6 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       modelId: aiEnvelope.model || (directGeminiKey ? directModel : MODEL_ID),
     };
 
-    if (!pending) {
-      await serviceRequest<unknown>(
-        "/rest/v1/intensive_student_answers?" +
-          new URLSearchParams({ attempt_id: "eq." + attemptId, question_id: "eq." + questionId }).toString(),
-        {
-          method: "PATCH",
-          headers: { Prefer: "return=minimal" },
-          body: JSON.stringify({
-            score: total,
-            auto_graded: true,
-            admin_feedback: JSON.stringify(report),
-            graded_at: new Date().toISOString(),
-          }),
-        },
-      );
-    }
-
     const inserted = await serviceRequest<AssessmentRow[]>("/rest/v1/intensive_writing_assessments", {
       method: "POST",
       headers: { Prefer: "return=representation" },
@@ -550,6 +560,25 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       }),
     });
 
+    // Commit the validated assessment report first. Only then update the
+    // student's score so a database rejection never leaves a phantom grade.
+    if (!pending) {
+      await serviceRequest<unknown>(
+        "/rest/v1/intensive_student_answers?" +
+          new URLSearchParams({ attempt_id: "eq." + attemptId, question_id: "eq." + questionId }).toString(),
+        {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            score: total,
+            auto_graded: true,
+            admin_feedback: JSON.stringify(report),
+            graded_at: new Date().toISOString(),
+          }),
+        },
+      );
+    }
+
     if (pending) {
       await serviceRequest("/rest/v1/rpc/intensive_resolve_pending_writing", {
         method: "POST",
@@ -579,7 +608,18 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       history: history.map(assessmentPayload),
     });
   } catch (error) {
-    console.error("NUMO_WRITING_EVALUATION_ERROR", error);
+    // PostgREST exceptions may include student essays. Do not print their
+    // messages or details to runtime logs.
+    let safeCode = "UNKNOWN";
+    if (error instanceof Error) {
+      try {
+        const decoded = JSON.parse(error.message) as { code?: string };
+        safeCode = typeof decoded.code === "string" ? decoded.code : error.name;
+      } catch {
+        safeCode = error.name;
+      }
+    }
+    console.error("NUMO_WRITING_EVALUATION_ERROR", safeCode);
     return NextResponse.json(
       { ok: false, message: "تعذر تقييم الكتابة الآن. لم تُسجل أي درجة." },
       { status: 500 },
