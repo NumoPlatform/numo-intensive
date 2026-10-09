@@ -82,6 +82,26 @@ function sourceLockedExplanation(args: {
     skill === "VOCABULARY" ? "معنى الكلمة وسياق الجملة" :
     "القاعدة أو تركيب الجملة";
 
+  // Instructor-reviewed foundational English grammar rule. This is a
+  // teaching explanation, not a quotation claimed to appear in the source PDF.
+  if (prompt.trim() === "These are _______ flowers." &&
+      correctAnswer.trim().toLowerCase() === "my sister's") {
+    const selected = selectedAnswer.trim().toLowerCase();
+    const wrongReason = selected === "my sister"
+      ? "'my sister' تعني «أختي» فقط. قبل كلمة flowers نحتاج صيغة الملكية sister's للتعبير عن «زهور أختي»."
+      : selected === "my sisters"
+        ? "'my sisters' تعني «أخواتي» ولا تحتوي على علامة الملكية. إذا كانت الزهور ملكًا لأخوات عدة نقول my sisters' flowers."
+        : selected === "mine sister's"
+          ? "'mine' ضمير ملكية مستقل لا يأتي قبل اسم sister؛ الصحيح استعمال my مع الاسم، ثم إضافة 's للملكية."
+          : "العبارة المختارة لا تبني صيغة الملكية الصحيحة لاسم مفرد قبل flowers.";
+    return {
+      whyIncorrect: `اخترت «${selectedAnswer}». ${wrongReason}`,
+      whyCorrect: `الإجابة «${correctAnswer}» صحيحة؛ نضيف apostrophe + s إلى الاسم المفرد: sister → sister's عندما يملك الشخص شيئًا.`,
+      academicExplanation: "Possessive Nouns — قاعدة أسماء الملكية: These are my sister's flowers. = هذه زهور أختي. انتبه إلى الفرق بين my sister (أختي)، my sister's (شيء يخص أختي)، وmy sisters' (شيء يخص أخواتي). لا نستخدم mine قبل الاسم.",
+      supportingQuote: null as string | null,
+    };
+  }
+
   // A known internal inconsistency between the supplied reading passage
   // ("ate salad") and its supplied answer key ("True"). Preserve the source
   // answer but never invent a supporting quotation or present it as proven.
@@ -271,6 +291,10 @@ export async function GET(request: NextRequest) {
       const isPendingAcademicExplanation =
         !isCorrect && !wrongFeedback && !supportedSourceExplanation && !explanationRequested;
 
+      const missingSourceTeaching =
+        !sourceReason && !wrongFeedback && explanationRequested;
+      const resolvedAcademicFeedback = missingSourceTeaching ? null : resolvedFeedback;
+
       return NextResponse.json({
         ok: true,
         feedback: isCorrect
@@ -287,9 +311,9 @@ export async function GET(request: NextRequest) {
               correctAnswer,
               correction: "إجابتك خاطئة",
               explanationPending: isPendingAcademicExplanation,
-              whyIncorrect: resolvedFeedback?.whyIncorrect ?? null,
-              whyCorrect: resolvedFeedback?.whyCorrect ?? null,
-              academicExplanation: resolvedFeedback?.academicExplanation ?? null,
+              whyIncorrect: resolvedAcademicFeedback?.whyIncorrect ?? null,
+              whyCorrect: resolvedAcademicFeedback?.whyCorrect ?? null,
+              academicExplanation: resolvedAcademicFeedback?.academicExplanation ?? null,
               referenceSource: reference?.reference_source ?? null,
               referenceUnit: reference?.reference_unit ?? null,
               referencePage: reference?.reference_page ?? null,
