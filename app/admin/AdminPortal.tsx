@@ -97,7 +97,7 @@ type Readiness = {
     el111Course: boolean;
     threeIndependentSections: boolean;
     sectionQuestionCounts: boolean;
-    fourAttemptsPerSection: boolean;
+    unlimitedAttemptsPerSection: boolean;
     immediateResults: boolean;
     liveSections: boolean;
     thirtyMinuteSections: boolean;
@@ -138,7 +138,7 @@ const initialExam = {
   endsAt: "",
   durationMinutes: 90,
   sectionDurationMinutes: 30,
-  attemptsAllowed: 4,
+  attemptsAllowed: 0,
   resultRelease: "IMMEDIATE",
   skills: ["Grammar", "Vocabulary", "Reading"],
 };
@@ -752,7 +752,7 @@ export default function AdminPortal() {
                     <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                       {[
                         ["3 أقسام مستقلة", readiness.checks.threeIndependentSections],
-                        ["4 محاولات لكل قسم", readiness.checks.fourAttemptsPerSection],
+                        ["محاولات غير محدودة لكل قسم", readiness.checks.unlimitedAttemptsPerSection],
                         ["نتيجة مباشرة", readiness.checks.immediateResults],
                         ["30 دقيقة لكل قسم", readiness.checks.thirtyMinuteSections],
                         ["132 سؤالا من الملف", readiness.checks.sectionQuestionCounts],
@@ -1042,7 +1042,7 @@ export default function AdminPortal() {
                         <input className="field" type="number" min={1} max={240} value={examForm.sectionDurationMinutes} onChange={(e)=>setExamForm({...examForm,sectionDurationMinutes:Number(e.target.value)})}/>
                         <span className="mt-1 block text-xs text-[#777b8d]">الإجمالي: {examForm.sectionDurationMinutes * examForm.skills.length} دقيقة</span>
                       </label>
-                      <label className="block min-w-0"><span className="mb-2 block text-sm font-black">عدد المحاولات</span><input className="field" type="number" min={1} max={20} value={examForm.attemptsAllowed} onChange={(e)=>setExamForm({...examForm,attemptsAllowed:Number(e.target.value)})}/></label>
+                      <div className="block min-w-0"><span className="mb-2 block text-sm font-black">عدد المحاولات</span><div className="field flex items-center font-black text-emerald-700">∞ محاولات غير محدودة — إعداد ثابت لجميع الاختبارات</div></div>
                       <label className="block min-w-0"><span className="mb-2 block text-sm font-black">إظهار النتيجة</span><select className="field" value={examForm.resultRelease} onChange={(e)=>setExamForm({...examForm,resultRelease:e.target.value})}><option value="MANUAL">يدوي</option><option value="IMMEDIATE">مباشر</option><option value="AFTER_END">بعد الإغلاق</option></select></label>
                     </div>
                     <div>
@@ -1069,7 +1069,7 @@ export default function AdminPortal() {
                               <h3 dir="ltr" className="mt-1 text-lg font-black">{exam.title}</h3>
                               <p className="mt-2 text-xs leading-6 text-[#777b8d]">{formatDate(exam.starts_at)} — {formatDate(exam.ends_at)}</p>
                               <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
-                                <span className="rounded-full bg-[#f1f2ff] px-2.5 py-1 text-[#4f54b8]">{exam.attempts_allowed} محاولات</span>
+                                <span className="rounded-full bg-[#f1f2ff] px-2.5 py-1 text-[#4f54b8]">{exam.attempts_allowed === 0 ? "محاولات غير محدودة ∞" : `${exam.attempts_allowed} محاولات`}</span>
                                 <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">{exam.result_release === "IMMEDIATE" ? "نتيجة مباشرة" : exam.result_release}</span>
                               </div>
                             </div>
