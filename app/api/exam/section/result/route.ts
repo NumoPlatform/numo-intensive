@@ -81,6 +81,17 @@ export async function GET(request: NextRequest) {
         }).toString(),
     );
     const attemptsAllowed = Number(exams[0]?.attempts_allowed ?? 1);
+    const pendingRows = await serviceRequest<Array<{ question_id: string }>>(
+      "/rest/v1/intensive_writing_pending?" +
+        new URLSearchParams({
+          select: "question_id",
+          section_attempt_id: "eq." + latest.id,
+          student_id: "eq." + auth.profile.id,
+          status: "eq.PENDING",
+          limit: "1",
+        }).toString(),
+    );
+    const pending = pendingRows[0] ?? null;
 
     const [allSections, completedSectionAttempts] = await Promise.all([
       serviceRequest<Array<{ id: string }>>(
@@ -113,10 +124,12 @@ export async function GET(request: NextRequest) {
         sectionAttemptId: latest.id,
         sectionAttemptNumber: latest.attempt_number,
         attemptsAllowed,
-        attemptsRemaining: Math.max(0, attemptsAllowed - latest.attempt_number),
-        score: Number(latest.score ?? 0),
+        attemptsRemaining: attemptsAllowed === 0 ? -1 : Math.max(0, attemptsAllowed - latest.attempt_number),
+        score: pending ? null : Number(latest.score ?? 0),
         totalMarks: Number(latest.total_marks ?? 0),
-        percentage: Number(latest.percentage ?? 0),
+        percentage: pending ? null : Number(latest.percentage ?? 0),
+        gradingStatus: pending ? "PENDING" : "GRADED",
+        pendingQuestionId: pending?.question_id ?? null,
         bestScore: Number(best?.score ?? latest.score ?? 0),
         bestPercentage: Number(best?.percentage ?? latest.percentage ?? 0),
         correctCount: Number(latest.correct_count ?? 0),
