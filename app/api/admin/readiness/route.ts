@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
           el111Course: false,
           threeIndependentSections: false,
           sectionQuestionCounts: false,
-          fourAttemptsPerSection: false,
+          unlimitedAttemptsPerSection: false,
           immediateResults: false,
           liveSections: false,
           thirtyMinuteSections: false,
@@ -180,8 +180,8 @@ export async function GET(request: NextRequest) {
       sectionQuestionCounts:
         sections.length === 3 &&
         sections.every((section) => expectedSections.get(section.title) === section.question_count),
-      fourAttemptsPerSection:
-        assessments.length === 3 && assessments.every((exam) => exam.attempts_allowed === 4),
+      unlimitedAttemptsPerSection:
+        assessments.length === 3 && assessments.every((exam) => exam.attempts_allowed === 0),
       immediateResults:
         assessments.length === 3 && assessments.every((exam) => exam.result_release === "IMMEDIATE"),
       liveSections:
