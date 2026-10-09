@@ -83,7 +83,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GT103: {
     level: "General Studies · Level 1",
     label: "Artificial Intelligence",
-    cover: "https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/3bdd9ed2-edc2-4210-ba3b-f8842f98e164.png",
+    cover: "https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/a9406bbf-e926-48c8-ba06-f7ae26a6dd48.png",
     accent: "#B1785C",
     accentDark: "#1F2B5E",
     accentSoft: "#F5F6FC",
@@ -93,7 +93,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   TU170_GT101: {
     level: "General Studies · Level 1",
     label: "Computing Essentials · TU170 / GT101",
-    cover: "https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/da613162-5720-4b87-804d-8c3e3c160611.png",
+    cover: "https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/97608f17-5b92-43b7-9537-286c59fb42e2.png",
     accent: "#1F2B5E",
     accentDark: "#152047",
     accentSoft: "#EEF0F7",
