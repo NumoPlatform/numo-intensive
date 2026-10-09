@@ -28,6 +28,15 @@ type AnswerRow = {
   admin_feedback: string | null;
 };
 type SectionAttemptRow = { id: string };
+type PendingRow = {
+  section_attempt_id: string;
+  exam_attempt_id: string;
+  question_id: string;
+  student_id: string;
+  topic_index: number;
+  original_text: string;
+  status: string;
+};
 type AssessmentRow = {
   id: string;
   topic_index: number;
@@ -111,6 +120,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as {
       attemptId?: string;
       questionId?: string;
+      sectionAttemptId?: string;
     };
     const attemptId = String(body.attemptId ?? "");
     const questionId = String(body.questionId ?? "");
@@ -128,7 +138,27 @@ export async function POST(request: NextRequest) {
         }).toString(),
     );
     const attempt = attempts[0];
-    if (!attempt || attempt.status !== "IN_PROGRESS") {
+    if (!attempt) {
+      return NextResponse.json({ ok: false, message: "المحاولة غير متاحة للتقييم." }, { status: 409 });
+    }
+    // Completed, saved Writing is re-graded using the frozen submission, not
+    // the current student_answers row (which may belong to a newer attempt).
+    const pendingRows = body.sectionAttemptId
+      ? await serviceRequest<PendingRow[]>(
+          "/rest/v1/intensive_writing_pending?" +
+            new URLSearchParams({
+              select: "section_attempt_id,exam_attempt_id,question_id,student_id,topic_index,original_text,status",
+              section_attempt_id: "eq." + body.sectionAttemptId,
+              exam_attempt_id: "eq." + attemptId,
+              question_id: "eq." + questionId,
+              student_id: "eq." + auth.profile.id,
+              status: "eq.PENDING",
+              limit: "1",
+            }).toString(),
+        )
+      : [];
+    const pending = pendingRows[0] ?? null;
+    if (attempt.status !== "IN_PROGRESS" && !pending) {
       return NextResponse.json({ ok: false, message: "المحاولة غير متاحة للتقييم." }, { status: 409 });
     }
 
@@ -169,10 +199,10 @@ export async function POST(request: NextRequest) {
     const mapping = mappings[0];
     const question = questions[0];
     const answerRow = answers[0];
-    if (!exam || !mapping || !question || !answerRow) {
+    if (!exam || !mapping || !question || (!answerRow && !pending)) {
       return NextResponse.json({ ok: false, message: "تعذر العثور على مهمة Writing لهذه المحاولة." }, { status: 404 });
     }
-    if (attempt.current_section_id !== mapping.section_id) {
+    if (attempt.current_section_id !== mapping.section_id && (!pending || pending.section_attempt_id !== body.sectionAttemptId)) {
       return NextResponse.json({ ok: false, message: "افتح قسم Writing أولاً قبل التقييم." }, { status: 409 });
     }
 
@@ -187,11 +217,11 @@ export async function POST(request: NextRequest) {
     const rubricVersion = courseCode === "EL098" ? RUBRIC_VERSION : "EL097-FOUNDATION-NUMO-v1";
 
     const answer =
-      answerRow.answer && typeof answerRow.answer === "object" && !Array.isArray(answerRow.answer)
+      !pending && answerRow?.answer && typeof answerRow.answer === "object" && !Array.isArray(answerRow.answer)
         ? (answerRow.answer as Record<string, unknown>)
         : null;
-    const topicIndex = Number(answer?.topicIndex ?? 0);
-    const originalText = String(answer?.text ?? "").trim();
+    const topicIndex = pending ? Number(pending.topic_index ?? 0) : Number(answer?.topicIndex ?? 0);
+    const originalText = pending ? pending.original_text.trim() : String(answer?.text ?? "").trim();
     const maxTopics = courseCode === "EL098" ? 2 : 7;
     const topicText = Number.isInteger(topicIndex) && topicIndex >= 1 && topicIndex <= maxTopics
       ? tagValue(question.tags, `TOPIC${topicIndex}=`)
@@ -224,7 +254,18 @@ export async function POST(request: NextRequest) {
         }).toString(),
     );
     if (previousSame[0]) {
-      return NextResponse.json({ ok: true, reused: true, assessment: assessmentPayload(previousSame[0]) });
+      const reused = previousSame[0];
+      if (pending) {
+        await serviceRequest("/rest/v1/rpc/intensive_resolve_pending_writing", {
+          method: "POST",
+          body: JSON.stringify({
+            p_section_attempt_id: pending.section_attempt_id,
+            p_score: Number(reused.score_total),
+            p_report: assessmentPayload(reused),
+          }),
+        });
+      }
+      return NextResponse.json({ ok: true, reused: true, assessment: assessmentPayload(reused) });
     }
 
     const aiToken = process.env.AI_GATEWAY_API_KEY || request.headers.get("x-vercel-oidc-token") || process.env.VERCEL_OIDC_TOKEN;
@@ -319,7 +360,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
     });
 
     if (!aiResponse.ok) {
-      console.error("EL098_WRITING_AI_FAILED", aiResponse.status, await aiResponse.text());
+      console.error("NUMO_WRITING_AI_FAILED", aiResponse.status, await aiResponse.text());
       return NextResponse.json(
         { ok: false, code: "AI_UNAVAILABLE", message: "تعذر إكمال التقييم الذكي. لم تُسجل أي درجة." },
         { status: 502 },
@@ -334,7 +375,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
     try {
       parsed = parseAiJson(raw);
     } catch {
-      console.error("EL098_WRITING_AI_INVALID_JSON");
+      console.error("NUMO_WRITING_AI_INVALID_JSON");
       return NextResponse.json(
         { ok: false, code: "AI_INVALID", message: "أعاد محرك التقييم نتيجة غير صالحة. لم تُسجل أي درجة." },
         { status: 502 },
@@ -429,20 +470,22 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       modelId: aiEnvelope.model || MODEL_ID,
     };
 
-    await serviceRequest<unknown>(
-      "/rest/v1/intensive_student_answers?" +
-        new URLSearchParams({ attempt_id: "eq." + attemptId, question_id: "eq." + questionId }).toString(),
-      {
-        method: "PATCH",
-        headers: { Prefer: "return=minimal" },
-        body: JSON.stringify({
-          score: total,
-          auto_graded: true,
-          admin_feedback: JSON.stringify(report),
-          graded_at: new Date().toISOString(),
-        }),
-      },
-    );
+    if (!pending) {
+      await serviceRequest<unknown>(
+        "/rest/v1/intensive_student_answers?" +
+          new URLSearchParams({ attempt_id: "eq." + attemptId, question_id: "eq." + questionId }).toString(),
+        {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            score: total,
+            auto_graded: true,
+            admin_feedback: JSON.stringify(report),
+            graded_at: new Date().toISOString(),
+          }),
+        },
+      );
+    }
 
     const inserted = await serviceRequest<AssessmentRow[]>("/rest/v1/intensive_writing_assessments", {
       method: "POST",
@@ -451,7 +494,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
         student_id: auth.profile.id,
         exam_id: attempt.exam_id,
         exam_attempt_id: attemptId,
-        section_attempt_id: sectionAttempts[0]?.id ?? null,
+        section_attempt_id: pending?.section_attempt_id ?? sectionAttempts[0]?.id ?? null,
         question_id: questionId,
         topic_index: topicIndex,
         topic_text: topicText,
@@ -474,6 +517,17 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       }),
     });
 
+    if (pending) {
+      await serviceRequest("/rest/v1/rpc/intensive_resolve_pending_writing", {
+        method: "POST",
+        body: JSON.stringify({
+          p_section_attempt_id: pending.section_attempt_id,
+          p_score: total,
+          p_report: report,
+        }),
+      });
+    }
+
     const history = await serviceRequest<AssessmentRow[]>(
       "/rest/v1/intensive_writing_assessments?" +
         new URLSearchParams({
@@ -492,7 +546,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       history: history.map(assessmentPayload),
     });
   } catch (error) {
-    console.error("EL098_WRITING_EVALUATION_ERROR", error);
+    console.error("NUMO_WRITING_EVALUATION_ERROR", error);
     return NextResponse.json(
       { ok: false, message: "تعذر تقييم الكتابة الآن. لم تُسجل أي درجة." },
       { status: 500 },
