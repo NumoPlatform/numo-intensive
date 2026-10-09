@@ -62,7 +62,17 @@ export async function POST(request: NextRequest) {
       publishedResult: visibleResults[0] ?? null,
       sectionBreakdown,
     });
-  } catch {
-    return NextResponse.json({ ok: false, message: "Unable to submit the attempt." }, { status: 400 });
+  } catch (error) {
+    const raw = error instanceof Error ? error.message : "";
+    return NextResponse.json(
+      {
+        ok: false,
+        code: raw.includes("WRITING_GRADE_PENDING") ? "WRITING_GRADE_PENDING" : "SUBMIT_FAILED",
+        message: raw.includes("WRITING_GRADE_PENDING")
+          ? "تم حفظ Writing بأمان. لا يمكن اعتماد الدرجة النهائية قبل تقييم الكتابة. افتح نتيجة Writing واضغط إعادة محاولة التقييم."
+          : "تعذر تسليم المحاولة. يرجى المحاولة مرة أخرى.",
+      },
+      { status: raw.includes("WRITING_GRADE_PENDING") ? 409 : 400 },
+    );
   }
 }
