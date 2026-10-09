@@ -268,10 +268,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, reused: true, assessment: assessmentPayload(reused) });
     }
 
+    const directGeminiKey = process.env.NUMO_INTENSIVE_GEMINI_API_KEY;
     const aiToken = process.env.AI_GATEWAY_API_KEY || request.headers.get("x-vercel-oidc-token") || process.env.VERCEL_OIDC_TOKEN;
-    if (!aiToken) {
+    if (!directGeminiKey && !aiToken) {
       return NextResponse.json(
-        { ok: false, code: "AI_UNAVAILABLE", message: "تعذر تشغيل محرك تقييم الكتابة حالياً. لم تُسجل أي درجة." },
+        {
+          ok: false, code: "AI_SETUP_REQUIRED",
+          message: "محرك التصحيح الذكي غير مفعّل مؤقتاً لدى إدارة منصة نُمو. نصك محفوظ، ويمكنك اختيار «حفظ الكتابة للمراجعة» والعودة للتقييم بعد تفعيل الخدمة. لم تُسجل أي درجة.",
+        },
         { status: 503 },
       );
     }
@@ -289,88 +293,117 @@ corrections (array of {original, corrected, reasonAr}), strengths (Arabic string
 Every correction.original must be an exact excerpt from the student text. Reasons must be concise Arabic.
 The improvedVersion must preserve the student's ideas and selected topic, only improving language and organization.`;
 
-    const aiResponse = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + aiToken,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL_ID,
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content:
-              "Selected topic:\n" + topicText +
-              "\n\nStudent paragraph (" + wordCount + " words):\n<student_text>\n" +
-              originalText + "\n</student_text>",
+    const studentPrompt =
+      "Selected topic:\n" + topicText +
+      "\n\nStudent paragraph (" + wordCount + " words):\n<student_text>\n" +
+      originalText + "\n</student_text>";
+
+    // A NUMO-specific Google Gemini API key bypasses Vercel AI Gateway billing
+    // entirely. Keep it server-side in this Vercel project's env settings.
+    // Without that key, use the existing Gateway when its billing is enabled.
+    const directModel = "gemini-3.8-flash";
+    const aiResponse = directGeminiKey
+      ? await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + directModel + ":generateContent", {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": directGeminiKey,
+            "Content-Type": "application/json",
           },
-        ],
-        stream: false,
-        temperature: 0.15,
-        response_format: {
-          type: "json",
-          name: "numo_foundation_writing_assessment",
-          description: "Validated foundation English writing rubric assessment",
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              taskAchievement: { type: "number" },
-              grammarAccuracy: { type: "number" },
-              vocabularyUsage: { type: "number" },
-              organizationCoherence: { type: "number" },
-              spellingPunctuation: { type: "number" },
-              performanceLevel: { type: "string" },
-              corrections: {
-                type: "array",
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  properties: {
-                    original: { type: "string" },
-                    corrected: { type: "string" },
-                    reasonAr: { type: "string" },
-                  },
-                  required: ["original", "corrected", "reasonAr"],
-                },
-              },
-              strengths: { type: "array", items: { type: "string" } },
-              improvements: { type: "array", items: { type: "string" } },
-              improvedVersion: { type: "string" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: "user", parts: [{ text: studentPrompt }] }],
+            generationConfig: {
+              responseMimeType: "application/json",
+              temperature: 0.15,
             },
-            required: [
-              "taskAchievement",
-              "grammarAccuracy",
-              "vocabularyUsage",
-              "organizationCoherence",
-              "spellingPunctuation",
-              "performanceLevel",
-              "corrections",
-              "strengths",
-              "improvements",
-              "improvedVersion"
-            ],
+          }),
+          cache: "no-store",
+        })
+      : await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + aiToken,
+            "Content-Type": "application/json",
           },
-        },
-        providerOptions: { gateway: { disallowPromptTraining: true } },
-      }),
-      cache: "no-store",
-    });
+          body: JSON.stringify({
+            model: MODEL_ID,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: studentPrompt },
+            ],
+            stream: false,
+            temperature: 0.15,
+            response_format: {
+              type: "json",
+              name: "numo_foundation_writing_assessment",
+              description: "Validated foundation English writing rubric assessment",
+              schema: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  taskAchievement: { type: "number" },
+                  grammarAccuracy: { type: "number" },
+                  vocabularyUsage: { type: "number" },
+                  organizationCoherence: { type: "number" },
+                  spellingPunctuation: { type: "number" },
+                  performanceLevel: { type: "string" },
+                  corrections: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      properties: {
+                        original: { type: "string" },
+                        corrected: { type: "string" },
+                        reasonAr: { type: "string" },
+                      },
+                      required: ["original", "corrected", "reasonAr"],
+                    },
+                  },
+                  strengths: { type: "array", items: { type: "string" } },
+                  improvements: { type: "array", items: { type: "string" } },
+                  improvedVersion: { type: "string" },
+                },
+                required: [
+                  "taskAchievement", "grammarAccuracy", "vocabularyUsage",
+                  "organizationCoherence", "spellingPunctuation", "performanceLevel",
+                  "corrections", "strengths", "improvements", "improvedVersion",
+                ],
+              },
+            },
+            providerOptions: { gateway: { disallowPromptTraining: true } },
+          }),
+          cache: "no-store",
+        });
 
     if (!aiResponse.ok) {
-      console.error("NUMO_WRITING_AI_FAILED", aiResponse.status, await aiResponse.text());
+      const body = (await aiResponse.text()).slice(0, 1000);
+      const billingRequired = !directGeminiKey && aiResponse.status === 403 &&
+        (body.includes("customer_verification_required") || body.includes("credit card on file"));
+      console.error("NUMO_WRITING_AI_FAILED", {
+        source: directGeminiKey ? "gemini-direct" : "vercel-gateway",
+        status: aiResponse.status,
+        code: billingRequired ? "AI_GATEWAY_BILLING_REQUIRED" : "AI_PROVIDER_FAILED",
+      });
       return NextResponse.json(
-        { ok: false, code: "AI_UNAVAILABLE", message: "تعذر إكمال التقييم الذكي. لم تُسجل أي درجة." },
-        { status: 502 },
+        {
+          ok: false,
+          code: billingRequired ? "AI_SETUP_REQUIRED" : "AI_UNAVAILABLE",
+          message: billingRequired
+            ? "خدمة التصحيح الذكي لم تُفعَّل بعد من إدارة المنصة. إجابتك محفوظة، ولم تُسجل أي درجة. يمكنك حفظ الكتابة للمراجعة وإعادة التقييم لاحقاً."
+            : "خدمة تقييم الكتابة غير متاحة مؤقتاً. إجابتك محفوظة، ولم تُسجل أي درجة. يمكنك حفظها للمراجعة وإعادة التقييم لاحقاً.",
+        },
+        { status: billingRequired ? 503 : 502 },
       );
     }
     const aiEnvelope = (await aiResponse.json()) as {
       model?: string;
       choices?: Array<{ message?: { content?: string } }>;
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
     };
-    const raw = aiEnvelope.choices?.[0]?.message?.content ?? "";
+    const raw = directGeminiKey
+      ? (aiEnvelope.candidates?.[0]?.content?.parts ?? []).map((part) => part.text ?? "").join("")
+      : aiEnvelope.choices?.[0]?.message?.content ?? "";
     let parsed: Record<string, unknown>;
     try {
       parsed = parseAiJson(raw);
@@ -467,7 +500,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
       topicText,
       wordCount,
       rubricVersion,
-      modelId: aiEnvelope.model || MODEL_ID,
+      modelId: aiEnvelope.model || (directGeminiKey ? directModel : MODEL_ID),
     };
 
     if (!pending) {
@@ -512,7 +545,7 @@ The improvedVersion must preserve the student's ideas and selected topic, only i
         improvements,
         improved_version: improvedVersion,
         rubric_version: rubricVersion,
-        model_id: aiEnvelope.model || MODEL_ID,
+        model_id: aiEnvelope.model || (directGeminiKey ? directModel : MODEL_ID),
         submission_hash: submissionHash,
       }),
     });
