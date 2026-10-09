@@ -273,6 +273,8 @@ export default function ExamRunner() {
   const [writingHistory, setWritingHistory] = useState<WritingAssessment[]>([]);
   const [writingAssessmentLoading, setWritingAssessmentLoading] = useState(false);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const objectiveSavesInFlight = useRef<Set<string>>(new Set());
+  const feedbackRequestsInFlight = useRef<Set<string>>(new Set());
   const pendingAutoRetryOnce = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -346,7 +348,8 @@ export default function ExamRunner() {
   }, [attempt, saveAnswer]);
 
   async function loadInlineFeedback(questionId: string) {
-    if (!attempt || inlineFeedbackLoading[questionId]) return;
+    if (!attempt || feedbackRequestsInFlight.current.has(questionId)) return;
+    feedbackRequestsInFlight.current.add(questionId);
     setInlineFeedbackLoading((current) => ({ ...current, [questionId]: true }));
     try {
       const response = await intensiveFetch(
@@ -394,6 +397,7 @@ export default function ExamRunner() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "تعذر تحميل التصحيح الفوري.");
     } finally {
+      feedbackRequestsInFlight.current.delete(questionId);
       setInlineFeedbackLoading((current) => ({ ...current, [questionId]: false }));
     }
   }
@@ -436,13 +440,18 @@ export default function ExamRunner() {
   }, [answers, attempt, flags, writingAssessment]);
 
   function updateAnswer(questionId: string, value: unknown) {
-    const normalized = courseCode.trim().toUpperCase();
     const targetQuestion = attempt?.questions.find((item) => item.id === questionId);
-    const immediateReferenceMode =
-      (normalized === "GR101" || normalized === "EL098") &&
-      targetQuestion?.skill !== "Writing";
-    if (immediateReferenceMode && inlineFeedback[questionId]) return;
+    const isObjective = targetQuestion?.type === "MULTIPLE_CHOICE" ||
+      targetQuestion?.type === "TRUE_FALSE";
+    // With immediate key disclosure, objective choices are final for this
+    // section attempt. Further practice is available in the next attempt.
+    if (isObjective && (
+      inlineFeedback[questionId] ||
+      objectiveSavesInFlight.current.has(questionId) ||
+      hasAnswerValue(answers[questionId])
+    )) return;
 
+    if (isObjective) objectiveSavesInFlight.current.add(questionId);
     setAnswers((current) => ({ ...current, [questionId]: value }));
 
     if (targetQuestion?.skill === "Writing") {
@@ -452,12 +461,26 @@ export default function ExamRunner() {
       return;
     }
 
-    if (immediateReferenceMode) {
+    if (isObjective) {
+      setMessage("");
       void (async () => {
-        setInlineFeedbackLoading((current) => ({ ...current, [questionId]: true }));
-        const saved = await saveAnswer(questionId, value, Boolean(flags[questionId]));
-        setInlineFeedbackLoading((current) => ({ ...current, [questionId]: false }));
-        if (saved) await loadInlineFeedback(questionId);
+        try {
+          setInlineFeedbackLoading((current) => ({ ...current, [questionId]: true }));
+          const saved = await saveAnswer(questionId, value, Boolean(flags[questionId]));
+          if (!saved) {
+            setAnswers((current) => {
+              const copy = { ...current };
+              delete copy[questionId];
+              return copy;
+            });
+            setMessage("تعذر حفظ الإجابة. تحقق من اتصالك ثم اختر الإجابة مجددًا؛ لم يظهر مفتاح التصحيح بعد.");
+            return;
+          }
+        } finally {
+          objectiveSavesInFlight.current.delete(questionId);
+          setInlineFeedbackLoading((current) => ({ ...current, [questionId]: false }));
+        }
+        await loadInlineFeedback(questionId);
       })();
       return;
     }
@@ -861,7 +884,8 @@ export default function ExamRunner() {
   const normalizedCourseCode = courseCode.trim().toUpperCase();
   const isArabicGeneralExam = /^(AR|GR)/.test(normalizedCourseCode);
   const isTextbookReferencedExam = ["AR112", "GR101"].includes(normalizedCourseCode);
-  const isInstantFeedbackCourse = ["GR101", "EL098"].includes(normalizedCourseCode);
+  // Immediate source-locked feedback is available for objective questions
+  // across all courses, without involving AI in the answer key.
   const activeSectionId = attempt?.current_section_id ?? null;
   const activeQuestions = useMemo(
     () => questions.filter((question) => question.sectionId === activeSectionId),
@@ -869,7 +893,7 @@ export default function ExamRunner() {
   );
   const current = activeQuestions[currentIndex];
   const isImmediateReferenceMode =
-    isInstantFeedbackCourse && current?.skill !== "Writing";
+    current?.type === "MULTIPLE_CHOICE" || current?.type === "TRUE_FALSE";
   const answeredCount = useMemo(
     () => activeQuestions.filter((question) => hasAnswerValue(answers[question.id])).length,
     [activeQuestions, answers],
@@ -916,7 +940,8 @@ export default function ExamRunner() {
   useEffect(() => {
     if (!isImmediateReferenceMode || !attempt || !current) return;
     if (!hasAnswerValue(answers[current.id])) return;
-    if (inlineFeedback[current.id] || inlineFeedbackLoading[current.id]) return;
+    if (inlineFeedback[current.id] || inlineFeedbackLoading[current.id]
+        || objectiveSavesInFlight.current.has(current.id)) return;
     void loadInlineFeedback(current.id);
   }, [isImmediateReferenceMode, attempt?.attempt_id, current?.id, answers, inlineFeedback, inlineFeedbackLoading]);
 
@@ -1694,7 +1719,8 @@ export default function ExamRunner() {
   const currentInlineFeedback = inlineFeedback[current.id] ?? null;
   const currentInlineFeedbackLoading = Boolean(inlineFeedbackLoading[current.id]);
   const questionAnswerLocked =
-    answerLocked || (isImmediateReferenceMode && Boolean(currentInlineFeedback));
+    answerLocked || (isImmediateReferenceMode &&
+      (Boolean(currentInlineFeedback) || currentInlineFeedbackLoading || hasAnswerValue(answer)));
   const isWritingQuestion = ["EL098", "EL097_EL099E"].includes(normalizedCourseCode) && current.skill === "Writing";
   const writingAnswer =
     isWritingQuestion && answer && typeof answer === "object" && !Array.isArray(answer)
@@ -2264,8 +2290,11 @@ export default function ExamRunner() {
                 currentInlineFeedback.isCorrect ? (
                   <div dir="rtl" className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-right">
                     <div className="flex items-center justify-end gap-2 text-lg font-black text-emerald-800">
-                      <span>{normalizedCourseCode === "EL098" ? "أحسنت! إجابتك صحيحة" : "إجابة صحيحة"}</span>
+                      <span>أحسنت! إجابتك صحيحة</span>
                       <CheckCircle2 size={20} />
+                    </div>
+                    <div className="mt-3 text-base font-black text-emerald-900">
+                      الإجابة الصحيحة: {currentInlineFeedback.correctAnswer}
                     </div>
                   </div>
                 ) : (
@@ -2287,8 +2316,7 @@ export default function ExamRunner() {
                       </div>
                     </div>
 
-                    {normalizedCourseCode === "EL098" ? (
-                      currentInlineFeedback.explanationPending ? (
+                    {currentInlineFeedback.explanationPending ? (
                         <div role="status" aria-live="polite" className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
                           تم تصحيح الإجابة وفق مفتاح المصدر. جاري إعداد شرح أكاديمي موثوق لهذا الاختيار...
                         </div>
@@ -2318,21 +2346,11 @@ export default function ExamRunner() {
                         <div className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
                           تم إظهار الإجابة المعتمدة من الملف، لكن تعذر التحقق من تفسير تعليمي موثوق لهذا الاختيار حالياً.
                         </div>
-                      )
-                    ) : currentInlineFeedback.referenceEvidence ? (
-                      <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
-                        <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
-                          <span>التصحيح والدليل المباشر من المنهج</span>
-                          <BookOpen size={18} />
-                        </div>
-                        <p className="mt-2 text-sm font-semibold leading-8 text-[#3f465d]">
-                          {currentInlineFeedback.referenceEvidence}
-                        </p>
-                      </div>
-                    ) : null}
+                      )}
 
+                    {(currentInlineFeedback.referenceSource || currentInlineFeedback.referenceUnit || currentInlineFeedback.referencePage) ? (
                     <div className="rounded-2xl border border-[#eadfd8] bg-white p-5 shadow-sm">
-                      <div className="text-xs font-black text-[#B1785C]">الموضع المباشر في المنهج</div>
+                      <div className="text-xs font-black text-[#B1785C]">مرجع السؤال</div>
                       <div className="mt-2 text-sm font-black leading-7 text-[#1F2B5E]">
                         {currentInlineFeedback.referenceSource || "المرجع المعتمد للمقرر"}
                       </div>
@@ -2348,6 +2366,7 @@ export default function ExamRunner() {
                         </div>
                       ) : null}
                     </div>
+                    ) : null}
                   </div>
                 )
               ) : null}
