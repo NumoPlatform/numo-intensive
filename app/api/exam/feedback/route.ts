@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEl098WrongFeedback } from "@/lib/intensive/el098-wrong-feedback";
+import { getIntensiveEnglishWrongFeedback } from "@/lib/intensive/el098-wrong-feedback";
 import {
   authenticateRequest,
   serviceRequest,
@@ -237,16 +237,18 @@ export async function GET(request: NextRequest) {
       : selectedRaw.toLowerCase() === String(key.correctBoolean);
     const skill = (reference?.skill ?? "").trim().toUpperCase();
 
-    if (courseCode === "EL098") {
+    if (courseCode.startsWith("EL")) {
       const explanationRequested = request.nextUrl.searchParams.get("explain") === "1";
       // Source-locked answer verification remains unchanged. AI never chooses the key.
       // Generate detailed feedback only AFTER a student's incorrect choice was saved.
       const wrongFeedback = isCorrect
         ? null
-        : await getEl098WrongFeedback({
+        : await getIntensiveEnglishWrongFeedback({
             questionId,
             selectedOptionId: selectedRaw,
-            correctOptionId: key.correctOptionId ?? "",
+            correctOptionId: question.type === "MULTIPLE_CHOICE"
+              ? key.correctOptionId ?? ""
+              : String(key.correctBoolean),
             skill,
             prompt: question.prompt ?? "",
             selectedAnswer,
@@ -262,6 +264,12 @@ export async function GET(request: NextRequest) {
         reference,
       });
       const resolvedFeedback = wrongFeedback ?? sourceFeedback;
+      const sourceReason = (reference?.explanation ?? "").trim();
+      const supportedSourceExplanation =
+        sourceReason.length >= 100 &&
+        !/^(?:الإجابة المعتمدة|مفتاح الإجابة|الإجابة الصحيحة هي)/.test(sourceReason);
+      const isPendingAcademicExplanation =
+        !isCorrect && !wrongFeedback && !supportedSourceExplanation && !explanationRequested;
 
       return NextResponse.json({
         ok: true,
@@ -278,14 +286,15 @@ export async function GET(request: NextRequest) {
               selectedAnswer,
               correctAnswer,
               correction: "إجابتك خاطئة",
-              explanationPending: false,
+              explanationPending: isPendingAcademicExplanation,
               whyIncorrect: resolvedFeedback?.whyIncorrect ?? null,
               whyCorrect: resolvedFeedback?.whyCorrect ?? null,
               academicExplanation: resolvedFeedback?.academicExplanation ?? null,
               referenceSource: reference?.reference_source ?? null,
               referenceUnit: reference?.reference_unit ?? null,
               referencePage: reference?.reference_page ?? null,
-              referenceEvidence: wrongFeedback?.supportingQuote ?? sourceFeedback?.academicExplanation ?? null,
+              referenceEvidence: wrongFeedback?.supportingQuote ??
+                (reference?.reference_evidence || sourceFeedback?.academicExplanation || null),
             },
       });
     }
