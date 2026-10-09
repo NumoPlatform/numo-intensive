@@ -447,6 +447,7 @@ export default function ExamRunner() {
 
     if (targetQuestion?.skill === "Writing") {
       setWritingAssessment(null);
+      setMessage("");
       queueSave(questionId, value, Boolean(flags[questionId]));
       return;
     }
@@ -466,19 +467,25 @@ export default function ExamRunner() {
 
   async function evaluateWriting(question: Question) {
     if (!attempt || writingAssessmentLoading) return;
-    const value = answers[question.id];
-    if (!value || typeof value !== "object" || Array.isArray(value)) {
-      setMessage("اختر موضوعًا واكتب الفقرة أولاً.");
+    if (remaining <= 0 || advancing || submitting) {
+      setMessage("انتهى وقت هذا القسم أو يجري حفظه. انتقل إلى نتيجة القسم للتحقق من حالة كتابة الطالبة.");
       return;
     }
-    const row = value as Record<string, unknown>;
+    const value = answers[question.id];
+    const row = value && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : { topicIndex: 0, text: "" };
     const words = writingWordCount(String(row.text ?? ""));
-    if (Number(row.topicIndex ?? 0) < 1) {
-      setMessage("اختر موضوعًا واحدًا من موضوعات Writing قبل التقييم.");
+    const availableTopics = Array.from({ length: 7 }, (_, index) =>
+      writingTag(question.tags, `TOPIC${index + 1}=`),
+    ).filter(Boolean);
+    const topicIndex = Number(row.topicIndex ?? 0);
+    if (!Number.isInteger(topicIndex) || topicIndex < 1 || topicIndex > availableTopics.length) {
+      setMessage("لم تختر موضوع الكتابة. اختر موضوعًا واحدًا من الأعلى ثم اضغط «تسليم وتقييم الكتابة» مرة أخرى. لن يُحذف النص الذي كتبته.");
       return;
     }
     if (words < 100) {
-      setMessage(`الفقرة الحالية ${words} كلمة. المطلوب 100 كلمة على الأقل.`);
+      setMessage(`كتبت ${words} كلمة؛ يتبقى ${100 - words} كلمة لبلوغ الحد الأدنى (100 كلمة، وليس 100 حرف). نصك محفوظ، ويمكنك إكماله ثم إعادة الضغط على الزر.`);
       return;
     }
 
@@ -1698,6 +1705,9 @@ export default function ExamRunner() {
     : [];
   const currentWritingText = String(writingAnswer.text ?? "");
   const currentWritingWords = writingWordCount(currentWritingText);
+  const writingTopicIndex = Number(writingAnswer.topicIndex ?? 0);
+  const writingTopicSelected = Number.isInteger(writingTopicIndex) && writingTopicIndex > 0 && writingTopicIndex <= writingTopics.length;
+  const writingWordsRemaining = Math.max(0, 100 - currentWritingWords);
   const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
 
   return (
@@ -2035,7 +2045,10 @@ export default function ExamRunner() {
               {isWritingQuestion ? (
                 <div className="mt-7 space-y-5" dir="ltr">
                   <div className="rounded-2xl border border-[#e5ddd7] bg-[#FAF9F6] p-5">
-                    <div className="text-xs font-black uppercase tracking-[.15em] text-[#B1785C]">Choose one topic</div>
+                    <div className="text-xs font-black uppercase tracking-[.15em] text-[#B1785C]">Choose one topic · اختر موضوعًا واحدًا</div>
+                    <p className={"mt-2 text-sm font-bold leading-7 " + (writingTopicSelected ? "text-emerald-700" : "text-amber-800")} dir="rtl" aria-live="polite">
+                      {writingTopicSelected ? `✓ تم اختيار الموضوع رقم ${writingTopicIndex}` : "الخطوة الأولى: حدّد موضوعًا من الخيارات أدناه. كتابة النص وحدها لا تحدد الموضوع تلقائيًا."}
+                    </p>
                     <div className="mt-3 grid gap-3">
                       {writingTopics.map((topic, index) => {
                         const topicIndex = index + 1;
@@ -2054,6 +2067,7 @@ export default function ExamRunner() {
                               type="radio"
                               name={"writing-topic-" + current.id}
                               checked={selected}
+                              disabled={questionAnswerLocked || writingAssessmentLoading}
                               onChange={() =>
                                 updateAnswer(current.id, {
                                   topicIndex,
@@ -2089,6 +2103,11 @@ export default function ExamRunner() {
                         {currentWritingWords} / 100 words
                       </div>
                     </div>
+                    <div className={"mb-3 rounded-xl px-4 py-3 text-sm font-bold leading-7 " + (writingWordsRemaining === 0 ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900")} dir="rtl" aria-live="polite">
+                      {writingWordsRemaining === 0
+                        ? "✓ اكتمل الحد الأدنى: 100 كلمة أو أكثر."
+                        : `المتبقي ${writingWordsRemaining} كلمة من أصل 100 كلمة مطلوبة. المقصود عدد الكلمات وليس الحروف.`}
+                    </div>
                     <div className="mb-3 h-2 overflow-hidden rounded-full bg-[#eceaf0]">
                       <div
                         className="h-full rounded-full bg-[#6366F1] transition-all"
@@ -2100,6 +2119,7 @@ export default function ExamRunner() {
                       placeholder="Write your paragraph here..."
                       dir="ltr"
                       value={currentWritingText}
+                      disabled={questionAnswerLocked || writingAssessmentLoading}
                       onChange={(event) =>
                         updateAnswer(current.id, {
                           topicIndex: Number(writingAnswer.topicIndex ?? 0),
@@ -2110,16 +2130,24 @@ export default function ExamRunner() {
                     <button
                       type="button"
                       onClick={() => void evaluateWriting(current)}
-                      disabled={
-                        writingAssessmentLoading ||
-                        Number(writingAnswer.topicIndex ?? 0) < 1 ||
-                        currentWritingWords < 100
-                      }
+                      disabled={writingAssessmentLoading || advancing || submitting}
                       className="btn mt-4 w-full sm:w-auto"
                     >
                       {writingAssessmentLoading ? <Loader2 size={18} className="animate-spin" /> : <Target size={18} />}
                       تسليم وتقييم الكتابة
                     </button>
+                    <div role="status" aria-live="polite" className="mt-3 rounded-xl border border-[#e4e0e9] bg-[#faf9fc] p-3 text-sm font-semibold leading-7 text-[#505875]" dir="rtl">
+                      {!writingTopicSelected
+                        ? "الزر متاح. عند الضغط سيطلب منك أولًا اختيار موضوع؛ ولن يُحذف النص المكتوب."
+                        : writingWordsRemaining > 0
+                          ? `الزر متاح. عند الضغط ستعرف أن المتبقي ${writingWordsRemaining} كلمة. يمكنك مواصلة الكتابة دون فقدان ما سبق.`
+                          : "✓ اكتملت متطلبات الكتابة. يمكنك الضغط الآن لتسليم النص وبدء تقييمه من 25 درجة."}
+                    </div>
+                    {message ? (
+                      <div role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-8 text-rose-800" dir="rtl">
+                        {message}
+                      </div>
+                    ) : null}
                     {!writingAssessment && Number(writingAnswer.topicIndex ?? 0) >= 1 && currentWritingWords >= 100 ? (
                       <button
                         type="button"
