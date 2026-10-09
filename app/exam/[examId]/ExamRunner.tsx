@@ -1216,6 +1216,7 @@ export default function ExamRunner() {
   if (stage === "section-result" && attempt && sectionResult) {
     const unlimitedAttempts = sectionResult.attemptsAllowed === 0;
     const hasRetry = unlimitedAttempts || sectionResult.attemptsRemaining > 0;
+    const sectionWritingReport = sectionResult.writingReport ?? null;
 
     return (
       <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
@@ -1289,24 +1290,24 @@ export default function ExamRunner() {
                     إعادة محاولة التقييم
                   </button>
                 </div>
-              ) : sectionResult.writingReport ? (
+              ) : sectionWritingReport ? (
                 <div className="mt-6 space-y-5" dir="rtl">
                   <section className="rounded-2xl border border-[#dfe4f2] bg-[#f8f9fd] p-5">
                     <div className="text-xs font-black uppercase tracking-[.12em] text-[#B1785C]">NUMO SMART WRITING REPORT</div>
                     <h3 className="mt-2 text-xl font-black text-[#1F2B5E]">تقرير التصحيح الأكاديمي</h3>
-                    <div className="mt-2 text-3xl font-black text-[#1F2B5E]">{sectionResult.writingReport.score.toFixed(1)} / 25</div>
+                    <div className="mt-2 text-3xl font-black text-[#1F2B5E]">{sectionWritingReport.score.toFixed(1)} / 25</div>
                     <p className="mt-2 text-sm font-semibold text-[#5f6680]">
-                      {sectionResult.writingReport.performanceLevel} · موضوع {sectionResult.writingReport.topicIndex}
+                      {sectionWritingReport.performanceLevel} · موضوع {sectionWritingReport.topicIndex}
                     </p>
-                    <p className="mt-2 text-sm leading-7 text-[#3e4560]" dir="ltr">{sectionResult.writingReport.topicText}</p>
+                    <p className="mt-2 text-sm leading-7 text-[#3e4560]" dir="ltr">{sectionWritingReport.topicText}</p>
                   </section>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                     {([
-                      ["Task Achievement", sectionResult.writingReport.criteria.taskAchievement, 8],
-                      ["Grammar Accuracy", sectionResult.writingReport.criteria.grammarAccuracy, 7],
-                      ["Vocabulary", sectionResult.writingReport.criteria.vocabularyUsage, 5],
-                      ["Organization", sectionResult.writingReport.criteria.organizationCoherence, 3],
-                      ["Spelling", sectionResult.writingReport.criteria.spellingPunctuation, 2],
+                      ["Task Achievement", sectionWritingReport.criteria.taskAchievement, 8],
+                      ["Grammar Accuracy", sectionWritingReport.criteria.grammarAccuracy, 7],
+                      ["Vocabulary", sectionWritingReport.criteria.vocabularyUsage, 5],
+                      ["Organization", sectionWritingReport.criteria.organizationCoherence, 3],
+                      ["Spelling", sectionWritingReport.criteria.spellingPunctuation, 2],
                     ] as const).map(([label,score,max]) => (
                       <div key={label} className="rounded-xl border border-[#e3dfe8] bg-white p-4">
                         <div className="text-xs font-bold text-[#646b84]">{label}</div>
@@ -1314,11 +1315,11 @@ export default function ExamRunner() {
                       </div>
                     ))}
                   </div>
-                  {sectionResult.writingReport.corrections.length ? (
+                  {sectionWritingReport.corrections.length ? (
                     <section className="rounded-2xl border border-[#e3dfe8] bg-white p-5">
                       <h4 className="text-lg font-black text-[#1F2B5E]">تصحيحات الجمل مع الشرح بالعربية</h4>
                       <div className="mt-4 space-y-4">
-                        {sectionResult.writingReport.corrections.map((correction,index) => (
+                        {sectionWritingReport.corrections.map((correction,index) => (
                           <div key={index} className="rounded-xl border border-[#eee9e5] bg-[#faf9f7] p-4">
                             <div className="font-bold leading-7 text-rose-700" dir="ltr">{correction.original}</div>
                             <div className="mt-2 font-bold leading-7 text-emerald-700" dir="ltr">{correction.corrected}</div>
@@ -1328,18 +1329,18 @@ export default function ExamRunner() {
                       </div>
                     </section>
                   ) : null}
-                  {sectionResult.writingReport.improvements.length ? (
+                  {sectionWritingReport.improvements.length ? (
                     <section className="rounded-2xl border border-[#e3dfe8] bg-white p-5">
                       <h4 className="text-lg font-black text-[#1F2B5E]">نصائح لتحسين الكتابة</h4>
                       <ul className="mt-3 list-disc space-y-2 pr-6 text-sm leading-7 text-[#50576e]">
-                        {sectionResult.writingReport.improvements.map((tip,index) => <li key={index}>{tip}</li>)}
+                        {sectionWritingReport.improvements.map((tip,index) => <li key={index}>{tip}</li>)}
                       </ul>
                     </section>
                   ) : null}
                   <section className="rounded-2xl border border-[#e3dfe8] bg-white p-5">
                     <h4 className="text-lg font-black text-[#1F2B5E]">النسخة المحسّنة للتعلم</h4>
                     <p className="mt-3 whitespace-pre-wrap text-sm leading-8 text-[#3f465b]" dir="ltr">
-                      {sectionResult.writingReport.improvedVersion}
+                      {sectionWritingReport.improvedVersion}
                     </p>
                   </section>
                 </div>
