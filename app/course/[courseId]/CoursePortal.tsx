@@ -156,7 +156,10 @@ export default function CoursePortal() {
 
   const normalizedCourseCode = course.code.trim().toUpperCase();
   const isGeneralCourse =
-    normalizedCourseCode.startsWith("GR") || normalizedCourseCode.startsWith("AR");
+    normalizedCourseCode.startsWith("GR") ||
+    normalizedCourseCode.startsWith("AR") ||
+    normalizedCourseCode === "GT103" ||
+    normalizedCourseCode === "TU170_GT101";
   const isEl098Quiz2 = normalizedCourseCode === "EL098";
   const isEl097Quiz2 = normalizedCourseCode === "EL097_EL099E";
   const el098ModelIcons = [ClipboardCheck, FileCheck2, GraduationCap, BookOpenCheck] as const;
