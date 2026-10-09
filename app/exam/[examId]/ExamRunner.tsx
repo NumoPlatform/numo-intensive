@@ -2038,22 +2038,35 @@ export default function ExamRunner() {
 
               {current.type === "TRUE_FALSE" ? (
                 <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                  {(current.options ?? []).map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      disabled={questionAnswerLocked}
-                      onClick={() => updateAnswer(current.id, option.value)}
-                      className={
-                        "rounded-2xl border p-5 text-lg font-black transition " +
-                        (String(answer ?? "") === option.value
-                          ? "border-[#6366F1] bg-[#f3f3ff] text-[#1F2B5E]"
-                          : "border-[#e4e0e8] bg-white hover:bg-[#faf9fb]")
-                      }
-                    >
-                      {option.value === "true" ? "True" : option.value === "false" ? "False" : option.label}
-                    </button>
-                  ))}
+                  {(current.options ?? []).map((option) => {
+                    const selected = String(answer ?? "") === option.value;
+                    const translated = option.value === "true" ? "صح" : option.value === "false" ? "خطأ" : option.label;
+                    const feedbackCorrect = Boolean(currentInlineFeedback) &&
+                      translated === currentInlineFeedback?.correctAnswer;
+                    const feedbackWrong = Boolean(currentInlineFeedback) &&
+                      !currentInlineFeedback?.isCorrect && selected;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        disabled={questionAnswerLocked}
+                        onClick={() => updateAnswer(current.id, option.value)}
+                        className={
+                          "flex items-center justify-center gap-2 rounded-2xl border p-5 text-lg font-black transition " +
+                          (feedbackCorrect
+                            ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                            : feedbackWrong
+                              ? "border-rose-300 bg-rose-50 text-rose-800"
+                              : selected
+                                ? "border-[#6366F1] bg-[#f3f3ff] text-[#1F2B5E]"
+                                : "border-[#e4e0e8] bg-white hover:bg-[#faf9fb]")
+                        }
+                      >
+                        {option.value === "true" ? "True" : option.value === "false" ? "False" : option.label}
+                        {feedbackCorrect ? <CheckCircle2 size={18} /> : feedbackWrong ? <XCircle size={18} /> : null}
+                      </button>
+                    );
+                  })}
                 </div>
               ) : null}
 
