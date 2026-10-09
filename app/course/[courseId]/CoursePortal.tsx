@@ -642,7 +642,8 @@ export default function CoursePortal() {
               const activeAttempt = attempts.find((item) => item.status === "IN_PROGRESS") ?? attempts[0];
               const sectionProgress = activeAttempt?.section_progress?.[section.id] ?? {};
               const usedSectionAttempts = Number(sectionProgress.attempt_count ?? 0);
-              const remaining = Math.max(0, exam.attempts_allowed - usedSectionAttempts);
+              const unlimitedAttempts = exam.attempts_allowed === 0;
+              const remaining = unlimitedAttempts ? -1 : Math.max(0, exam.attempts_allowed - usedSectionAttempts);
               const bestSectionPercentage = sectionProgress.best_percentage;
               const inProgress = attempts.find((item) => item.status === "IN_PROGRESS");
               const finalized = attempts.some((item) => item.status === "GRADED" || item.status === "SUBMITTED");
@@ -669,7 +670,7 @@ export default function CoursePortal() {
                         <div className="mt-1 text-[#868a9b]">{section.question_count ?? 0} سؤال</div>
                       </div>
                       <div className="rounded-xl bg-[#f8f7fa] p-3">
-                        <div dir="ltr" className="font-black">{remaining} / {exam.attempts_allowed}</div>
+                        <div dir={unlimitedAttempts ? "rtl" : "ltr"} className="font-black">{unlimitedAttempts ? "∞ غير محدودة" : `${remaining} / ${exam.attempts_allowed}`}</div>
                         <div className="mt-1 text-[#868a9b]">محاولات متبقية</div>
                       </div>
                     </div>
@@ -695,19 +696,19 @@ export default function CoursePortal() {
                     )}
 
                     <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-                      <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">{exam.attempts_allowed} محاولات</span>
+                      <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">{unlimitedAttempts ? "محاولات غير محدودة" : `${exam.attempts_allowed} محاولات`}</span>
                       <span className="rounded-full bg-[#fbf2ed] px-2.5 py-1 text-[#956047]">نتيجة مباشرة</span>
                       <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">اختيار حر</span>
                     </div>
 
-                    {finalized ? (
-                      <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
+                    {finalized && !unlimitedAttempts ? (
+                      <a href={"/results/" + exam.id} className="btn mt-4 w-full">
                         <Award size={17} /> عرض النتيجة النهائية
                       </a>
-                    ) : isOpen && (remaining > 0 || inProgress) ? (
+                    ) : isOpen && (unlimitedAttempts || remaining > 0 || inProgress) ? (
                       <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
                         {usedSectionAttempts > 0 ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
-                        {usedSectionAttempts > 0 ? "عرض النتيجة / إعادة المحاولة" : "اختيار هذا Section"}
+                        {finalized ? "إعادة الاختبار" : usedSectionAttempts > 0 ? "عرض النتيجة / إعادة المحاولة" : "اختيار هذا Section"}
                       </a>
                     ) : (
                       <div className="mt-4 rounded-xl bg-[#f0eff4] px-4 py-3 text-center text-xs font-black text-[#7b8092]">

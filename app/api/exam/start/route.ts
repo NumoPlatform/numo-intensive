@@ -54,7 +54,21 @@ export async function POST(request: NextRequest) {
     );
 
     const finalized = latestAttempts[0];
-    if (finalized && finalized.status !== "IN_PROGRESS") {
+    const examSettings = await userRequest<Array<{ attempts_allowed: number }>>(
+      auth.accessToken,
+      "/rest/v1/intensive_exams?" +
+        new URLSearchParams({
+          select: "attempts_allowed",
+          id: "eq." + body.examId,
+          limit: "1",
+        }).toString(),
+      { method: "GET" },
+    );
+    // Completed results remain available in /results. For unlimited exams,
+    // a fresh start creates a NEW attempt instead of blocking all future
+    // practice with the last finalized attempt.
+    const unlimitedAttempts = Number(examSettings[0]?.attempts_allowed ?? 1) === 0;
+    if (finalized && finalized.status !== "IN_PROGRESS" && !unlimitedAttempts) {
       const resultQuery = new URLSearchParams({
         select: "final_score,total_marks,percentage,status,grading_status,is_published,published_at",
         attempt_id: "eq." + finalized.id,

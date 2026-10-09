@@ -201,10 +201,10 @@ export async function PATCH(request: NextRequest) {
 
   if (body.attemptsAllowed !== undefined) {
     const attempts = Number(body.attemptsAllowed);
-    if (!Number.isInteger(attempts) || attempts < 1 || attempts > 20) {
-      return NextResponse.json({ ok: false, message: "Allowed attempts must be between 1 and 20." }, { status: 400 });
+    if (attempts !== 0) {
+      return NextResponse.json({ ok: false, message: "جميع اختبارات نُمو تسمح بمحاولات غير محدودة؛ أدخل 0." }, { status: 400 });
     }
-    patch.attempts_allowed = attempts;
+    patch.attempts_allowed = 0;
   }
 
   if (body.passingScore !== undefined) {
