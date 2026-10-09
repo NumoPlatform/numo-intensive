@@ -155,6 +155,7 @@ export default function CoursePortal() {
     null;
 
   const normalizedCourseCode = course.code.trim().toUpperCase();
+  const displayCourseCode = normalizedCourseCode === "TU170_GT101" ? "TU170 / GT101" : course.code;
   const isGeneralCourse =
     normalizedCourseCode.startsWith("GR") ||
     normalizedCourseCode.startsWith("AR") ||
@@ -212,7 +213,7 @@ export default function CoursePortal() {
               <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.25rem] border border-[#ece9ef] bg-white sm:rounded-[1.5rem]">
                 <img
                   src={cover}
-                  alt={"غلاف " + course.code}
+                  alt={"غلاف " + displayCourseCode}
                   width={1536}
                   height={864}
                   decoding="async"
@@ -237,7 +238,7 @@ export default function CoursePortal() {
                   {visual.level}
                 </span>
                 <div dir="ltr" className="mt-4 text-sm font-black tracking-[.16em] text-white/60">
-                  {course.code}
+                  {displayCourseCode}
                 </div>
                 <h1 dir="auto" className="mt-1 break-words text-2xl font-black leading-tight sm:text-3xl">
                   {course.title}
