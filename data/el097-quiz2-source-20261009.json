@@ -1,0 +1,1330 @@
+{
+  "source": "الكويز الثاني محدث.pdf",
+  "sourcePages": 36,
+  "courseCode": "EL097_EL099E",
+  "quizCategory": "QUIZ 2",
+  "groups": [
+    {
+      "title": "Grammar Foundations",
+      "skill": "Grammar",
+      "questions": [
+        {
+          "n": 1,
+          "page": 3,
+          "prompt": "This is _______ laptop.",
+          "options": {
+            "A": "Ali",
+            "B": "Ali's",
+            "C": "Alis",
+            "D": "him"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 2,
+          "page": 3,
+          "prompt": "These are _______ flowers.",
+          "options": {
+            "A": "my sisters",
+            "B": "my sister",
+            "C": "my sister's",
+            "D": "mine sister's"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 3,
+          "page": 3,
+          "prompt": "These are _______ shoes.",
+          "options": {
+            "A": "mine parents",
+            "B": "my parents",
+            "C": "my parents'",
+            "D": "mine parents'"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 4,
+          "page": 4,
+          "prompt": "These are _______ shoes.",
+          "options": {
+            "A": "the women",
+            "B": "the women s",
+            "C": "the women's",
+            "D": "the woman"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 5,
+          "page": 4,
+          "prompt": "This is _______ car.",
+          "options": {
+            "A": "him",
+            "B": "James",
+            "C": "James's",
+            "D": "he"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 6,
+          "page": 4,
+          "prompt": "_______ birthday is on Friday.",
+          "options": {
+            "A": "My mother",
+            "B": "My father's",
+            "C": "My sister",
+            "D": "My brother"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 7,
+          "page": 4,
+          "prompt": "This is _______ book.",
+          "options": {
+            "A": "Nadia",
+            "B": "Huda",
+            "C": "Hudas",
+            "D": "Nadia's"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 8,
+          "page": 5,
+          "prompt": "Roqia is my sister. _______ hair is very long.",
+          "options": {
+            "A": "Their",
+            "B": "His",
+            "C": "Her",
+            "D": "Your"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 9,
+          "page": 5,
+          "prompt": "My mother is a doctor. _______ sees a lot of patients.",
+          "options": {
+            "A": "we",
+            "B": "he",
+            "C": "she",
+            "D": "they"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 10,
+          "page": 5,
+          "prompt": "Look at that house! _______ is beautiful.",
+          "options": {
+            "A": "It",
+            "B": "He",
+            "C": "They",
+            "D": "She"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 11,
+          "page": 5,
+          "prompt": "That cat is adorable! _______ is eating tuna.",
+          "options": {
+            "A": "It",
+            "B": "They",
+            "C": "We",
+            "D": "You"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 12,
+          "page": 6,
+          "prompt": "Look at the kids playing. _______ are so adorable!",
+          "options": {
+            "A": "he",
+            "B": "them",
+            "C": "they",
+            "D": "she"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 13,
+          "page": 6,
+          "prompt": "_______ is a good student.",
+          "options": {
+            "A": "You",
+            "B": "They",
+            "C": "We",
+            "D": "He"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 14,
+          "page": 6,
+          "prompt": "_______ loves pizza very much.",
+          "options": {
+            "A": "I",
+            "B": "She",
+            "C": "They",
+            "D": "We"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 15,
+          "page": 6,
+          "prompt": "_______ are smart students.",
+          "options": {
+            "A": "He",
+            "B": "It",
+            "C": "They",
+            "D": "She"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 16,
+          "page": 7,
+          "prompt": "They are going to visit _______ grandparents tomorrow.",
+          "options": {
+            "A": "me",
+            "B": "him",
+            "C": "she",
+            "D": "their"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 17,
+          "page": 7,
+          "prompt": "Ahmed: Do _______ like going to the cinema? Ali: Yes, I do.",
+          "options": {
+            "A": "me",
+            "B": "them",
+            "C": "you",
+            "D": "us"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 18,
+          "page": 7,
+          "prompt": "Can you pass me _______ pen, please?",
+          "options": {
+            "A": "some",
+            "B": "these",
+            "C": "an",
+            "D": "a"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 19,
+          "page": 7,
+          "prompt": "He needs _______ new pen for school.",
+          "options": {
+            "A": "the",
+            "B": "some",
+            "C": "an",
+            "D": "a"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 20,
+          "page": 8,
+          "prompt": "She has _______ apple in her hand.",
+          "options": {
+            "A": "some",
+            "B": "the",
+            "C": "a",
+            "D": "an"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 21,
+          "page": 8,
+          "prompt": "They ______ a lot of homework to do. They study hard every day.",
+          "options": {
+            "A": "has",
+            "B": "do",
+            "C": "have",
+            "D": "does"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 22,
+          "page": 8,
+          "prompt": "They _____ TV every evening.",
+          "options": {
+            "A": "watches",
+            "B": "watched",
+            "C": "watch",
+            "D": "is.watching"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 23,
+          "page": 8,
+          "prompt": "...........is getting late.",
+          "options": {
+            "A": "They",
+            "B": "We",
+            "C": "It",
+            "D": "Him"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 24,
+          "page": 9,
+          "prompt": "................are going to the beach this weekend.",
+          "options": {
+            "A": "She",
+            "B": "It",
+            "C": "They",
+            "D": "I"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 25,
+          "page": 9,
+          "prompt": "___________ phone is ringing.",
+          "options": {
+            "A": "Him",
+            "B": "He’s",
+            "C": "His",
+            "D": "He"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 26,
+          "page": 9,
+          "prompt": "____ is raining outside.",
+          "options": {
+            "A": "He",
+            "B": "It",
+            "C": "She",
+            "D": "They"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 27,
+          "page": 9,
+          "prompt": "There is _____ cat on the roof.",
+          "options": {
+            "A": "the",
+            "B": "some",
+            "C": "an",
+            "D": "a"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 28,
+          "page": 10,
+          "prompt": "These are ________ books.",
+          "options": {
+            "A": "theirs",
+            "B": "they",
+            "C": "them",
+            "D": "their"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 29,
+          "page": 10,
+          "prompt": "______ is my brother.",
+          "options": {
+            "A": "Salma",
+            "B": "Sara and Salma",
+            "C": "Ahmed",
+            "D": "Sara"
+          },
+          "correct": "C"
+        }
+      ]
+    },
+    {
+      "title": "Verbs & Prepositions",
+      "skill": "Grammar",
+      "questions": [
+        {
+          "n": 1,
+          "page": 11,
+          "prompt": "You _______ to parties at all.",
+          "options": {
+            "A": "goes",
+            "B": "don't go",
+            "C": "is going",
+            "D": "doesn't go"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 2,
+          "page": 11,
+          "prompt": "Birds _______ in the trees.",
+          "options": {
+            "A": "am singing",
+            "B": "sing",
+            "C": "singing",
+            "D": "sings"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 3,
+          "page": 11,
+          "prompt": "Tom and Sarah _______ English together.",
+          "options": {
+            "A": "is studying",
+            "B": "studying",
+            "C": "studies",
+            "D": "study"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 4,
+          "page": 12,
+          "prompt": "I went to the park _______ my friends.",
+          "options": {
+            "A": "for",
+            "B": "in",
+            "C": "with",
+            "D": "at"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 5,
+          "page": 12,
+          "prompt": "They went to the movies _______ their cousins.",
+          "options": {
+            "A": "in",
+            "B": "with",
+            "C": "on",
+            "D": "for"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 6,
+          "page": 12,
+          "prompt": "That tall boy _______ a beard is my brother.",
+          "options": {
+            "A": "on",
+            "B": "with",
+            "C": "in",
+            "D": "for"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 7,
+          "page": 12,
+          "prompt": "The girl _______ the red dress is my sister.",
+          "options": {
+            "A": "for",
+            "B": "in",
+            "C": "on",
+            "D": "at"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 8,
+          "page": 13,
+          "prompt": "I bought a gift _______ my mother's birthday.",
+          "options": {
+            "A": "by",
+            "B": "next to",
+            "C": "for",
+            "D": "above"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 9,
+          "page": 13,
+          "prompt": "We went _______ the beach with our friends.",
+          "options": {
+            "A": "with",
+            "B": "to",
+            "C": "in",
+            "D": "for"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 10,
+          "page": 13,
+          "prompt": "She found the math test very …… and could not do her homework.",
+          "options": {
+            "A": "easy",
+            "B": "difficult",
+            "C": "safe",
+            "D": "high"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 11,
+          "page": 13,
+          "prompt": "He checks his …… every morning to see if he has any important messages.",
+          "options": {
+            "A": "TV",
+            "B": "friends",
+            "C": "e-mail",
+            "D": "oven"
+          },
+          "correct": "C"
+        }
+      ]
+    },
+    {
+      "title": "Vocabulary & Definitions",
+      "skill": "Vocabulary",
+      "questions": [
+        {
+          "n": 1,
+          "page": 14,
+          "prompt": "My best friend is also my _______ because he lives next door.",
+          "options": {
+            "A": "manager",
+            "B": "neighbor",
+            "C": "couch",
+            "D": "driver"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 2,
+          "page": 14,
+          "prompt": "My _______ sister loves to play with her toys.",
+          "options": {
+            "A": "baby",
+            "B": "brother",
+            "C": "customer",
+            "D": "neighbor"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 3,
+          "page": 14,
+          "prompt": "She was born in the _______ of June.",
+          "options": {
+            "A": "month",
+            "B": "week",
+            "C": "day",
+            "D": "year"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 4,
+          "page": 15,
+          "prompt": "The color of the sky is _______.",
+          "options": {
+            "A": "yellow",
+            "B": "blue",
+            "C": "green",
+            "D": "red"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 5,
+          "page": 15,
+          "prompt": "I wear my _______ when I go to the beach, it's sunny these days.",
+          "options": {
+            "A": "sunglasses",
+            "B": "shoes",
+            "C": "jacket",
+            "D": "gloves"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 6,
+          "page": 15,
+          "prompt": "I got a bad _______ about the man because he was rude to us.",
+          "options": {
+            "A": "see",
+            "B": "smell",
+            "C": "look",
+            "D": "impression"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 7,
+          "page": 16,
+          "prompt": "He is a very... person who likes to paint, write, and make music.",
+          "options": {
+            "A": "kind",
+            "B": "creative",
+            "C": "slow",
+            "D": "fast"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 8,
+          "page": 16,
+          "prompt": "He has a good _______ as a nice and honest person.",
+          "options": {
+            "A": "fortune",
+            "B": "reputation",
+            "C": "house",
+            "D": "work"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 9,
+          "page": 16,
+          "prompt": "She ran very _______ and won the race easily.",
+          "options": {
+            "A": "high",
+            "B": "slowly",
+            "C": "badly",
+            "D": "fast"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 10,
+          "page": 16,
+          "prompt": "He finished _______ in the race and felt very sad.",
+          "options": {
+            "A": "active",
+            "B": "early",
+            "C": "happy",
+            "D": "last"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 11,
+          "page": 17,
+          "prompt": "The last question was very _______. I couldn't answer it.",
+          "options": {
+            "A": "fun",
+            "B": "interesting",
+            "C": "difficult",
+            "D": "simple"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 12,
+          "page": 17,
+          "prompt": "_______ are fun activities that we play.",
+          "options": {
+            "A": "Movies",
+            "B": "Books",
+            "C": "Songs",
+            "D": "Games"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 13,
+          "page": 17,
+          "prompt": "Pay for three books and get one _______. You will not pay for it.",
+          "options": {
+            "A": "cheap",
+            "B": "expensive",
+            "C": "free",
+            "D": "valuable"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 14,
+          "page": 18,
+          "prompt": "He likes to travel to different _______ and meet new people.",
+          "options": {
+            "A": "stars",
+            "B": "places",
+            "C": "rooms",
+            "D": "times"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 15,
+          "page": 18,
+          "prompt": "He found a _______ tool that helped him fix his car.",
+          "options": {
+            "A": "useless",
+            "B": "shapeless",
+            "C": "dark",
+            "D": "useful"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 16,
+          "page": 18,
+          "prompt": "She had a long and successful... as a lawyer before she stopped working.",
+          "options": {
+            "A": "university",
+            "B": "career",
+            "C": "class",
+            "D": "certificate"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 17,
+          "page": 18,
+          "prompt": "A _______ is where can you go to find jobs.",
+          "options": {
+            "A": "job fair",
+            "B": "library",
+            "C": "park",
+            "D": "school"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 18,
+          "page": 19,
+          "prompt": "A _______ is an electronic machine that stores and processes data.",
+          "options": {
+            "A": "computer",
+            "B": "television",
+            "C": "phone",
+            "D": "camera"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 19,
+          "page": 19,
+          "prompt": "A small computer is called a _______.",
+          "options": {
+            "A": "laptop",
+            "B": "phone",
+            "C": "television",
+            "D": "radio"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 20,
+          "page": 19,
+          "prompt": "To have a lot of something means _______.",
+          "options": {
+            "A": "You have a large amount of something",
+            "B": "You don't know the amount",
+            "C": "You have a small amount of something",
+            "D": "You have a medium amount of something"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 21,
+          "page": 19,
+          "prompt": "What does it mean to call someone?",
+          "options": {
+            "A": "To run or jump",
+            "B": "To cook or bake",
+            "C": "To phone or name",
+            "D": "To write or draw"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 22,
+          "page": 20,
+          "prompt": "A brother is a _______.",
+          "options": {
+            "A": "female sibling",
+            "B": "parent",
+            "C": "a male sibling",
+            "D": "grandparent"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 23,
+          "page": 20,
+          "prompt": "Ahmed is clever. He is _______.",
+          "options": {
+            "A": "with no thinking",
+            "B": "average or normal thinking",
+            "C": "smart or quick-thinking",
+            "D": "slow thinking"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 24,
+          "page": 20,
+          "prompt": "We had a delicious meal at a _______ yesterday.",
+          "options": {
+            "A": "stadium",
+            "B": "warehouse",
+            "C": "restaurant",
+            "D": "hospital"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 25,
+          "page": 20,
+          "prompt": "What is a beard?",
+          "options": {
+            "A": "Hair on the head",
+            "B": "Hair on arms",
+            "C": "Hair on legs",
+            "D": "Hair on chin and face"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 26,
+          "page": 21,
+          "prompt": "Ahmed is clever. He is ________",
+          "options": {
+            "A": "smart or quick-thinking",
+            "B": "with no thinking",
+            "C": "slow thinking",
+            "D": "average or normal thinking"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 27,
+          "page": 21,
+          "prompt": "A camera is a device that ________",
+          "options": {
+            "A": "cleans clothes",
+            "B": "takes photos",
+            "C": "plays music",
+            "D": "cooks food"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 28,
+          "page": 21,
+          "prompt": "He bought a new …… with a high-speed processor and a large memory.",
+          "options": {
+            "A": "bicycle",
+            "B": "washing machine",
+            "C": "laptop",
+            "D": "watch"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 29,
+          "page": 21,
+          "prompt": "Pay for three books and get one _____. You will not pay for it.",
+          "options": {
+            "A": "cheap",
+            "B": "valuable",
+            "C": "free",
+            "D": "expensive"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 30,
+          "page": 22,
+          "prompt": "_____ is a country in Europe.",
+          "options": {
+            "A": "USA",
+            "B": "Italy",
+            "C": "Australia",
+            "D": "UAE"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 31,
+          "page": 22,
+          "prompt": "I like to get up early in the _____.",
+          "options": {
+            "A": "afternoon",
+            "B": "evening",
+            "C": "morning",
+            "D": "summer"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 32,
+          "page": 22,
+          "prompt": "An _____ is an electronic message sent and received online.",
+          "options": {
+            "A": "e-mail",
+            "B": "letter",
+            "C": "newspaper",
+            "D": "phone call"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 33,
+          "page": 22,
+          "prompt": "Black is the ……………. color.",
+          "options": {
+            "A": "most transparent",
+            "B": "lightest",
+            "C": "most colorful",
+            "D": "darkest"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 34,
+          "page": 23,
+          "prompt": "..... is the color of blood.",
+          "options": {
+            "A": "blue",
+            "B": "red",
+            "C": "yellow",
+            "D": "white"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 35,
+          "page": 23,
+          "prompt": "They decided to go for a walk in the ........ when the sun was setting.",
+          "options": {
+            "A": "evening",
+            "B": "morning",
+            "C": "night",
+            "D": "spring"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 36,
+          "page": 23,
+          "prompt": "The concert was a big ....... that attracted many people from different places.",
+          "options": {
+            "A": "place",
+            "B": "memory",
+            "C": "work",
+            "D": "event"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 37,
+          "page": 23,
+          "prompt": "\"Cost\" refers to_____.",
+          "options": {
+            "A": "what you earn",
+            "B": "what you lose",
+            "C": "what you save",
+            "D": "what you pay"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 38,
+          "page": 24,
+          "prompt": "_____ is the time between noon and the evening.",
+          "options": {
+            "A": "Nighttime",
+            "B": "Afternoon",
+            "C": "Midnight",
+            "D": "Morning"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 39,
+          "page": 24,
+          "prompt": "Mo Salah is a very ______ footballer. This helps him score a lot of goals.",
+          "options": {
+            "A": "small",
+            "B": "fast",
+            "C": "slow",
+            "D": "big"
+          },
+          "correct": "B"
+        }
+      ]
+    },
+    {
+      "title": "The Cloud",
+      "skill": "Reading",
+      "questions": [
+        {
+          "n": 1,
+          "page": 25,
+          "prompt": "A cloud is made of water _______ floating in the sky.",
+          "options": {
+            "A": "vapors",
+            "B": "fogs",
+            "C": "gases",
+            "D": "drops"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 2,
+          "page": 26,
+          "prompt": "Which word means (stay on the surface and not sink)?",
+          "options": {
+            "A": "Droplets",
+            "B": "Vapor",
+            "C": "Float",
+            "D": "Rain"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 3,
+          "page": 26,
+          "prompt": "The drops of water in the sky are too small to see.",
+          "options": {
+            "A": "True",
+            "B": "False"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 4,
+          "page": 26,
+          "prompt": "There are not many kinds of clouds.",
+          "options": {
+            "A": "True",
+            "B": "False"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 5,
+          "page": 26,
+          "prompt": "When the air is colder, the water may form... instead of rain.",
+          "options": {
+            "A": "Fog",
+            "B": "Snow",
+            "C": "Snowflakes",
+            "D": "Vapor"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 6,
+          "page": 27,
+          "prompt": "The pronoun (They) in sentence 6 refers back to?",
+          "options": {
+            "A": "Clouds",
+            "B": "Drops",
+            "C": "Water",
+            "D": "Fog"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 7,
+          "page": 27,
+          "prompt": "What are the types of clouds?",
+          "options": {
+            "A": "High, low and middle.",
+            "B": "High and low",
+            "C": "High and middle.",
+            "D": "Low and middle"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 8,
+          "page": 27,
+          "prompt": "Drops of water turn into a gas called water ________.",
+          "options": {
+            "A": "Cloud",
+            "B": "Snow",
+            "C": "Rain",
+            "D": "Vapor"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 9,
+          "page": 27,
+          "prompt": "When droplets join with other droplets in hot air, they cause ________.",
+          "options": {
+            "A": "Fog",
+            "B": "Snow",
+            "C": "Rain",
+            "D": "Vapor"
+          },
+          "correct": "C"
+        }
+      ]
+    },
+    {
+      "title": "Family Tree",
+      "skill": "Reading",
+      "questions": [
+        {
+          "n": 1,
+          "page": 29,
+          "prompt": "What is the name of Omar’s best friend?",
+          "options": {
+            "A": "Khalid",
+            "B": "Sara",
+            "C": "Zain",
+            "D": "Ahmed"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 2,
+          "page": 30,
+          "prompt": "What is the name of Aisha’s best friend?",
+          "options": {
+            "A": "Khalid",
+            "B": "Sara",
+            "C": "Zain",
+            "D": "Ahmed"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 3,
+          "page": 30,
+          "prompt": "Ahmed’s best friend is ________",
+          "options": {
+            "A": "Khalid",
+            "B": "Sara",
+            "C": "Zain",
+            "D": "Ahmed"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 4,
+          "page": 30,
+          "prompt": "What do Omar and Khalid like to do together?",
+          "options": {
+            "A": "They play soccer and watch movies",
+            "B": "They read books and paint pictures",
+            "C": "They ride bikes and play video games",
+            "D": "They go to the mall and the cinema"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 5,
+          "page": 31,
+          "prompt": "What do the siblings and their friends sometimes do together as a group?",
+          "options": {
+            "A": "Play soccer and watch movies",
+            "B": "Read books and paint pictures",
+            "C": "Ride bikes and play video games",
+            "D": "Go to the mall, the cinema, or the beach"
+          },
+          "correct": "D"
+        },
+        {
+          "n": 6,
+          "page": 31,
+          "prompt": "What is the name of the father in the family tree?",
+          "options": {
+            "A": "Ali",
+            "B": "Omar",
+            "C": "Ahmed",
+            "D": "Fatima"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 7,
+          "page": 31,
+          "prompt": "How many siblings are there in the family tree?",
+          "options": {
+            "A": "One",
+            "B": "Two",
+            "C": "Three",
+            "D": "Four"
+          },
+          "correct": "C"
+        }
+      ]
+    },
+    {
+      "title": "English for Beginners",
+      "skill": "Reading",
+      "questions": [
+        {
+          "n": 1,
+          "page": 33,
+          "prompt": "What is the purpose of the email?",
+          "options": {
+            "A": "To invite a friend to a party",
+            "B": "To ask the friend for a favor",
+            "C": "To check up on the friend",
+            "D": "To inform the friend about an English course."
+          },
+          "correct": "D"
+        },
+        {
+          "n": 2,
+          "page": 33,
+          "prompt": "Where is the English course located?",
+          "options": {
+            "A": "In Japan",
+            "B": "In England",
+            "C": "In Saudi Arabia",
+            "D": "In the United States"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 3,
+          "page": 33,
+          "prompt": "How long is the English course?",
+          "options": {
+            "A": "One week",
+            "B": "Two weeks",
+            "C": "One month",
+            "D": "Two months."
+          },
+          "correct": "D"
+        },
+        {
+          "n": 4,
+          "page": 34,
+          "prompt": "What is the name of the English course?",
+          "options": {
+            "A": "English for Beginners",
+            "B": "English for Advanced Learners",
+            "C": "English for Business",
+            "D": "English for Tourists"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 5,
+          "page": 34,
+          "prompt": "What is the name of the teacher?",
+          "options": {
+            "A": "Mr. Smith",
+            "B": "Ms. Johnson",
+            "C": "Mr. Brown",
+            "D": "Ms. Davis"
+          },
+          "correct": "B"
+        },
+        {
+          "n": 6,
+          "page": 34,
+          "prompt": "What is the teacher’s teaching style?",
+          "options": {
+            "A": "Strict",
+            "B": "Laid-back",
+            "C": "Interactive",
+            "D": "Boring"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 7,
+          "page": 34,
+          "prompt": "What is the course fee?",
+          "options": {
+            "A": "£100",
+            "B": "£500",
+            "C": "£1000",
+            "D": "£5000"
+          },
+          "correct": "C"
+        },
+        {
+          "n": 8,
+          "page": 35,
+          "prompt": "What is the course schedule?",
+          "options": {
+            "A": "Monday to Friday",
+            "B": "Saturday and Sunday",
+            "C": "Monday, Wednesday, and Friday",
+            "D": "Tuesday and Thursday"
+          },
+          "correct": "A"
+        },
+        {
+          "n": 9,
+          "page": 35,
+          "prompt": "The course curriculum includes ………………….",
+          "options": {
+            "A": "Only grammar and Vocabulary",
+            "B": "Only listening and speaking",
+            "C": "Only reading and Writing",
+            "D": "The four skills, vocabulary and grammar."
+          },
+          "correct": "D"
+        },
+        {
+          "n": 10,
+          "page": 35,
+          "prompt": "What is the course level?",
+          "options": {
+            "A": "Beginner",
+            "B": "Intermediate",
+            "C": "Advanced",
+            "D": "All levels."
+          },
+          "correct": "A"
+        }
+      ]
+    }
+  ],
+  "passages": [
+    {
+      "title": "The Cloud",
+      "body": "A cloud is made of water drops floating in the sky. The sky can be full of water. But most of the time you can't see the water. The drops of water form many kinds of clouds.\n\nClouds get their names in many ways. One way is by where they are found in the sky. Some clouds are high up in the sky. Some clouds are found between low and high clouds.\n\nMost of the water in clouds is in very small droplets. The droplets are so light that they float in the air. The droplets can join with other droplets to form larger drops. When that happens, gravity causes them to fall to Earth. We call the falling water drops 'rain.'",
+      "source_pages": "25"
+    },
+    {
+      "title": "Family Tree",
+      "body": "A family tree is a way of showing how people in a family are related to each other. A family tree can have many branches, but a small family tree can have only one branch. A small family tree can show the father, the mother, and the siblings in a family.\n\nThe father and the mother are the parents of the siblings. The siblings are the children of the parents. The siblings can be brothers, sisters, or both. The father and the mother are married to each other. The siblings share the same parents.\n\nIn this family tree, we can see that Ali and Fatima are the father and the mother of Omar, Aisha, and Ahmed. Omar, Aisha, and Ahmed have some friends who they like, and they go out together.\n\nEL097 / QUIZ 02\n\nOmar’s best friend is Khalid, whom he met at school. They both like to play soccer and watch movies. Aisha’s best friend is Sara, whom she met at the library. They both like to read books and paint pictures. Ahmed’s best friend is Zain, whom he met at the park. They both like to ride bikes and play video games.\n\nSometimes, the siblings and their friends go out together as a group. They like to go to the mall, the cinema, or the beach. They have fun and enjoy each other’s company. They also help each other with their homework and problems. They are loyal and supportive of each other. They are not only friends but also like family.",
+      "source_pages": "28-29"
+    },
+    {
+      "title": "English for Beginners",
+      "body": "Dear Omar,\n\nI hope this email finds you well. I wanted to share some exciting news with you. I am currently attending an English course in England. The weather in England is rainy and it's better to have your umbrella with you when you go out. The course is called “English for Beginners” and it is being taught by Ms. Johnson. The course is two months long and it costs £1000. The schedule is Monday to Friday and the curriculum covers grammar, vocabulary, speaking, listening, reading, and writing. I am enjoying the course and I feel like it is helping me improve my English skills. I think you would benefit from taking a similar course. It would be great if we could attend a course together sometime.\n\nBest regards, Shadi.",
+      "source_pages": "32"
+    }
+  ],
+  "writing": {
+    "title": "Writing Practice",
+    "minWords": 100,
+    "topics": [
+      "We love our families, and we spend time with them every day, tell us about your family.",
+      "Write about your friends or your best friend.",
+      "Introduce Yourself",
+      "Your City",
+      "Write about your father, your mother, or your brother.",
+      "Write about your favorite selfie on your phone.",
+      "University campus"
+    ]
+  }
+}
