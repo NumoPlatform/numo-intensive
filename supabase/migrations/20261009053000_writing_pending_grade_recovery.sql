@@ -191,3 +191,148 @@ begin
 end $$;
 revoke all on function public.intensive_resolve_pending_writing(uuid,numeric,jsonb) from public,anon,authenticated;
 grant execute on function public.intensive_resolve_pending_writing(uuid,numeric,jsonb) to service_role;
+
+-- Never publish an overall course score while a saved Writing response awaits grading.
+CREATE OR REPLACE FUNCTION public.intensive_submit_attempt_sectioned(p_attempt_id uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+declare
+  v_attempt public.intensive_exam_attempts%rowtype;
+  v_exam public.intensive_exams%rowtype;
+  v_total_sections integer;
+  v_done_sections integer;
+  v_score numeric := 0;
+  v_total numeric := 0;
+  v_percent numeric := 0;
+  v_publish boolean := false;
+  v_result_id uuid;
+  v_breakdown jsonb := '[]'::jsonb;
+begin
+  if auth.uid() is null then raise exception 'AUTHENTICATION_REQUIRED'; end if;
+  if not public.intensive_has_active_device() then raise exception 'DEVICE_NOT_AUTHORIZED'; end if;
+
+  select * into v_attempt
+  from public.intensive_exam_attempts
+  where id = p_attempt_id and student_id = auth.uid()
+  for update;
+
+  if not found then raise exception 'ATTEMPT_NOT_FOUND'; end if;
+
+  select * into v_exam from public.intensive_exams where id = v_attempt.exam_id;
+
+  select count(*)::int into v_total_sections
+  from public.intensive_exam_sections
+  where exam_id = v_attempt.exam_id and is_enabled;
+
+  select count(*)::int into v_done_sections
+  from public.intensive_exam_sections s
+  where s.exam_id = v_attempt.exam_id and s.is_enabled
+    and exists (
+      select 1
+      from public.intensive_section_attempts sa
+      where sa.exam_attempt_id = p_attempt_id
+        and sa.section_id = s.id
+        and sa.status in ('GRADED','EXPIRED')
+    );
+
+  if v_done_sections < v_total_sections then raise exception 'SECTIONS_INCOMPLETE'; end if;
+
+  if exists (
+    select 1 from public.intensive_writing_pending
+    where exam_attempt_id=p_attempt_id and status='PENDING'
+  ) then raise exception 'WRITING_GRADE_PENDING'; end if;
+
+  with best as (
+    select distinct on (sa.section_id)
+      sa.section_id, sa.score, sa.total_marks, sa.percentage
+    from public.intensive_section_attempts sa
+    where sa.exam_attempt_id = p_attempt_id
+      and sa.status in ('GRADED','EXPIRED')
+    order by sa.section_id, sa.score desc, sa.completed_at desc
+  ),
+  data as (
+    select
+      s.id as section_id,
+      s.title,
+      s.position,
+      coalesce(b.score,0) as score,
+      coalesce(nullif(b.total_marks,0),s.marks,0) as total_marks,
+      coalesce(b.percentage,0) as percentage
+    from public.intensive_exam_sections s
+    left join best b on b.section_id=s.id
+    where s.exam_id=v_attempt.exam_id and s.is_enabled
+  )
+  select
+    coalesce(sum(score),0),
+    coalesce(sum(total_marks),0),
+    coalesce(jsonb_agg(jsonb_build_object(
+      'sectionId',section_id,
+      'title',title,
+      'score',score,
+      'totalMarks',total_marks,
+      'percentage',percentage
+    ) order by position),'[]'::jsonb)
+  into v_score,v_total,v_breakdown
+  from data;
+
+  v_percent := case when v_total=0 then 0 else round(v_score/v_total*100,2) end;
+  v_publish := v_exam.result_release='IMMEDIATE'
+    or (v_exam.result_release='AFTER_END' and now()>=v_exam.ends_at);
+
+  update public.intensive_exam_attempts
+  set
+    status='GRADED',
+    submitted_at=coalesce(submitted_at,now()),
+    objective_score=v_score,
+    final_score=v_score,
+    section_breakdown=v_breakdown,
+    current_section_id=null,
+    current_section_started_at=null,
+    current_section_expires_at=null,
+    updated_at=now()
+  where id=p_attempt_id;
+
+  insert into public.intensive_results(
+    attempt_id,exam_id,student_id,objective_score,manual_score,final_score,
+    total_marks,percentage,status,grading_status,skill_breakdown,is_published,published_at
+  )
+  values(
+    p_attempt_id,v_exam.id,auth.uid(),v_score,0,v_score,v_total,v_percent,
+    case
+      when v_exam.passing_score is null or v_score>=v_exam.passing_score then 'PASS'
+      else 'FAIL'
+    end,
+    'COMPLETE',
+    v_breakdown,
+    v_publish,
+    case when v_publish then now() end
+  )
+  on conflict(attempt_id) do update set
+    objective_score=excluded.objective_score,
+    final_score=excluded.final_score,
+    total_marks=excluded.total_marks,
+    percentage=excluded.percentage,
+    status=excluded.status,
+    grading_status=excluded.grading_status,
+    skill_breakdown=excluded.skill_breakdown,
+    is_published=excluded.is_published,
+    published_at=excluded.published_at,
+    updated_at=now()
+  returning id into v_result_id;
+
+  return jsonb_build_object(
+    'submitted',true,
+    'attempt_id',p_attempt_id,
+    'result_id',v_result_id,
+    'pending_grading',false,
+    'score',v_score,
+    'total_marks',v_total,
+    'percentage',v_percent,
+    'section_breakdown',v_breakdown
+  );
+end
+$function$
+;
