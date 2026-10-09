@@ -298,8 +298,12 @@ export default function CoursePortal() {
               const usedAttempts = attempts.length
                 ? Math.max(...attempts.map((item) => Number(item.attempt_number ?? 0)))
                 : 0;
+              // The examination RPC defines attempts_allowed=0 as unlimited.
+              // Treat zero consistently here; never render "0 / 0" or falsely
+              // prevent first-time students from opening their exam.
               const allowedAttempts = exam?.attempts_allowed ?? 4;
-              const remaining = Math.max(0, allowedAttempts - usedAttempts);
+              const unlimitedAttempts = Boolean(exam && allowedAttempts === 0);
+              const remaining = unlimitedAttempts ? null : Math.max(0, allowedAttempts - usedAttempts);
               const now = Date.now();
               const isOpen = exam
                 ? now >= new Date(exam.starts_at).getTime() &&
@@ -310,7 +314,7 @@ export default function CoursePortal() {
                 Boolean(exam) &&
                 hasQuestions &&
                 isOpen &&
-                (remaining > 0 || Boolean(inProgress));
+                (unlimitedAttempts || (remaining !== null && remaining > 0) || Boolean(inProgress));
               const Icon = definition.Icon;
 
               return (
@@ -356,7 +360,9 @@ export default function CoursePortal() {
                         <div className="mt-1 text-[#868a9b]">{questionCount} سؤال</div>
                       </div>
                       <div className="rounded-xl bg-[#f8f7fa] p-3">
-                        <div dir="ltr" className="font-black">{exam ? remaining : 4} / {allowedAttempts}</div>
+                        <div dir={unlimitedAttempts ? "rtl" : "ltr"} className="font-black">
+                          {unlimitedAttempts ? "غير محدودة" : `${remaining ?? 4} / ${allowedAttempts}`}
+                        </div>
                         <div className="mt-1 text-[#868a9b]">محاولات متبقية</div>
                       </div>
                     </div>
@@ -381,7 +387,9 @@ export default function CoursePortal() {
                     )}
 
                     <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-                      <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">4 محاولات</span>
+                      <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">
+                        {unlimitedAttempts ? "محاولات غير محدودة" : `${allowedAttempts} محاولات`}
+                      </span>
                       <span className="rounded-full bg-[#fbf2ed] px-2.5 py-1 text-[#956047]">
                         {definition.category === "MIDTERM" ? "60 دقيقة" : "30 دقيقة"}
                       </span>
@@ -729,7 +737,7 @@ export default function CoursePortal() {
               {(isGeneralCourse
                 ? [
                     ["1", "اختر الاختبار", "Quiz 1 أو Quiz 2 أو Midterm"],
-                    ["2", "ابدأ من الأيقونة", "4 محاولات مستقلة لكل اختبار"],
+                    ["2", "ابدأ من الأيقونة", "عدد المحاولات يظهر لكل اختبار حسب إعداده الفعلي"],
                     ["3", "راجع نتيجتك", "الدرجة والمراجعة تظهران مباشرة"],
                   ]
                 : [
