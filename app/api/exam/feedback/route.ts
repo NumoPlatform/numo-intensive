@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEl098WrongFeedback } from "@/lib/intensive/el098-wrong-feedback";
+import { getIntensiveEnglishWrongFeedback } from "@/lib/intensive/el098-wrong-feedback";
 import {
   authenticateRequest,
   serviceRequest,
@@ -81,6 +81,26 @@ function sourceLockedExplanation(args: {
     skill === "READING" ? "معلومات قطعة القراءة" :
     skill === "VOCABULARY" ? "معنى الكلمة وسياق الجملة" :
     "القاعدة أو تركيب الجملة";
+
+  // Instructor-reviewed foundational English grammar rule. This is a
+  // teaching explanation, not a quotation claimed to appear in the source PDF.
+  if (prompt.trim() === "These are _______ flowers." &&
+      correctAnswer.trim().toLowerCase() === "my sister's") {
+    const selected = selectedAnswer.trim().toLowerCase();
+    const wrongReason = selected === "my sister"
+      ? "'my sister' تعني «أختي» فقط. قبل كلمة flowers نحتاج صيغة الملكية sister's للتعبير عن «زهور أختي»."
+      : selected === "my sisters"
+        ? "'my sisters' تعني «أخواتي» ولا تحتوي على علامة الملكية. إذا كانت الزهور ملكًا لأخوات عدة نقول my sisters' flowers."
+        : selected === "mine sister's"
+          ? "'mine' ضمير ملكية مستقل لا يأتي قبل اسم sister؛ الصحيح استعمال my مع الاسم، ثم إضافة 's للملكية."
+          : "العبارة المختارة لا تبني صيغة الملكية الصحيحة لاسم مفرد قبل flowers.";
+    return {
+      whyIncorrect: `اخترت «${selectedAnswer}». ${wrongReason}`,
+      whyCorrect: `الإجابة «${correctAnswer}» صحيحة؛ نضيف apostrophe + s إلى الاسم المفرد: sister → sister's عندما يملك الشخص شيئًا.`,
+      academicExplanation: "Possessive Nouns — قاعدة أسماء الملكية: These are my sister's flowers. = هذه زهور أختي. انتبه إلى الفرق بين my sister (أختي)، my sister's (شيء يخص أختي)، وmy sisters' (شيء يخص أخواتي). لا نستخدم mine قبل الاسم.",
+      supportingQuote: null as string | null,
+    };
+  }
 
   // A known internal inconsistency between the supplied reading passage
   // ("ate salad") and its supplied answer key ("True"). Preserve the source
@@ -237,16 +257,18 @@ export async function GET(request: NextRequest) {
       : selectedRaw.toLowerCase() === String(key.correctBoolean);
     const skill = (reference?.skill ?? "").trim().toUpperCase();
 
-    if (courseCode === "EL098") {
+    if (courseCode.startsWith("EL")) {
       const explanationRequested = request.nextUrl.searchParams.get("explain") === "1";
       // Source-locked answer verification remains unchanged. AI never chooses the key.
       // Generate detailed feedback only AFTER a student's incorrect choice was saved.
       const wrongFeedback = isCorrect
         ? null
-        : await getEl098WrongFeedback({
+        : await getIntensiveEnglishWrongFeedback({
             questionId,
             selectedOptionId: selectedRaw,
-            correctOptionId: key.correctOptionId ?? "",
+            correctOptionId: question.type === "MULTIPLE_CHOICE"
+              ? key.correctOptionId ?? ""
+              : String(key.correctBoolean),
             skill,
             prompt: question.prompt ?? "",
             selectedAnswer,
@@ -262,6 +284,16 @@ export async function GET(request: NextRequest) {
         reference,
       });
       const resolvedFeedback = wrongFeedback ?? sourceFeedback;
+      const sourceReason = (reference?.explanation ?? "").trim();
+      const supportedSourceExplanation =
+        sourceReason.length >= 100 &&
+        !/^(?:الإجابة المعتمدة|مفتاح الإجابة|الإجابة الصحيحة هي)/.test(sourceReason);
+      const isPendingAcademicExplanation =
+        !isCorrect && !wrongFeedback && !supportedSourceExplanation && !explanationRequested;
+
+      const missingSourceTeaching =
+        !sourceReason && !wrongFeedback && explanationRequested;
+      const resolvedAcademicFeedback = missingSourceTeaching ? null : resolvedFeedback;
 
       return NextResponse.json({
         ok: true,
@@ -278,14 +310,15 @@ export async function GET(request: NextRequest) {
               selectedAnswer,
               correctAnswer,
               correction: "إجابتك خاطئة",
-              explanationPending: false,
-              whyIncorrect: resolvedFeedback?.whyIncorrect ?? null,
-              whyCorrect: resolvedFeedback?.whyCorrect ?? null,
-              academicExplanation: resolvedFeedback?.academicExplanation ?? null,
+              explanationPending: isPendingAcademicExplanation,
+              whyIncorrect: resolvedAcademicFeedback?.whyIncorrect ?? null,
+              whyCorrect: resolvedAcademicFeedback?.whyCorrect ?? null,
+              academicExplanation: resolvedAcademicFeedback?.academicExplanation ?? null,
               referenceSource: reference?.reference_source ?? null,
               referenceUnit: reference?.reference_unit ?? null,
               referencePage: reference?.reference_page ?? null,
-              referenceEvidence: wrongFeedback?.supportingQuote ?? sourceFeedback?.academicExplanation ?? null,
+              referenceEvidence: wrongFeedback?.supportingQuote ??
+                (reference?.reference_evidence || sourceFeedback?.academicExplanation || null),
             },
       });
     }
