@@ -211,10 +211,10 @@ export async function POST(request: NextRequest) {
         new URLSearchParams({ select: "code", id: "eq." + exam.course_id, limit: "1" }).toString(),
     );
     const courseCode = (courses[0]?.code ?? "").trim().toUpperCase();
-    if (!["EL098", "EL097_EL099E"].includes(courseCode) || exam.category !== "QUIZ 2" || question.skill !== "Writing") {
+    if (!["EL098", "EL097_EL099E", "EL099"].includes(courseCode) || exam.category !== "QUIZ 2" || question.skill !== "Writing") {
       return NextResponse.json({ ok: false, message: "هذا التقييم مخصص لقسم Writing في دورات الكويز الثاني المعتمدة." }, { status: 403 });
     }
-    const rubricVersion = courseCode === "EL098" ? RUBRIC_VERSION : "EL097-FOUNDATION-NUMO-v1";
+    const rubricVersion = courseCode === "EL098" ? RUBRIC_VERSION : courseCode === "EL099" ? "EL099-NUMO-ESSAY-v1" : "EL097-FOUNDATION-NUMO-v1";
 
     const answer =
       !pending && answerRow?.answer && typeof answerRow.answer === "object" && !Array.isArray(answerRow.answer)
@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
         : null;
     const topicIndex = pending ? Number(pending.topic_index ?? 0) : Number(answer?.topicIndex ?? 0);
     const originalText = pending ? pending.original_text.trim() : String(answer?.text ?? "").trim();
-    const maxTopics = courseCode === "EL098" ? 2 : 7;
+    const maxTopics = courseCode === "EL098" ? 2 : courseCode === "EL099" ? 6 : 7;
     const topicText = Number.isInteger(topicIndex) && topicIndex >= 1 && topicIndex <= maxTopics
       ? tagValue(question.tags, `TOPIC${topicIndex}=`)
       : null;
@@ -230,9 +230,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, message: "اختر موضوعًا واكتب الفقرة قبل التقييم." }, { status: 400 });
     }
     const wordCount = countWords(originalText);
-    if (wordCount < 100) {
+    const minWords = courseCode === "EL099" ? 150 : 100;
+    if (wordCount < minWords) {
       return NextResponse.json(
-        { ok: false, code: "MIN_WORDS", message: `الفقرة الحالية ${wordCount} كلمة. المطلوب 100 كلمة على الأقل.`, wordCount },
+        { ok: false, code: "MIN_WORDS", message: `الفقرة الحالية ${wordCount} كلمة. المطلوب ${minWords} كلمة على الأقل.`, wordCount },
         { status: 400 },
       );
     }
@@ -286,7 +287,7 @@ Assess only the selected topic and the student's original paragraph.
 Use this TRAINING rubric, total 25:
 Task Achievement 0-8; Grammar Accuracy 0-7; Vocabulary Usage 0-5; Organization & Coherence 0-3; Spelling & Punctuation 0-2.
 Do not require sophisticated style. Reward simple correct English. Do not double-penalize the same underlying error without justification.
-Do not give full marks merely for reaching 100 words.
+Do not give full marks merely for reaching the minimum word count. For EL099 Quiz 2 the essay minimum is 150 words; for EL097 and EL098 it is 100.
 Return JSON only with:
 taskAchievement, grammarAccuracy, vocabularyUsage, organizationCoherence, spellingPunctuation, performanceLevel,
 corrections (array of {original, corrected, reasonAr}), strengths (Arabic strings), improvements (Arabic strings), improvedVersion.

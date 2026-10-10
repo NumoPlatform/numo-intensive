@@ -507,8 +507,9 @@ export default function ExamRunner() {
       setMessage("لم تختر موضوع الكتابة. اختر موضوعًا واحدًا من الأعلى ثم اضغط «تسليم وتقييم الكتابة» مرة أخرى. لن يُحذف النص الذي كتبته.");
       return;
     }
-    if (words < 100) {
-      setMessage(`كتبت ${words} كلمة؛ يتبقى ${100 - words} كلمة لبلوغ الحد الأدنى (100 كلمة، وليس 100 حرف). نصك محفوظ، ويمكنك إكماله ثم إعادة الضغط على الزر.`);
+    const minWords = courseCode.trim().toUpperCase() === "EL099" ? 150 : 100;
+    if (words < minWords) {
+      setMessage(`كتبت ${words} كلمة؛ يتبقى ${minWords - words} كلمة لبلوغ الحد الأدنى (${minWords} كلمة، وليس ${minWords} حرف). نصك محفوظ، ويمكنك إكماله ثم إعادة الضغط على الزر.`);
       return;
     }
 
@@ -1733,7 +1734,8 @@ export default function ExamRunner() {
   const currentWritingWords = writingWordCount(currentWritingText);
   const writingTopicIndex = Number(writingAnswer.topicIndex ?? 0);
   const writingTopicSelected = Number.isInteger(writingTopicIndex) && writingTopicIndex > 0 && writingTopicIndex <= writingTopics.length;
-  const writingWordsRemaining = Math.max(0, 100 - currentWritingWords);
+  const minimumWritingWords = normalizedCourseCode === "EL099" ? 150 : 100;
+  const writingWordsRemaining = Math.max(0, minimumWritingWords - currentWritingWords);
   const progress = activeQuestions.length ? Math.round((answeredCount / activeQuestions.length) * 100) : 0;
 
   return (
@@ -2129,28 +2131,28 @@ export default function ExamRunner() {
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.15em] text-[#B1785C]">NUMO Smart Writing</div>
-                        <div className="mt-1 text-sm font-bold text-[#73788d]">Write one paragraph of at least 100 words.</div>
+                        <div className="mt-1 text-sm font-bold text-[#73788d]">Write an essay of at least {minimumWritingWords} words.</div>
                       </div>
                       <div
                         className={
                           "rounded-full px-3 py-1.5 text-xs font-black " +
-                          (currentWritingWords >= 100
+                          (currentWritingWords >= minimumWritingWords
                             ? "bg-emerald-50 text-emerald-700"
                             : "bg-amber-50 text-amber-700")
                         }
                       >
-                        {currentWritingWords} / 100 words
+                        {currentWritingWords} / {minimumWritingWords} words
                       </div>
                     </div>
                     <div className={"mb-3 rounded-xl px-4 py-3 text-sm font-bold leading-7 " + (writingWordsRemaining === 0 ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900")} dir="rtl" aria-live="polite">
                       {writingWordsRemaining === 0
-                        ? "✓ اكتمل الحد الأدنى: 100 كلمة أو أكثر."
-                        : `المتبقي ${writingWordsRemaining} كلمة من أصل 100 كلمة مطلوبة. المقصود عدد الكلمات وليس الحروف.`}
+                        ? `✓ اكتمل الحد الأدنى: ${minimumWritingWords} كلمة أو أكثر.`
+                        : `المتبقي ${writingWordsRemaining} كلمة من أصل ${minimumWritingWords} كلمة مطلوبة. المقصود عدد الكلمات وليس الحروف.`}
                     </div>
                     <div className="mb-3 h-2 overflow-hidden rounded-full bg-[#eceaf0]">
                       <div
                         className="h-full rounded-full bg-[#6366F1] transition-all"
-                        style={{ width: Math.min(100, currentWritingWords) + "%" }}
+                        style={{ width: Math.min(100, Math.round(currentWritingWords / minimumWritingWords * 100)) + "%" }}
                       />
                     </div>
                     <textarea
@@ -2187,7 +2189,7 @@ export default function ExamRunner() {
                         {message}
                       </div>
                     ) : null}
-                    {!writingAssessment && Number(writingAnswer.topicIndex ?? 0) >= 1 && currentWritingWords >= 100 ? (
+                    {!writingAssessment && Number(writingAnswer.topicIndex ?? 0) >= 1 && currentWritingWords >= minimumWritingWords ? (
                       <button
                         type="button"
                         className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#d6c5b7] bg-white px-4 py-3 text-sm font-bold text-[#1F2B5E] sm:w-auto"
@@ -2202,7 +2204,7 @@ export default function ExamRunner() {
                       </button>
                     ) : null}
                     <p className="mt-3 text-xs font-semibold leading-6 text-[#73788d]" dir="rtl">
-                      هذا تقييم تدريبي من منصة نُمو لمستوى {normalizedCourseCode === "EL098" ? "EL098" : "EL097"}، ولا يمثل الدرجة الرسمية للجامعة.
+                      هذا تقييم تدريبي من منصة نُمو لمستوى {normalizedCourseCode === "EL099" ? "EL099" : normalizedCourseCode === "EL098" ? "EL098" : "EL097"}، ولا يمثل الدرجة الرسمية للجامعة.
                     </p>
                   </div>
 
