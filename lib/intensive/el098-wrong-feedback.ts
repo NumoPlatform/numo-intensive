@@ -27,9 +27,11 @@ type Cached = {
   model_id: string;
 };
 
-const DIRECT_MODEL = "gemini-2.5-flash";
-const GATEWAY_MODEL = "google/gemini-2.5-flash";
-const ACADEMIC_FORMAT_VERSION = "numo-academic-in-depth-v2";
+// Access to Gemini 2.5 Flash is unavailable for some newly provisioned API keys (404).
+// Use production-supported models; switch to a second model on access/quota errors.
+const DIRECT_MODELS = ["gemini-3.6-flash", "gemini-3.8-flash"] as const;
+const GATEWAY_MODELS = ["google/gemini-3.6-flash", "google/gemini-3.8-flash"] as const;
+const ACADEMIC_FORMAT_VERSION = "numo-academic-in-depth-v3";
 const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value);
 const compact = (value: string) => value.replace(/\s+/g, " ").trim();
 
@@ -137,64 +139,88 @@ export async function getIntensiveEnglishWrongFeedback(context: Context, cacheOn
   });
   try {
     let raw = "";
-    let modelUsed = DIRECT_MODEL;
+    let modelUsed: string = DIRECT_MODELS[0];
     if (directKey) {
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/" + DIRECT_MODEL + ":generateContent",
-        {
-          method: "POST",
-          headers: { "x-goog-api-key": directKey, "Content-Type": "application/json" },
-          cache: "no-store",
-          signal: AbortSignal.timeout(23000),
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: guidance }] },
-            contents: [{ role: "user", parts: [{ text: input }] }],
-            generationConfig: { temperature: 0.15, responseMimeType: "application/json", maxOutputTokens: 3500 },
-          }),
-        },
-      );
-      if (!response.ok) {
-        console.error("NUMO_ENGLISH_TUTOR_GEMINI_FAILED", response.status);
-        return null;
+      for (const model of DIRECT_MODELS) {
+        try {
+          const response = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent",
+            {
+              method: "POST",
+              headers: { "x-goog-api-key": directKey, "Content-Type": "application/json" },
+              cache: "no-store",
+              signal: AbortSignal.timeout(19000),
+              body: JSON.stringify({
+                systemInstruction: { parts: [{ text: guidance }] },
+                contents: [{ role: "user", parts: [{ text: input }] }],
+                generationConfig: {
+                  temperature: 0.15,
+                  responseMimeType: "application/json",
+                  maxOutputTokens: 5600,
+                  thinkingConfig: { thinkingLevel: "low" },
+                },
+              }),
+            },
+          );
+          if (!response.ok) {
+            console.error("NUMO_ENGLISH_TUTOR_PROVIDER_FAILED", model, response.status);
+            if ([400, 401, 403].includes(response.status)) break;
+            // A restricted model, overloaded provider or quota cap can recover
+            // on another model without changing the original question/answer key.
+            continue;
+          }
+          const body = await response.json() as {
+            modelVersion?: string;
+            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+          };
+          raw = (body.candidates?.[0]?.content?.parts ?? [])
+            .map(part => part.text ?? "").join("");
+          modelUsed = body.modelVersion || model;
+          if (raw.trim()) break;
+        } catch {
+          // Try the alternate stable model; do not expose provider credentials.
+          console.error("NUMO_ENGLISH_TUTOR_PROVIDER_TIMEOUT", model);
+        }
       }
-      const body = await response.json() as {
-        modelVersion?: string;
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-      };
-      raw = (body.candidates?.[0]?.content?.parts ?? []).map(part => part.text ?? "").join("");
-      modelUsed = body.modelVersion || DIRECT_MODEL;
     } else {
-      const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: "Bearer " + gatewayToken, "Content-Type": "application/json" },
-        cache: "no-store",
-        signal: AbortSignal.timeout(23000),
-        body: JSON.stringify({
-          model: GATEWAY_MODEL,
-          temperature: 0.1,
-          stream: false,
-          messages: [
-            { role: "system", content: guidance },
-            { role: "user", content: input },
-          ],
-          response_format: { type: "json_object" },
-          providerOptions: { gateway: { disallowPromptTraining: true } },
-        }),
-      });
-      if (!response.ok) {
-        console.error("NUMO_ENGLISH_TUTOR_GATEWAY_FAILED", response.status);
-        return null;
+      for (const model of GATEWAY_MODELS) {
+        try {
+          const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
+            method: "POST",
+            headers: { Authorization: "Bearer " + gatewayToken, "Content-Type": "application/json" },
+            cache: "no-store",
+            signal: AbortSignal.timeout(19000),
+            body: JSON.stringify({
+              model,
+              temperature: 0.15,
+              stream: false,
+              messages: [
+                { role: "system", content: guidance },
+                { role: "user", content: input },
+              ],
+              response_format: { type: "json_object" },
+            }),
+          });
+          if (!response.ok) {
+            console.error("NUMO_ENGLISH_TUTOR_GATEWAY_FAILED", model, response.status);
+            if ([400, 401, 403].includes(response.status)) break;
+            continue;
+          }
+          const body = await response.json() as {
+            model?: string;
+            choices?: Array<{ message?: { content?: string } }>;
+          };
+          raw = body.choices?.[0]?.message?.content ?? "";
+          modelUsed = body.model || model;
+          if (raw.trim()) break;
+        } catch {
+          console.error("NUMO_ENGLISH_TUTOR_GATEWAY_TIMEOUT", model);
+        }
       }
-      const body = await response.json() as {
-        model?: string;
-        choices?: Array<{ message?: { content?: string } }>;
-      };
-      raw = body.choices?.[0]?.message?.content ?? "";
-      modelUsed = body.model || GATEWAY_MODEL;
     }
 
     if (!raw) return null;
-    const parsed = JSON.parse(raw.trim()) as Record<string, unknown>;
+    const parsed = JSON.parse(raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "")) as Record<string, unknown>;
     const feedback = validate(context, parsed);
     if (!feedback) return null;
     if (/مفتاح (?:الإجابة|الاختبار|التجميعات) المعتمد/.test(feedback.academicExplanation) &&

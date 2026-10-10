@@ -272,6 +272,7 @@ export default function ExamRunner() {
   const [courseCode, setCourseCode] = useState("");
   const [inlineFeedback, setInlineFeedback] = useState<Record<string, InlineFeedback>>({});
   const [inlineFeedbackLoading, setInlineFeedbackLoading] = useState<Record<string, boolean>>({});
+  const [detailedFeedbackRetryLoading, setDetailedFeedbackRetryLoading] = useState<Record<string, boolean>>({});
   const [writingAssessment, setWritingAssessment] = useState<WritingAssessment | null>(null);
   const [writingHistory, setWritingHistory] = useState<WritingAssessment[]>([]);
   const [writingAssessmentLoading, setWritingAssessmentLoading] = useState(false);
@@ -402,6 +403,36 @@ export default function ExamRunner() {
     } finally {
       feedbackRequestsInFlight.current.delete(questionId);
       setInlineFeedbackLoading((current) => ({ ...current, [questionId]: false }));
+    }
+  }
+
+  async function retryAcademicExplanation(questionId: string) {
+    if (!attempt || detailedFeedbackRetryLoading[questionId]) return;
+    setDetailedFeedbackRetryLoading((current) => ({ ...current, [questionId]: true }));
+    try {
+      const response = await intensiveFetch(
+        "/api/exam/feedback?attemptId=" +
+          encodeURIComponent(attempt.attempt_id) +
+          "&questionId=" +
+          encodeURIComponent(questionId) +
+          "&explain=1",
+        { cache: "no-store" },
+      );
+      const payload = await response.json();
+      if (!response.ok || payload.feedback?.questionId !== questionId) {
+        throw new Error("Academic explanation unavailable");
+      }
+      setInlineFeedback((current) => ({
+        ...current,
+        [questionId]: payload.feedback as InlineFeedback,
+      }));
+    } catch {
+      setInlineFeedback((current) => ({
+        ...current,
+        [questionId]: { ...current[questionId], explanationPending: false },
+      }));
+    } finally {
+      setDetailedFeedbackRetryLoading((current) => ({ ...current, [questionId]: false }));
     }
   }
 
@@ -1725,7 +1756,7 @@ export default function ExamRunner() {
   const questionAnswerLocked =
     answerLocked || (isImmediateReferenceMode &&
       (Boolean(currentInlineFeedback) || currentInlineFeedbackLoading || hasAnswerValue(answer)));
-  const isWritingQuestion = ["EL098", "EL097_EL099E"].includes(normalizedCourseCode) && current.skill === "Writing";
+  const isWritingQuestion = ["EL098", "EL097_EL099E", "EL099"].includes(normalizedCourseCode) && current.skill === "Writing";
   const writingAnswer =
     isWritingQuestion && answer && typeof answer === "object" && !Array.isArray(answer)
       ? (answer as Record<string, unknown>)
@@ -2393,7 +2424,18 @@ export default function ExamRunner() {
                         </>
                       ) : !currentInlineFeedback.explanationPending ? (
                         <div className="rounded-2xl border border-[#e9e5ed] bg-[#faf9f6] p-5 text-sm font-semibold leading-8 text-[#62687d]">
-                          ظهرت الإجابة المعتمدة، لكن لم يتوفر حتى الآن شرح أكاديمي موسّع يمكن التحقق من صحته. يمكنك مواصلة الاختبار وإعادة المحاولة للتدرب، دون تقديم تفسير غير موثّق.
+                          <p>ظهرت الإجابة الصحيحة بالفعل. تعذّر إعداد شرح تعليمي موثوق في هذه المحاولة؛ يمكنك طلب إعادة المحاولة دون تغيير الإجابة أو الدرجة.</p>
+                          {!currentInlineFeedback.sourceWarning && normalizedCourseCode.startsWith("EL") ? (
+                            <button
+                              type="button"
+                              onClick={() => void retryAcademicExplanation(current.id)}
+                              disabled={Boolean(detailedFeedbackRetryLoading[current.id])}
+                              className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white disabled:opacity-60"
+                            >
+                              {detailedFeedbackRetryLoading[current.id] ? <Loader2 size={16} className="animate-spin" /> : <BookOpen size={16} />}
+                              {detailedFeedbackRetryLoading[current.id] ? "جاري إعادة إعداد الشرح..." : "إعادة طلب الشرح الأكاديمي المفصل"}
+                            </button>
+                          ) : null}
                         </div>
                       ) : null}
 
