@@ -77,6 +77,15 @@ function sourceLockedExplanation(args: {
   const { skill, prompt, selectedAnswer, correctAnswer, reference } = args;
   const reason = (reference?.explanation ?? "").trim();
   const evidence = (reference?.reference_evidence ?? "").trim();
+  const sourceNote = evidence.startsWith("EL099_SOURCE_NOTE:") ? evidence.slice("EL099_SOURCE_NOTE:".length).trim() : "";
+  if (sourceNote) {
+    return {
+      whyIncorrect: `اختيارك «${selectedAnswer}» لا يطابق الخيار «${correctAnswer}» المحدد في مفتاح ملف التجميعات.`,
+      whyCorrect: `الخيار «${correctAnswer}» هو المعلّم في المصدر المرفق. هناك ملاحظة أكاديمية على نص السؤال أو مفتاحه، لذا لا نقدمه باعتباره قاعدة لغوية مثبتة.`,
+      academicExplanation: `تنبيه بخصوص السؤال الأصلي: ${sourceNote} تم عرض نص السؤال والخيارات والمفتاح كما هي في التجميعات دون تغيير.`,
+      supportingQuote: null as string | null,
+    };
+  }
   const subject =
     skill === "READING" ? "معلومات قطعة القراءة" :
     skill === "VOCABULARY" ? "معنى الكلمة وسياق الجملة" :
@@ -267,7 +276,11 @@ export async function GET(request: NextRequest) {
       const explanationRequested = request.nextUrl.searchParams.get("explain") === "1";
       // Source-locked answer verification remains unchanged. AI never chooses the key.
       // Generate detailed feedback only AFTER a student's incorrect choice was saved.
-      const wrongFeedback = isCorrect
+      const sourceNote = (reference?.reference_evidence ?? "").startsWith("EL099_SOURCE_NOTE:")
+        ? (reference?.reference_evidence ?? "").slice("EL099_SOURCE_NOTE:".length).trim()
+        : "";
+      // Disputed source questions must never receive invented Gemini justifications.
+      const wrongFeedback = isCorrect || Boolean(sourceNote)
         ? null
         : await getIntensiveEnglishWrongFeedback({
             questionId,
@@ -300,12 +313,12 @@ export async function GET(request: NextRequest) {
       const keyCannotBeExplainedFromSource =
         question.prompt?.trim() === "At lunchtime, Tom had a burger and fries." ||
         question.prompt?.trim() === "Did people have an easy life after the war in 1945?";
-      const sourceLesson = hasRealSourceTeaching || keyCannotBeExplainedFromSource
+      const sourceLesson = hasRealSourceTeaching || keyCannotBeExplainedFromSource || Boolean(sourceNote)
         ? sourceFeedback : null;
       const resolvedAcademicFeedback = wrongFeedback ?? sourceLesson;
       const isPendingAcademicExplanation =
         !isCorrect && !wrongFeedback && !keyCannotBeExplainedFromSource &&
-        !explanationRequested &&
+        !sourceNote && !explanationRequested &&
         (skill !== "READING" || Boolean(question.passage?.body));
 
       return NextResponse.json({
@@ -316,12 +329,18 @@ export async function GET(request: NextRequest) {
               isCorrect: true,
               selectedAnswer,
               correctAnswer,
+              selectedOptionId: question.type === "MULTIPLE_CHOICE" ? selectedRaw : null,
+              correctOptionId: question.type === "MULTIPLE_CHOICE" ? key.correctOptionId : null,
+              sourceWarning: sourceNote || null,
             }
           : {
               questionId,
               isCorrect: false,
               selectedAnswer,
               correctAnswer,
+              selectedOptionId: question.type === "MULTIPLE_CHOICE" ? selectedRaw : null,
+              correctOptionId: question.type === "MULTIPLE_CHOICE" ? key.correctOptionId : null,
+              sourceWarning: sourceNote || null,
               correction: "إجابتك خاطئة",
               explanationPending: isPendingAcademicExplanation,
               whyIncorrect: resolvedAcademicFeedback?.whyIncorrect ?? null,
@@ -348,6 +367,8 @@ export async function GET(request: NextRequest) {
         isCorrect,
         selectedAnswer,
         correctAnswer,
+        selectedOptionId: question.type === "MULTIPLE_CHOICE" ? selectedRaw : null,
+        correctOptionId: question.type === "MULTIPLE_CHOICE" ? key.correctOptionId : null,
         correction: isCorrect
           ? "إجابتك صحيحة وفق مفتاح الإجابة المعتمد."
           : "إجابتك خاطئة — إليك التصحيح المعتمد.",
