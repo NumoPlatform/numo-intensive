@@ -172,6 +172,9 @@ type InlineFeedback = {
   isCorrect: boolean;
   selectedAnswer: string;
   correctAnswer: string;
+  selectedOptionId?: string | null;
+  correctOptionId?: string | null;
+  sourceWarning?: string | null;
   correction?: string;
   whyIncorrect?: string | null;
   whyCorrect?: string | null;
@@ -1969,17 +1972,26 @@ export default function ExamRunner() {
               {current.type === "MULTIPLE_CHOICE" ? (
                 <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className="mt-5 grid gap-3 sm:mt-7 sm:grid-cols-2">
                   {(current.options ?? []).map((option) => {
+                    // Preserve empty source options in DB, but explain their
+                    // absence rather than rendering an invisible choice.
                     const optionText =
-                      option.value && option.value !== option.label ? option.value : option.label;
+                      !option.value.trim() ? "هذا الخيار فارغ في الملف الأصلي" :
+                      option.value !== option.label ? option.value : option.label;
                     const compactLabel = option.label.trim().length <= 3;
                     const selected = answer === option.id;
+                    // Answer IDs, not the text, distinguish duplicate choices
+                    // such as EL099 Q84 (identical B/C, only C keyed).
                     const feedbackCorrect =
                       Boolean(currentInlineFeedback) &&
-                      optionText === currentInlineFeedback?.correctAnswer;
+                      (currentInlineFeedback?.correctOptionId
+                        ? option.id === currentInlineFeedback.correctOptionId
+                        : optionText === currentInlineFeedback?.correctAnswer);
                     const feedbackWrong =
                       Boolean(currentInlineFeedback) &&
                       !currentInlineFeedback?.isCorrect &&
-                      optionText === currentInlineFeedback?.selectedAnswer;
+                      (currentInlineFeedback?.selectedOptionId
+                        ? option.id === currentInlineFeedback.selectedOptionId
+                        : selected);
                     return (
                       <label
                         key={option.id}
@@ -2311,9 +2323,21 @@ export default function ExamRunner() {
                     <div className="mt-3 text-base font-black text-emerald-900">
                       الإجابة الصحيحة: {currentInlineFeedback.correctAnswer}
                     </div>
+                    {currentInlineFeedback.sourceWarning ? (
+                      <div role="note" className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-bold leading-8 text-amber-900">
+                        <strong>ملاحظة على السؤال في المصدر:</strong> {currentInlineFeedback.sourceWarning}
+                        <p className="mt-1 text-xs">التقييم يعكس مفتاح التجميعات كما هو، دون اعتباره تصحيحًا لغويًا مستقلًا.</p>
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div dir="rtl" className="mt-6 space-y-3 text-right">
+                    {currentInlineFeedback.sourceWarning ? (
+                      <div role="note" className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm font-bold leading-8 text-amber-900">
+                        <strong>ملاحظة على السؤال في المصدر:</strong> {currentInlineFeedback.sourceWarning}
+                        <p className="mt-1 text-xs">أُبقي مفتاح الإجابة كما ورد، وقد لا يتفق في هذه الحالة مع القاعدة اللغوية أو دليل القطعة.</p>
+                      </div>
+                    ) : null}
                     <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
                       <div className="flex items-center justify-end gap-2 text-lg font-black text-rose-800">
                         <span>إجابتك خاطئة — راجع التصحيح والتفسير أدناه</span>
