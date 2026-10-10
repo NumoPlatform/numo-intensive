@@ -1,43 +1,41 @@
-# EL099 Quiz 2 — Source and QA register
+# EL099 — Quiz 2 source fidelity and academic QA
 
-Source material: two user-provided PDFs — EL099 Quiz 2 Grammar and Vocabulary (32 pages) and EL099 Quiz 2 Passages (11 scanned pages). All marked correct options follow the supplied source, not an invented answer.
+**Current policy: INCLUDE ALL SOURCE QUESTIONS.** The user explicitly requested no exclusions. All questions, their original answer options and original marked keys have been retained; academic inconsistencies are disclosed as source notes rather than silently omitted or rewritten.
 
-## Three independent sections
+## Three complete sections
 
-1. Grammar and Vocabulary: 166 source items; 159 clean items imported and attached; 120 minutes.
-2. Reading (Passages): all 7 complete passage texts; 44 source questions banked, with 40 source-supported questions attached; 60 minutes.
-3. Writing: 1 item / 25 marks and 6 topics exactly from PDF page 32, minimum 150 words; 45 minutes.
+| Section | Source items in exam | Time | Marks |
+|---|---:|---:|---:|
+| Grammar and Vocabulary | 166 / 166 | 120 min | 166 |
+| Reading (Passages) | 44 / 44 in 7 passages | 60 min | 44 |
+| Writing | 1 question with 6 original topic choices | 45 min | 25 |
+| **Total** | **211** | **225 min** | **235** |
 
-Unlimited attempts, source-keyed instant correction, protected pending Writing grades. Exam remains DRAFT until academic QA clears exceptions.
+Original questions and answer labels from the user-supplied PDFs. Unlimited attempts. Source-key-driven objective scoring. Writing minimum 150 words, six selectable prompts and smart review / pending-grade protection.
 
-## Grammar source exceptions withheld
+## 11 source inconsistencies are included (not removed)
 
-- Q9: marked "as larg as" contains a spelling error.
-- Q11: "won't travel to Europe" contradicts planned stay in Italy.
-- Q14: option C and D are blank.
-- Q20: option text "will finish" repeated.
-- Q84: "the biggest" occurs as both B and C but only C is keyed.
-- Q110: "since five years" is ungrammatical; "for five years" absent.
-- Q127: A and D are duplicates.
+Grammar and Vocabulary source question identifiers:
+- Q9: marked *as larg as*, a misspelling of grammatically correct *as large as*.
+- Q11: answer *won't* contradicts the next sentence saying he will be in Italy (a European country).
+- Q14: source includes two literally empty answer options, plus misspelled *predection*. Blank options remain blank in DB; screen explains that their content is absent in source.
+- Q20: duplicated *will finish* in A and D; correct key remains C.
+- Q84: B and C both say *the biggest*; only C is marked correct in source. UI must use actual UUID choice identity rather than text equality to avoid showing both as correct.
+- Q110: original answer *since* is ungrammatical in “... five years”; *for* is absent from source options.
+- Q127: options A and D both say *there is*, correct key B is unchanged.
 
-## Reading questions not supported in the corresponding source passages
+Reading source question identifiers:
+- Discovering Dubai Q3 (global reading #11): passage lacks Michelin-starred restaurant evidence.
+- Discovering Dubai Q4 (global #12): “it” pronoun reference not found as stated.
+- Discovering Dubai Q6 (global #14): desert safari / sunset not in passage.
+- Discovering Joy Q5 (global #29): social connection to like-minded individuals not established in passage.
 
-- Dubai Q3 / global #11: Michelin-starred restaurants not mentioned.
-- Dubai Q4 / global #12: the referenced pronoun is not locatable.
-- Dubai Q6 / global #14: sunset/desert safari absent.
-- Discovering Joy Q5 / global #29: social connections with like-minded individuals not mentioned.
+All 11 questions are ACTIVE and LINKED to the exam. Their original answer keys have **not** been changed. Student instant feedback presents a source-note warning; for these items Gemini does not generate a fabricated academic justification.
 
-All 4 retained in question bank inactive but detached from live exam; never invent passage evidence.
+## QA checks
 
-## QA before going LIVE
-
-- 159 + 40 + 1 = 200 attached questions, all sections enabled.
-- Every attached MCQ has at least two nonempty choices, exactly one correct source answer.
-- Seven long passage texts and exact source titles.
-- Six Writing topics, 150-word minimum validated on client and server.
-- EL099 included in Writing pending/resume/score preservation triggers.
-- Vercel preview build success.
-- No changes to pre-existing quizzes, enrolments, or student results.
-- Source corrections and end-to-end login validation needed before publication.
-
-Do not silently change answer keys without a corrected source file.
+- Exactly 166 + 44 + 1 = 211 linked source questions, all 11 flagged source items active and attached.
+- Exactly one marked source key per multiple-choice question, including duplicate option text.
+- 7 nonempty passages.
+- 6 writing topics and minimum 150 words; independent section scoring; no false zero on pending AI.
+- Final draft approval and live test recommended due to original source inconsistencies.
