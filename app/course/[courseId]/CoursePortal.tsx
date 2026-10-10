@@ -162,6 +162,7 @@ export default function CoursePortal() {
     normalizedCourseCode === "GT103" ||
     normalizedCourseCode === "TU170_GT101";
   const isEl098Quiz2 = normalizedCourseCode === "EL098";
+  const isEl099Quiz2 = normalizedCourseCode === "EL099";
   const isEl097Quiz2 = normalizedCourseCode === "EL097_EL099E";
   const el098ModelIcons = [ClipboardCheck, FileCheck2, GraduationCap, BookOpenCheck] as const;
   const generalExamDefinitions = [
@@ -250,7 +251,9 @@ export default function CoursePortal() {
                       ? "QUIZ 2 — أربعة نماذج تدريبية مستقلة. اختر أي نموذج ثم أي قسم: Grammar & Vocabulary أو Reading أو Writing. التصحيح الموضوعي فوري والمحاولات مفتوحة."
                       : isEl097Quiz2
                         ? "EL097 — QUIZ 2 | سبعة أقسام بالترتيب الأصلي للملف: Grammar Foundations، Verbs & Prepositions، Vocabulary & Definitions، ثلاث قطع Reading مستقلة، ثم Writing بسبعة موضوعات. راجع الإجابات بعد تسليم كل قسم."
-                        : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
+                        : isEl099Quiz2
+                          ? "EL099 — QUIZ 2 | ثلاثة أقسام مستقلة: Grammar and Vocabulary (166 سؤالًا)، Reading (Passages) (44 سؤالًا من سبع قطع)، وWriting (موضوع واحد من ستة، 150 كلمة على الأقل). جميع الأسئلة متاحة والمحاولات غير محدودة."
+                          : "اختر Grammar أو Vocabulary أو Reading. كل قسم مستقل وله وقته ومحاولاته، وتظهر نتيجتك مباشرة بعد التسليم."}
                 </p>
               </div>
 
@@ -427,7 +430,7 @@ export default function CoursePortal() {
                 </article>
               );
             })
-          ) : isEl097Quiz2 ? (
+          ) : (isEl097Quiz2 || isEl099Quiz2) ? (
             courseSections.map((section) => {
               const exam = exams.find((item) => item.id === section.exam_id) ?? primaryExam;
               const attempts = exam ? data.attempts.filter((item) => item.exam_id === exam.id) : [];
@@ -439,18 +442,26 @@ export default function CoursePortal() {
                 Date.now() >= new Date(exam.starts_at).getTime() &&
                 Date.now() <= new Date(exam.ends_at).getTime()
               );
-              const explanations: Record<number, string> = {
-                1: "Pronouns, possessives & articles",
-                2: "Verb forms and preposition choices",
-                3: "Words, definitions & usage",
-                4: "Reading Comprehension · Passage 01",
-                5: "Reading Comprehension · Passage 02",
-                6: "Reading Comprehension · Passage 03",
-                7: "Choose ONE topic from the seven Writing prompts"
-              };
-              const Icon = section.position <= 2 ? ClipboardCheck :
-                section.position === 3 ? BookOpenCheck :
-                section.position <= 6 ? GraduationCap : FileCheck2;
+              const explanations: Record<number, string> = isEl099Quiz2
+                ? {
+                    1: "166 original Grammar and Vocabulary questions",
+                    2: "Seven complete reading passages and 44 comprehension questions",
+                    3: "Choose ONE of six Writing topics; minimum 150 words"
+                  }
+                : {
+                    1: "Pronouns, possessives & articles",
+                    2: "Verb forms and preposition choices",
+                    3: "Words, definitions & usage",
+                    4: "Reading Comprehension · Passage 01",
+                    5: "Reading Comprehension · Passage 02",
+                    6: "Reading Comprehension · Passage 03",
+                    7: "Choose ONE topic from the seven Writing prompts"
+                  };
+              const Icon = isEl099Quiz2
+                ? (section.position === 1 ? ClipboardCheck : section.position === 2 ? GraduationCap : FileCheck2)
+                : section.position <= 2 ? ClipboardCheck
+                : section.position === 3 ? BookOpenCheck
+                : section.position <= 6 ? GraduationCap : FileCheck2;
               return (
                 <article key={section.id} className="group relative overflow-hidden rounded-[1.6rem] border border-[#dedbe5] bg-white shadow-[0_14px_36px_rgba(31,43,94,.07)] transition duration-300 hover:-translate-y-1 hover:border-[#B1785C]/60 hover:shadow-[0_24px_48px_rgba(31,43,94,.12)] motion-reduce:transform-none">
                   <div className="h-1.5 bg-[#1F2B5E]" />
@@ -458,7 +469,7 @@ export default function CoursePortal() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-xs font-black tracking-[.13em] text-[#B1785C]" dir="ltr">
-                          {String(section.position).padStart(2, "0")} / EL097 QUIZ 2
+                          {String(section.position).padStart(2, "0")} / {isEl099Quiz2 ? "EL099" : "EL097"} QUIZ 2
                         </div>
                         <h3 className="mt-2 text-xl font-black leading-8 text-[#1F2B5E]" dir="ltr">{section.title}</h3>
                       </div>
@@ -471,7 +482,7 @@ export default function CoursePortal() {
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
                       <span className="rounded-full bg-[#f1f2f9] px-3 py-1.5 text-[#1F2B5E]">
-                        {section.position === 7 ? "7 writing topics" : `${section.question_count ?? 0} questions`}
+                        {isEl099Quiz2 && section.position === 3 ? "6 writing topics" : section.position === 7 ? "7 writing topics" : `${section.question_count ?? 0} questions`}
                       </span>
                       <span className="rounded-full bg-[#faf0ea] px-3 py-1.5 text-[#9c644a]">
                         {section.time_limit_minutes} دقيقة
@@ -746,8 +757,8 @@ export default function CoursePortal() {
                     ["3", "راجع نتيجتك", "الدرجة والمراجعة تظهران مباشرة"],
                   ]
                 : [
-                    ["1", "اختر القسم", isEl097Quiz2 ? "اختر من الأقسام السبعة المعتمدة في الملف" : "Grammar أو Vocabulary أو Reading"],
-                    ["2", "أكمل الأسئلة", isEl097Quiz2 ? "30 دقيقة لكل قسم؛ Writing اختر موضوعاً من سبعة" : "الوقت يبدأ عند دخول المحاولة"],
+                    ["1", "اختر القسم", isEl099Quiz2 ? "Grammar and Vocabulary أو Reading (Passages) أو Writing" : isEl097Quiz2 ? "اختر من الأقسام السبعة المعتمدة في الملف" : "Grammar أو Vocabulary أو Reading"],
+                    ["2", "أكمل الأسئلة", isEl099Quiz2 ? "120 دقيقة للقواعد، و60 للقراءة، و45 للكتابة؛ اختر موضوعًا من ستة" : isEl097Quiz2 ? "30 دقيقة لكل قسم؛ Writing اختر موضوعاً من سبعة" : "الوقت يبدأ عند دخول المحاولة"],
                     ["3", "راجع نتيجتك", "الدرجة والأخطاء تظهر مباشرة بعد التسليم"],
                   ]
               ).map(([n,title,note]) => (
