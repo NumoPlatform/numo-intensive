@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
+// Allow enough time for a verified in-depth tutor response and a provider fallback.
+export const maxDuration = 60;
 import { getIntensiveEnglishWrongFeedback } from "@/lib/intensive/el098-wrong-feedback";
 import {
   authenticateRequest,
@@ -112,6 +115,33 @@ function sourceLockedExplanation(args: {
         "مثال تدريبي 1: This is my brother's bag. = هذه حقيبة أخي. أضفنا 's إلى brother لأن الحقيبة تخصه.",
         "مثال تدريبي 2: Those are the teacher's books. = تلك كتب المعلم. أضفنا 's إلى teacher لأن الكتب تخص المعلم.",
         "الخلاصة الذهبية: my sister = أختي؛ my sister's = شيء يخص أختي؛ my sisters' = شيء يخص أخواتي؛ mine ضمير ملكية مستقل لا يأتي قبل اسم مثل sister. في الاختبار، حدّد المالك والشيء المملوك أولًا، ثم اختر علامة الملكية المناسبة.",
+      ].join("\n\n"),
+      supportingQuote: null as string | null,
+    };
+  }
+
+  // Instructor-authored and context-checked vocabulary lesson for EL099 Quiz 2.
+  // Keep the original prompt spelling/options/key unchanged, but teach meaning.
+  if (/^Good\s+\.{2,}\s+is often found in dishes made with fresh, high quality ingrediants\.$/i.test(prompt.trim()) &&
+      correctAnswer.trim().toLowerCase() === "taste") {
+    const wrong = selectedAnswer.trim().toLowerCase();
+    const selectedMeaning = wrong === "test"
+      ? "كلمة test تعني «اختبارًا» أو «فحصًا»، وتُستخدم مثل an English test أو a medical test؛ ولا تصف نكهة الطعام أو مذاقه."
+      : wrong === "text"
+        ? "كلمة text تعني «نصًا مكتوبًا» أو «رسالة»، ولا تُستخدم للتعبير عن نكهة الأطباق."
+        : wrong === "tent"
+          ? "كلمة tent تعني «خيمة»، وهي اسم لمكان أو مأوى، وليس صفة أو اسمًا يدل على مذاق الطعام."
+          : "هذا الاختيار لا يعبّر عن نكهة الطعام المطلوبة في سياق الجملة.";
+    return {
+      whyIncorrect: `اخترت «${selectedAnswer}». ${selectedMeaning} انتبه إلى كلمة dishes التي تعني «أطباق»، وإلى fresh, high quality ingredients التي تعني «مكونات طازجة وعالية الجودة». هذه القرائن تربط السؤال بالتذوق والنكهة، وليس بالاختبارات أو النصوص أو الخيام.`,
+      whyCorrect: `الإجابة «taste» هي المناسبة لأنها تعني «الطعم، المذاق، أو النكهة» في سياق الطعام. اتبع خطوات الحل: (1) حدد موضوع الجملة: dishes = أطباق طعام. (2) لاحظ سبب جودة الطعام: fresh, high-quality ingredients = مكونات طازجة وعالية الجودة. (3) اختر الاسم الذي يدل على النتيجة المتوقعة: good taste = مذاق جيد. إذن المعنى: المذاق الجيد يوجد غالبًا في الأطباق المعدة بمكونات طازجة وعالية الجودة.`,
+      academicExplanation: [
+        "القاعدة بالتفصيل: هذا سؤال Vocabulary in Context، أي اختيار معنى الكلمة من سياق الجملة. لا يكفي أن تتشابه الكلمات في كتابتها أو نطقها؛ بل يجب أن يتوافق معناها مع بقية الكلمات. Taste اسم يعني المذاق أو النكهة، وقد يأتي فعلًا بمعنى يتذوق. أما test فاسم يعني اختبارًا، وtext نصًا، وtent خيمة.",
+        "طريقة الحل خطوة بخطوة: ابدأ بالكلمات الدالة dishes وfresh ingredients. اسأل: ما الشيء الذي يتحسن عند إعداد طعام بمكونات جيدة؟ الإجابة هي الطعم. جرّب وضع كل خيار في الفراغ: good taste يحمل معنى مناسبًا، أما good test في هذا السياق فيحول الحديث إلى امتحان أو فحص لا يرتبط بمذاق الأطباق.",
+        "مثال تدريبي 1: This soup has a delicious taste. = لهذا الحساء مذاق لذيذ. كلمة taste هنا اسم يصف نكهة الحساء.",
+        "مثال تدريبي 2: I have an English test tomorrow. = لدي اختبار لغة إنجليزية غدًا. كلمة test هنا تعني اختبارًا، ولا علاقة لها بطعم الطعام.",
+        "ملاحظة لغوية: كلمة ingredients مكتوبة في السؤال الأصلي بصيغة ingrediants، والصواب إملائيًا ingredients. أبقينا نص السؤال في المحاكي كما ورد في ملف التجميعات.",
+        "الخلاصة الذهبية: Taste = طعم أو يتذوق؛ Test = اختبار أو يفحص. عند حل Vocabulary اختر الكلمة من معنى الجملة وسياقها، ولا تعتمد على تشابه الحروف فقط.",
       ].join("\n\n"),
       supportingQuote: null as string | null,
     };
@@ -307,8 +337,11 @@ export async function GET(request: NextRequest) {
       // extended academic lesson. Display reliable grading immediately, then
       // request detailed teaching asynchronously, caching by source question
       // and selected wrong option.
+      const hasReviewedTasteLesson =
+        /\bGood\s+\.{2,}\s+is often found in dishes made with fresh/i.test(question.prompt ?? "") &&
+        correctAnswer.trim().toLowerCase() === "taste";
       const hasRealSourceTeaching =
-        sourceReason.length >= 200 &&
+        (sourceReason.length >= 200 || hasReviewedTasteLesson) &&
         /(?:قاعدة|الملكية|الجملة|السبب|نستخدم|تستخدم|تدل|تعني)/.test(sourceReason);
       const keyCannotBeExplainedFromSource =
         question.prompt?.trim() === "At lunchtime, Tom had a burger and fries." ||
