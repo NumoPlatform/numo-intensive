@@ -3,6 +3,7 @@
 import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import StudentBackNavigation from "@/app/components/StudentBackNavigation";
+import ExamBeforeYouBegin from "./ExamBeforeYouBegin";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -1070,19 +1071,9 @@ export default function ExamRunner() {
     const now = Date.now();
     const beforeStart = exam ? now < new Date(exam.starts_at).getTime() : false;
     const afterEnd = exam ? now > new Date(exam.ends_at).getTime() : false;
-    const uniformSectionMinutes =
-      previewSections.length > 0 &&
-      previewSections.every((section) => section.timeLimitMinutes === previewSections[0].timeLimitMinutes)
-        ? previewSections[0].timeLimitMinutes
-        : null;
-    const timingSummary = uniformSectionMinutes
-      ? uniformSectionMinutes + " دقيقة لكل قسم"
-      : previewSections.length
-        ? previewSections.map((section) => section.title + ": " + section.timeLimitMinutes + " min").join(" · ")
-        : "أقسام بوقت مستقل";
     return (
-      <div className="deluxe-canvas min-h-screen px-4 py-8 text-[#1F2B5E]">
-        <div className="mx-auto max-w-3xl">
+      <div className="deluxe-canvas min-h-screen px-3 py-5 text-[#1F2B5E] sm:px-5 sm:py-9">
+        <div className="mx-auto w-full max-w-5xl">
           <div className="mb-5">
             <StudentBackNavigation
               backHref={courseBackHref}
@@ -1090,72 +1081,15 @@ export default function ExamRunner() {
               context={exam?.title ?? "الاختبار"}
             />
           </div>
-          <div className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
-            <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-7 text-white sm:p-9">
-              <div className="text-sm font-black text-[#e9c1ad]">{exam?.category ?? BRAND.nameEn}</div>
-              <h1 className="mt-2 text-3xl font-black">{exam?.title ?? "Exam"}</h1>
-            </div>
-            <div className="p-6 sm:p-8">
-              {exam ? (
-                <div className="mb-7 grid gap-3 sm:grid-cols-2">
-                  <div className="numo-card-lift rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-4">
-                    <Clock3 className="mb-2 text-[#6366F1]" />
-                    <strong className="block">{isArabicGeneralExam ? "مدة الاختبار" : "Section timing"}</strong>
-                    <span dir={isArabicGeneralExam ? "rtl" : "auto"} className="text-sm text-[#74798d]">
-                      {isArabicGeneralExam ? `${exam.duration_minutes} دقيقة` : timingSummary}
-                    </span>
-                  </div>
-                  <div className="numo-card-lift rounded-2xl border border-[#ebe7ef] bg-[#faf9fb] p-4">
-                    <ShieldCheck className="mb-2 text-[#B1785C]" />
-                    <strong className="block">{isArabicGeneralExam ? "المحاولات والإتاحة" : "Attempts & window"}</strong>
-                    <span className="block text-sm text-[#74798d]">
-                      {exam.attempts_allowed === 0
-                        ? (isArabicGeneralExam ? "محاولات مفتوحة" : "Unlimited attempts")
-                        : (isArabicGeneralExam ? `${exam.attempts_allowed} محاولات` : `Up to ${exam.attempts_allowed} attempts`)}
-                    </span>
-                    <span className="mt-1 block text-xs leading-6 text-[#8a8e9e]">{formatDate(exam.starts_at)} — {formatDate(exam.ends_at)}</span>
-                  </div>
-                </div>
-              ) : null}
-
-              <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className={"rounded-2xl border border-[#e6e2eb] bg-[#fbfafc] p-5 " + (isArabicGeneralExam ? "text-right" : "text-left")}>
-                <h2 className="font-black">{isArabicGeneralExam ? "قبل البدء" : "Before you begin"}</h2>
-                {isArabicGeneralExam ? (
-                  <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
-                    <li>• مدة الاختبار {exam?.duration_minutes ?? 0} دقيقة.</li>
-                    <li>• {exam?.attempts_allowed === 0 ? "المحاولات مفتوحة دون حد أقصى خلال فترة الإتاحة." : `لديك ${exam?.attempts_allowed ?? 1} محاولات مستقلة.`}</li>
-                    <li>• تُحفظ إجاباتك تلقائيًا أثناء الحل.</li>
-                    <li>• يجب اختيار إجابة قبل الانتقال إلى السؤال التالي.</li>
-                    <li>• تظهر الدرجة والمراجعة بعد إنهاء المحاولة.</li>
-                  </ul>
-                ) : (
-                  <ul className="mt-3 space-y-2 text-sm leading-7 text-[#686e84]">
-                    <li>• Each section has its own independent timer.</li>
-                    <li>• Your answers are saved automatically.</li>
-                    <li>• Every question is required. You must answer the current question before moving to another one.</li>
-                    <li>• You choose which section to start. There is no required order.</li>
-                    <li>• When a section is completed or its timer expires, it is locked and you choose another remaining section.</li>
-                    <li>• After the final section, your result is calculated and released immediately when all questions are auto-graded.</li>
-                  </ul>
-                )}
-              </div>
-
-              {message ? <div className="mt-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
-
-              <button
-                onClick={startExam}
-                disabled={stage === "starting" || !exam || beforeStart || afterEnd}
-                className="btn mt-6 w-full"
-              >
-                {stage === "starting" ? <><Loader2 size={18} className="animate-spin" /> {isArabicGeneralExam ? "جاري تجهيز الاختبار..." : "Starting exam..."}</> :
-                  beforeStart ? (isArabicGeneralExam ? "الاختبار لم يبدأ بعد" : "The exam is not open yet") :
-                  afterEnd ? (isArabicGeneralExam ? "انتهى وقت إتاحة الاختبار" : "The exam has closed") :
-                  (isArabicGeneralExam
-                    ? `الدخول إلى قسم ${exam?.category ?? "الاختبار"}`
-                    : "Start / choose section")}
-              </button>
-            </div>
-          </div>
+          <ExamBeforeYouBegin
+            exam={exam}
+            sections={previewSections}
+            beforeStart={beforeStart}
+            afterEnd={afterEnd}
+            starting={stage === "starting"}
+            message={message}
+            onStart={() => void startExam()}
+          />
         </div>
       </div>
     );
