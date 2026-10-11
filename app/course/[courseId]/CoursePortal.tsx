@@ -319,7 +319,7 @@ export default function CoursePortal() {
                     key={definition.category}
                     aria-pressed={selected}
                     onClick={() => setIntensiveStage(definition.category)}
-                    className={"numo-card-lift relative flex min-h-48 w-full flex-col items-stretch rounded-[1.55rem] border-2 bg-white p-5 text-right shadow-[0_12px_32px_rgba(31,43,94,.08)] transition-colors focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] " +
+                    className={"relative flex min-h-48 w-full flex-col items-stretch rounded-[1.55rem] border-2 bg-white p-5 text-right shadow-[0_12px_32px_rgba(31,43,94,.08)] transition-colors focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] " +
                       (selected ? "border-[#B1785C] bg-[#fffcf9]" : "border-[#e5e2eb] hover:border-[#B1785C]/70")}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -445,7 +445,7 @@ export default function CoursePortal() {
               return (
                 <article
                   key={definition.category}
-                  className="numo-card-lift numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]"
+                  className="numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]"
                 >
                   <div className="h-2" style={{ background: definition.accent }} />
                   <div className="p-4 sm:p-5">
@@ -462,7 +462,7 @@ export default function CoursePortal() {
                         <a
                           href={"/exam/" + exam.id}
                           aria-label={"دخول " + definition.title}
-                          className="numo-icon-medallion grid h-14 w-14 shrink-0 place-items-center rounded-2xl transition hover:-translate-y-0.5"
+                          className="numo-icon-medallion grid h-14 w-14 shrink-0 place-items-center rounded-2xl transition "
                           style={{ background: definition.soft, color: definition.accent }}
                         >
                           <Icon size={25} />
@@ -581,7 +581,7 @@ export default function CoursePortal() {
                 : section.position === 3 ? BookOpenCheck
                 : section.position <= 6 ? GraduationCap : FileCheck2;
               return (
-                <article key={section.id} className="group relative overflow-hidden rounded-[1.6rem] border border-[#dedbe5] bg-white shadow-[0_14px_36px_rgba(31,43,94,.07)] transition duration-300 hover:-translate-y-1 hover:border-[#B1785C]/60 hover:shadow-[0_24px_48px_rgba(31,43,94,.12)] motion-reduce:transform-none">
+                <article key={section.id} className="group relative overflow-hidden rounded-[1.6rem] border border-[#dedbe5] bg-white shadow-[0_14px_36px_rgba(31,43,94,.07)] transition duration-300  hover:border-[#B1785C]/60 hover:shadow-[0_24px_48px_rgba(31,43,94,.12)] motion-reduce:transform-none">
                   <div className="h-1.5 bg-[#1F2B5E]" />
                   <div className="p-5 sm:p-6">
                     <div className="flex items-start justify-between gap-3">
@@ -668,7 +668,7 @@ export default function CoursePortal() {
                 return (
                   <article
                     key={exam.id}
-                    className="group numo-card-lift relative overflow-hidden rounded-[1.8rem] border border-[#B1785C]/35 bg-[#FAF9F6] shadow-[0_16px_42px_rgba(31,43,94,.08)] transition-all duration-300 hover:-translate-y-1 hover:border-[#B1785C]/70 hover:shadow-[0_24px_58px_rgba(31,43,94,.13)] motion-reduce:transform-none motion-reduce:transition-none"
+                    className="group relative overflow-hidden rounded-[1.8rem] border border-[#B1785C]/35 bg-[#FAF9F6] shadow-[0_16px_42px_rgba(31,43,94,.08)] transition-all duration-300  hover:border-[#B1785C]/70 hover:shadow-[0_24px_58px_rgba(31,43,94,.13)] motion-reduce:transition-none"
                   >
                     <div className="h-2 bg-[#1F2B5E]" />
                     <div className="p-5 sm:p-6">
@@ -736,7 +736,7 @@ export default function CoursePortal() {
                       {canEnter ? (
                         <a
                           href={"/exam/" + exam.id}
-                          className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 font-black text-white shadow-[0_12px_28px_rgba(31,43,94,.18)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(31,43,94,.25)] motion-reduce:transform-none"
+                          className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 font-black text-white shadow-[0_12px_28px_rgba(31,43,94,.18)] transition-all duration-300  hover:shadow-[0_16px_34px_rgba(31,43,94,.25)] motion-reduce:transform-none"
                         >
                           استعراض النموذج <PlayCircle size={18} />
                         </a>
@@ -784,7 +784,7 @@ export default function CoursePortal() {
               const isOpen = now >= new Date(exam.starts_at).getTime() && now <= new Date(exam.ends_at).getTime();
 
               return (
-                <article key={section.id} className="numo-card-lift numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
+                <article key={section.id} className="numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]">
                   <div className="h-2" style={{ background: visual.accent }} />
                   <div className="p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-3">
