@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
+  Globe2,
   LayoutDashboard,
   Layers3,
   LogOut,
@@ -606,7 +607,7 @@ export default function IntensivePortal() {
             </span>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <div className="hidden items-center gap-2 rounded-2xl border border-[#e6e2e9] bg-white px-3 py-2 sm:flex">
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#1F2B5E] text-xs font-black text-white">
                 {initials || "N"}
@@ -618,9 +619,25 @@ export default function IntensivePortal() {
                 </div>
               </div>
             </div>
+            <a
+              href="https://numo.academy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="زيارة الموقع الرسمي لمنصة نمو — يفتح في تبويب جديد"
+              aria-label="الموقع الرسمي لمنصة نمو — يفتح في تبويب جديد"
+              className="group inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-2xl border border-[#B1785C]/60 bg-white px-2 py-1.5 text-[#1F2B5E] shadow-[0_5px_18px_rgba(31,43,94,.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B1785C] hover:bg-[#fffbf8] hover:shadow-[0_9px_23px_rgba(177,120,92,.14)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2 sm:px-3"
+            >
+              <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#f7eee9] text-[#1F2B5E] transition-colors group-hover:bg-[#f0dfd2]">
+                <Globe2 size={17} strokeWidth={2} />
+              </span>
+              <span className="whitespace-nowrap text-[11px] font-black sm:text-xs">الموقع الرسمي</span>
+              <ArrowUpLeft aria-hidden="true" size={15} className="hidden shrink-0 text-[#B1785C] sm:block" />
+            </a>
             <button
+              type="button"
               onClick={logout}
-              className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e1dde5] bg-white text-[#1F2B5E] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f8f7fa]"
+              className="grid h-11 w-10 shrink-0 place-items-center rounded-2xl border border-[#e1dde5] bg-white text-[#1F2B5E] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f8f7fa] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:w-11"
+              title="تسجيل الخروج"
               aria-label="تسجيل الخروج"
             >
               <LogOut size={18} />
