@@ -332,7 +332,7 @@ export default function IntensivePortal() {
                 {BRAND_FEATURES.map((feature, index) => {
                   const FeatureIcon = [BookOpenCheck, CheckCircle2, Target][index];
                   return (
-                    <div key={feature} className="numo-card-lift rounded-2xl border border-white/12 bg-white/[.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
+                    <div key={feature} className="rounded-2xl border border-white/12 bg-white/[.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
                       <FeatureIcon className="mb-3 text-[#E7B79F]" size={21} />
                       <strong className="block text-sm leading-6">{feature}</strong>
                     </div>
@@ -666,7 +666,7 @@ export default function IntensivePortal() {
               rel="noopener noreferrer"
               title="زيارة الموقع الرسمي لمنصة نُمو — numo.academy (يفتح في تبويب جديد)"
               aria-label="الموقع الرسمي لمنصة نُمو — يفتح في تبويب جديد"
-              className="group relative inline-flex min-h-11 shrink-0 items-center gap-2 overflow-hidden rounded-[1rem] border border-[#B1785C]/75 bg-[linear-gradient(135deg,#fffdfa_0%,#fff5ed_100%)] px-2 py-1.5 text-[#1F2B5E] shadow-[0_7px_22px_rgba(31,43,94,.11)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B1785C] hover:shadow-[0_12px_26px_rgba(177,120,92,.20)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2.5 sm:px-3"
+              className="group relative inline-flex min-h-11 shrink-0 items-center gap-2 overflow-hidden rounded-[1rem] border border-[#B1785C]/75 bg-[linear-gradient(135deg,#fffdfa_0%,#fff5ed_100%)] px-2 py-1.5 text-[#1F2B5E] shadow-[0_7px_22px_rgba(31,43,94,.11)] transition-all duration-200  hover:border-[#B1785C] hover:shadow-[0_12px_26px_rgba(177,120,92,.20)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2.5 sm:px-3"
             >
               <span aria-hidden="true" className="absolute inset-y-0 right-0 w-[3px] bg-[#B1785C]" />
               <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-[.75rem] bg-[#1F2B5E] text-white shadow-[0_3px_10px_rgba(31,43,94,.15)] transition-colors group-hover:bg-[#B1785C] sm:h-9 sm:w-9">
@@ -713,7 +713,7 @@ export default function IntensivePortal() {
               <div className="mt-7 flex flex-wrap gap-3">
                 <a
                   href="#course-portfolio"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-[#1F2B5E] shadow-[0_14px_34px_rgba(0,0,0,.15)] transition hover:-translate-y-0.5"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-black text-[#1F2B5E] shadow-[0_14px_34px_rgba(0,0,0,.15)] transition "
                 >
                   <BookOpenCheck size={18} /> استعرض مقرراتي
                 </a>
@@ -861,7 +861,7 @@ export default function IntensivePortal() {
             return (
               <article
                 key={item.label}
-                className="numo-card-lift numo-stat-glow group relative overflow-hidden rounded-[1.7rem] border border-white/80 bg-white/95 p-4 shadow-[0_16px_42px_rgba(31,43,94,.07)] sm:p-5"
+                className="numo-stat-glow group relative overflow-hidden rounded-[1.7rem] border border-white/80 bg-white/95 p-4 shadow-[0_16px_42px_rgba(31,43,94,.07)] sm:p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -1008,7 +1008,7 @@ export default function IntensivePortal() {
                     <button
                       type="button"
                       onClick={() => goCarousel(-1)}
-                      className="absolute left-2 bottom-0 z-30 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-[#0c1435]/92 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:left-3 sm:bottom-auto sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
+                      className="absolute left-2 bottom-0 z-30 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-[#0c1435]/92 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:bg-[#1F2B5E] sm:left-3 sm:bottom-auto sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
                       aria-label="المقرر السابق"
                     >
                       <ChevronLeft size={21} />
@@ -1016,7 +1016,7 @@ export default function IntensivePortal() {
                     <button
                       type="button"
                       onClick={() => goCarousel(1)}
-                      className="absolute right-2 bottom-0 z-30 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-[#0c1435]/92 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:scale-105 hover:bg-[#1F2B5E] sm:right-3 sm:bottom-auto sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
+                      className="absolute right-2 bottom-0 z-30 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-[#0c1435]/92 text-white shadow-[0_16px_38px_rgba(0,0,0,.32)] backdrop-blur transition hover:bg-[#1F2B5E] sm:right-3 sm:bottom-auto sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
                       aria-label="المقرر التالي"
                     >
                       <ChevronRight size={21} />
@@ -1119,7 +1119,7 @@ export default function IntensivePortal() {
                   {nextAction ? (
                     <a
                       href={"/exam/" + nextAction.exam.id}
-                      className="group relative inline-flex min-h-16 items-center justify-center gap-3 overflow-hidden rounded-[1.15rem] border border-[#E5AF94]/70 bg-[linear-gradient(135deg,#744431_0%,#9C6047_36%,#B1785C_72%,#C88768_100%)] px-7 text-[15px] font-black text-white shadow-[0_20px_46px_rgba(177,120,92,.32),0_1px_0_rgba(255,255,255,.15)_inset] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_58px_rgba(177,120,92,.40)]"
+                      className="group relative inline-flex min-h-16 items-center justify-center gap-3 overflow-hidden rounded-[1.15rem] border border-[#E5AF94]/70 bg-[linear-gradient(135deg,#744431_0%,#9C6047_36%,#B1785C_72%,#C88768_100%)] px-7 text-[15px] font-black text-white shadow-[0_20px_46px_rgba(177,120,92,.32),0_1px_0_rgba(255,255,255,.15)_inset] transition duration-300  hover:shadow-[0_26px_58px_rgba(177,120,92,.40)]"
                     >
                       <span className="pointer-events-none absolute inset-0 translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.18),transparent)] transition-transform duration-700 group-hover:-translate-x-full" />
                       <span className="relative grid h-10 w-10 place-items-center rounded-2xl border border-white/18 bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,.18)]">
