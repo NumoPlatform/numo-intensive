@@ -16,9 +16,8 @@ import {
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
-import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
-import NumoBrand from "@/app/components/NumoBrand";
+import StudentBackNavigation from "@/app/components/StudentBackNavigation";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 
 type Course = {
@@ -212,17 +211,12 @@ export default function CoursePortal() {
   return (
     <main className="min-h-screen bg-[#f5f6fa] px-4 py-6 text-[#1F2B5E] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <a href="/" className="inline-flex items-center gap-2 text-sm font-black text-[#6f7488]">
-            <ArrowRight size={17} /> العودة للرئيسية
-          </a>
-          <div className="flex min-w-0 items-center gap-3">
-            <NumoBrand horizontal className="w-auto" />
-            <div className="hidden min-w-0 sm:block">
-              <div className="truncate text-xs font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
-              <div className="mt-1 truncate text-[9px] font-black tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
-            </div>
-          </div>
+        <div className="sticky top-0 z-40 mb-5">
+          <StudentBackNavigation
+            backHref="/"
+            backLabel="العودة إلى مقرراتي"
+            context={displayCourseCode}
+          />
         </div>
 
         <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[1.8rem] sm:rounded-[2rem]">
