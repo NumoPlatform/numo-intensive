@@ -991,25 +991,25 @@ textarea {
    remain perfectly stationary. Course contents and exam screens are static. */
 @keyframes numoCoverFloat {
   0%, 100% {
-    transform: perspective(1200px) translate3d(0, 5px, 0) rotateY(-3deg) rotateZ(-1.5deg) scale(.90);
+    transform: perspective(1200px) translate3d(0, 5px, 0) rotateY(-3deg) rotateZ(-1.5deg);
   }
   25% {
-    transform: perspective(1200px) translate3d(0, -3px, 0) rotateY(-1deg) rotateZ(-.5deg) scale(.90);
+    transform: perspective(1200px) translate3d(0, -3px, 0) rotateY(-1deg) rotateZ(-.5deg);
   }
   50% {
-    transform: perspective(1200px) translate3d(0, -13px, 0) rotateY(3deg) rotateZ(1.5deg) scale(.90);
+    transform: perspective(1200px) translate3d(0, -13px, 0) rotateY(3deg) rotateZ(1.5deg);
   }
   75% {
-    transform: perspective(1200px) translate3d(0, -4px, 0) rotateY(1deg) rotateZ(.5deg) scale(.90);
+    transform: perspective(1200px) translate3d(0, -4px, 0) rotateY(1deg) rotateZ(.5deg);
   }
 }
 
 @keyframes numoSmallCoverFloat {
   0%, 100% {
-    transform: perspective(700px) translate3d(0, 4px, 0) rotateY(-4deg) rotateZ(-2deg) scale(.83);
+    transform: perspective(700px) translate3d(0, 4px, 0) rotateY(-4deg) rotateZ(-2deg);
   }
   50% {
-    transform: perspective(700px) translate3d(0, -7px, 0) rotateY(4deg) rotateZ(2deg) scale(.83);
+    transform: perspective(700px) translate3d(0, -7px, 0) rotateY(4deg) rotateZ(2deg);
   }
 }
 
