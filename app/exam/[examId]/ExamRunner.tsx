@@ -2,6 +2,7 @@
 
 import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
+import StudentBackNavigation from "@/app/components/StudentBackNavigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -259,6 +260,8 @@ export default function ExamRunner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [remaining, setRemaining] = useState(0);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [exitingExam, setExitingExam] = useState(false);
+  const approvedNavigation = useRef(false);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [advancing, setAdvancing] = useState(false);
@@ -472,6 +475,37 @@ export default function ExamRunner() {
 
     setSaveState("saved");
   }, [answers, attempt, flags, writingAssessment]);
+
+  const courseBackHref = exam?.course_id ? "/course/" + exam.course_id : "/";
+
+  // Never navigate to external browser history; go to the exact course the
+  // student opened. During a timed section, flush all pending answers first.
+  async function navigateOutOfExam(destination: string = courseBackHref) {
+    if (exitingExam) return;
+    if (stage === "active") {
+      if (submitting || advancing || writingAssessmentLoading) {
+        setMessage("انتظر اكتمال الحفظ أو التسليم قبل مغادرة الاختبار.");
+        return;
+      }
+      if (!window.confirm(
+        "العودة إلى المقرر؟\\nسيستمر عداد وقت القسم الحالي، لذلك يُرجى إكماله قبل انتهاء الوقت. سنحفظ إجاباتك أولًا؛ ويمكنك العودة إلى الاختبار من صفحة المادة."
+      )) return;
+      setExitingExam(true);
+      setSaveState("saving");
+      try {
+        for (const timer of Object.values(saveTimers.current)) window.clearTimeout(timer);
+        saveTimers.current = {};
+        await flushCurrentSection();
+        approvedNavigation.current = true;
+        window.location.assign(destination);
+      } catch (error) {
+        setExitingExam(false);
+        setMessage(error instanceof Error ? error.message : "تعذّر حفظ الإجابات؛ لم نغادر الاختبار. حاول مجددًا.");
+      }
+      return;
+    }
+    window.location.assign(destination);
+  }
 
   function updateAnswer(questionId: string, value: unknown) {
     const targetQuestion = attempt?.questions.find((item) => item.id === questionId);
@@ -902,7 +936,7 @@ export default function ExamRunner() {
   useEffect(() => {
     if (stage !== "active") return;
     const warn = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
+      if (!approvedNavigation.current) event.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
@@ -1049,9 +1083,13 @@ export default function ExamRunner() {
     return (
       <div className="deluxe-canvas min-h-screen px-4 py-8 text-[#1F2B5E]">
         <div className="mx-auto max-w-3xl">
-          <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#6f7489]">
-            <ArrowRight size={17} /> العودة للوحة الطالب
-          </Link>
+          <div className="mb-5">
+            <StudentBackNavigation
+              backHref={courseBackHref}
+              backLabel="العودة إلى المادة"
+              context={exam?.title ?? "الاختبار"}
+            />
+          </div>
           <div className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
             <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-7 text-white sm:p-9">
               <div className="text-sm font-black text-[#e9c1ad]">{exam?.category ?? BRAND.nameEn}</div>
@@ -1129,9 +1167,13 @@ export default function ExamRunner() {
     return (
       <div className="deluxe-canvas min-h-screen px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
         <div className="mx-auto max-w-5xl">
-          <Link href="/" className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#6f7489]">
-            <ArrowRight size={17} /> العودة للوحة الطالب
-          </Link>
+          <div className="mb-5">
+            <StudentBackNavigation
+              backHref={courseBackHref}
+              backLabel="العودة إلى المادة"
+              context={exam?.title ?? "اختيار القسم"}
+            />
+          </div>
 
           <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
             <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-6 text-white sm:p-8">
@@ -1300,6 +1342,13 @@ export default function ExamRunner() {
     return (
       <div className="min-h-screen bg-[#f5f6fa] px-3 py-6 text-[#1F2B5E] sm:px-6 sm:py-10">
         <div className="mx-auto max-w-5xl">
+          <div className="mb-5">
+            <StudentBackNavigation
+              backHref={courseBackHref}
+              backLabel="العودة إلى المادة"
+              context={sectionResult.sectionTitle}
+            />
+          </div>
           <section className="numo-premium-surface numo-metal-border overflow-hidden rounded-[2rem]">
             <div className="numo-hero-radiance bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-6 text-white sm:p-8">
               <div className="text-xs font-black uppercase tracking-[.16em] text-[#efc7b3]">
@@ -1594,8 +1643,16 @@ export default function ExamRunner() {
 
   if (stage === "done") {
     return (
-      <div className="deluxe-canvas grid min-h-screen place-items-center px-4 py-10 text-[#1F2B5E]">
-        <div className="numo-premium-surface numo-metal-border w-full max-w-5xl rounded-[2rem] p-6 text-center sm:p-8">
+      <div className="deluxe-canvas min-h-screen px-4 py-8 text-[#1F2B5E]">
+        <div className="mx-auto w-full max-w-5xl">
+          <div className="mb-5">
+            <StudentBackNavigation
+              backHref={courseBackHref}
+              backLabel="العودة إلى المادة"
+              context="نتيجة الاختبار"
+            />
+          </div>
+          <div className="numo-premium-surface numo-metal-border w-full rounded-[2rem] p-6 text-center sm:p-8">
           <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
             <CheckCircle2 size={34} />
           </div>
@@ -1740,7 +1797,8 @@ export default function ExamRunner() {
             >
               عرض سجل المحاولات
             </Link>
-            <Link href="/" className="btn w-full">العودة إلى {BRAND.nameAr}</Link>
+            <Link href={courseBackHref} className="btn w-full">العودة إلى المادة</Link>
+          </div>
           </div>
         </div>
       </div>
@@ -1775,6 +1833,18 @@ export default function ExamRunner() {
   return (
     <div className="deluxe-canvas min-h-screen min-w-0 overflow-x-hidden text-[#1F2B5E]">
       <header className="sticky top-0 z-30 border-b border-[#e0dce6] bg-white/95 shadow-[0_10px_30px_rgba(31,43,94,.08)] backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-7xl px-3 pt-2 sm:px-6">
+          <StudentBackNavigation
+            backHref={courseBackHref}
+            backLabel="حفظ والعودة للمادة"
+            context={sections[activeSectionIndex]?.title ?? "الاختبار"}
+            active
+            busy={exitingExam}
+            onBack={() => void navigateOutOfExam()}
+            onHome={() => void navigateOutOfExam("/")}
+            compact
+          />
+        </div>
         <div className="mx-auto flex w-full max-w-7xl flex-col items-stretch gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             <div className="text-[9px] font-black uppercase tracking-[.1em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
