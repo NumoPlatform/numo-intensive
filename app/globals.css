@@ -1116,3 +1116,23 @@ textarea {
     will-change: auto;
   }
 }
+
+/* Only when the visitor explicitly opts in to animations despite an OS reduced-motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  html.numo-motion-forced .numo-login-cover-float {
+    animation: numoLoginCoversLevitate 5.3s ease-in-out infinite !important;
+    will-change: transform;
+  }
+  html.numo-motion-forced .numo-course-sway {
+    animation: numoVisibleCourseFloat 5.6s ease-in-out infinite !important;
+    will-change: transform;
+  }
+  html.numo-motion-forced .numo-showcase-sway {
+    animation: numoVisibleShowcaseFloat 6.4s ease-in-out infinite !important;
+    will-change: transform;
+  }
+  html.numo-motion-forced .numo-hero-cover-float {
+    animation: numoVisibleHeroFloat 6.8s ease-in-out infinite !important;
+    will-change: transform;
+  }
+}
