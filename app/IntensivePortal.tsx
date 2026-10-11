@@ -619,29 +619,37 @@ export default function IntensivePortal() {
                 </div>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="grid h-10 w-8 shrink-0 place-items-center rounded-xl border border-[#e6e2e9] bg-white text-[#667088] shadow-sm transition-colors hover:border-[#B1785C]/65 hover:text-[#1F2B5E] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] min-[380px]:w-10 sm:h-11"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
+            >
+              <LogOut size={17} aria-hidden="true" />
+            </button>
             <a
               href="https://numo.academy/"
               target="_blank"
               rel="noopener noreferrer"
-              title="زيارة الموقع الرسمي لمنصة نُمُو — يفتح في تبويب جديد"
-              aria-label="الموقع الرسمي لمنصة نُمُو — يفتح في تبويب جديد"
-              className="group inline-flex min-h-11 shrink-0 items-center gap-1 rounded-[1rem] border border-[#C9977B] bg-[#fffaf7] px-1.5 py-1.5 text-[#1F2B5E] shadow-[0_5px_18px_rgba(31,43,94,.09)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B1785C] hover:bg-white hover:shadow-[0_9px_23px_rgba(177,120,92,.16)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2 sm:px-3"
+              title="زيارة الموقع الرسمي لمنصة نُمو — numo.academy (يفتح في تبويب جديد)"
+              aria-label="الموقع الرسمي لمنصة نُمو — يفتح في تبويب جديد"
+              className="group relative inline-flex min-h-11 shrink-0 items-center gap-2 overflow-hidden rounded-[1rem] border border-[#B1785C]/75 bg-[linear-gradient(135deg,#fffdfa_0%,#fff5ed_100%)] px-2 py-1.5 text-[#1F2B5E] shadow-[0_7px_22px_rgba(31,43,94,.11)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B1785C] hover:shadow-[0_12px_26px_rgba(177,120,92,.20)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2.5 sm:px-3"
             >
-              <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#1F2B5E] text-white transition-colors group-hover:bg-[#B1785C] sm:h-8 sm:w-8">
-                <Globe2 size={17} strokeWidth={2} />
+              <span aria-hidden="true" className="absolute inset-y-0 right-0 w-[3px] bg-[#B1785C]" />
+              <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-[.75rem] bg-[#1F2B5E] text-white shadow-[0_3px_10px_rgba(31,43,94,.15)] transition-colors group-hover:bg-[#B1785C] sm:h-9 sm:w-9">
+                <Globe2 size={18} strokeWidth={2} />
               </span>
-              <span className="numo-crisp-arabic whitespace-nowrap text-[13px] font-black text-[#1F2B5E] sm:text-[15px]">الموقع الرسمي</span>
+              <span className="flex min-w-0 flex-col items-start leading-tight">
+                <span className="numo-crisp-arabic whitespace-nowrap text-[12px] font-black text-[#1F2B5E] min-[380px]:text-[13px] sm:text-[15px]">
+                  الموقع الرسمي
+                </span>
+                <span dir="ltr" className="mt-1 hidden text-[10px] font-extrabold tracking-[.02em] text-[#a96c4e] sm:block">
+                  numo.academy
+                </span>
+              </span>
               <ArrowUpLeft aria-hidden="true" size={15} className="hidden shrink-0 text-[#B1785C] sm:block" />
             </a>
-            <button
-              type="button"
-              onClick={logout}
-              className="grid h-11 w-9 shrink-0 place-items-center rounded-2xl border border-[#e1dde5] bg-white text-[#1F2B5E] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f8f7fa] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:w-11"
-              title="تسجيل الخروج"
-              aria-label="تسجيل الخروج"
-            >
-              <LogOut size={18} />
-            </button>
           </div>
         </div>
       </header>
