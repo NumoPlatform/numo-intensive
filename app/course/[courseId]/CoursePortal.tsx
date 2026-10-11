@@ -16,9 +16,7 @@ import {
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
-import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
-import NumoBrand from "@/app/components/NumoBrand";
 import StudentBackNavigation from "@/app/components/StudentBackNavigation";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 
