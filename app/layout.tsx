@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";
+import NumoMotionOverride from "./components/NumoMotionOverride";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           تجاوز إلى المحتوى الرئيسي
         </a>
+        <NumoMotionOverride />
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>
