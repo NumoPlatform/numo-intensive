@@ -986,73 +986,98 @@ textarea {
 }
 
 
-/* NUMO Deluxe Floating 3D — continuous, calm course cover motion.
-   No cursor or touch interaction required. Only compositor transforms are animated. */
-@keyframes luxuriousSway {
+/* NUMO Deluxe Motion v2 — visible automatic floating without any hover / touch.
+   Covers only; existing exams, forms, scoring and student navigation remain untouched.
+   Motion is compositor-based, and reduced-motion settings remain respected. */
+
+@keyframes numoVisibleCourseFloat {
   0%, 100% {
-    transform: perspective(1100px) translate3d(0, 2px, 0) rotateX(0.6deg) rotateY(-2.8deg) rotateZ(-1.15deg);
+    transform: perspective(980px) translate3d(0, 5px, 0) rotateY(-4.5deg) rotateX(1.2deg) rotateZ(-2.3deg);
   }
   25% {
-    transform: perspective(1100px) translate3d(0, -4px, 0) rotateX(0deg) rotateY(-0.3deg) rotateZ(-0.2deg);
+    transform: perspective(980px) translate3d(0, -7px, 0) rotateY(-1deg) rotateX(-.5deg) rotateZ(-.65deg);
   }
   50% {
-    transform: perspective(1100px) translate3d(0, -9px, 0) rotateX(-0.6deg) rotateY(2.8deg) rotateZ(1.15deg);
+    transform: perspective(980px) translate3d(0, -18px, 0) rotateY(4.5deg) rotateX(-1.2deg) rotateZ(2.3deg);
   }
   75% {
-    transform: perspective(1100px) translate3d(0, -5px, 0) rotateX(0deg) rotateY(0.5deg) rotateZ(0.2deg);
+    transform: perspective(980px) translate3d(0, -7px, 0) rotateY(1deg) rotateX(.5deg) rotateZ(.65deg);
   }
 }
 
-@keyframes luxuriousShowcaseSway {
+@keyframes numoVisibleShowcaseFloat {
   0%, 100% {
-    transform: perspective(1500px) translate3d(0, 2px, 0) rotateY(-1.3deg) rotateZ(-0.55deg);
+    transform: perspective(1450px) translate3d(0, 5px, 0) rotateY(-3deg) rotateZ(-1.5deg);
   }
   50% {
-    transform: perspective(1500px) translate3d(0, -7px, 0) rotateY(1.3deg) rotateZ(0.55deg);
+    transform: perspective(1450px) translate3d(0, -16px, 0) rotateY(3deg) rotateZ(1.5deg);
   }
 }
 
-@keyframes luxuriousHeroCoverFloat {
+@keyframes numoVisibleHeroFloat {
   0%, 100% {
-    transform: perspective(1250px) translate3d(0, 1px, 0) rotateY(-1.3deg) rotateZ(-0.3deg);
+    transform: perspective(1300px) translate3d(0, 5px, 0) rotateY(-2.7deg) rotateZ(-1.3deg);
   }
   50% {
-    transform: perspective(1250px) translate3d(0, -4px, 0) rotateY(1.3deg) rotateZ(0.3deg);
+    transform: perspective(1300px) translate3d(0, -13px, 0) rotateY(2.7deg) rotateZ(1.3deg);
+  }
+}
+
+@keyframes numoLoginCoversLevitate {
+  0%, 100% {
+    transform: perspective(800px) translate3d(0, 5px, 0) rotateY(-5deg) rotateZ(-3deg);
+  }
+  50% {
+    transform: perspective(800px) translate3d(0, -17px, 0) rotateY(5deg) rotateZ(3deg);
   }
 }
 
 .numo-course-sway {
-  animation: luxuriousSway 6.8s ease-in-out infinite;
+  animation: numoVisibleCourseFloat 5.6s ease-in-out infinite;
   backface-visibility: hidden;
-  transform-origin: center center;
+  transform-origin: center;
   will-change: transform;
   transition: translate .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
 .numo-course-sway:nth-child(3n + 2) {
-  animation-delay: -2.4s;
-  animation-duration: 7.5s;
+  animation-delay: -2.1s;
+  animation-duration: 6.5s;
+}
+.numo-course-sway:nth-child(3n + 3) {
+  animation-delay: -3.6s;
+  animation-duration: 7.1s;
 }
 
-.numo-course-sway:nth-child(3n + 3) {
-  animation-delay: -4.5s;
-  animation-duration: 8.1s;
+.numo-login-cover-float {
+  animation: numoLoginCoversLevitate 5.3s ease-in-out infinite;
+  backface-visibility: hidden;
+  transform-origin: center;
+  will-change: transform;
+}
+.numo-login-cover-float:nth-child(2) {
+  animation-delay: -1.7s;
+  animation-duration: 6s;
+}
+.numo-login-cover-float:nth-child(3) {
+  animation-delay: -3.1s;
+  animation-duration: 5.8s;
 }
 
 .numo-showcase-sway {
   animation:
     numoFramePulse 5.8s ease-in-out infinite,
-    luxuriousShowcaseSway 7.6s ease-in-out infinite;
+    numoVisibleShowcaseFloat 6.4s ease-in-out infinite;
   backface-visibility: hidden;
-  transform-origin: center center;
+  transform-origin: center;
   will-change: transform;
   transition: translate .3s ease, box-shadow .3s ease;
 }
 
 .numo-hero-cover-float {
-  animation: luxuriousHeroCoverFloat 8s ease-in-out infinite;
-  transform-origin: center center;
+  animation: numoVisibleHeroFloat 6.8s ease-in-out infinite;
   backface-visibility: hidden;
+  transform-origin: center;
   will-change: transform;
 }
 
@@ -1060,43 +1085,54 @@ textarea {
   .numo-course-sway:hover {
     animation-play-state: paused;
     translate: 0 -5px;
-    box-shadow:
-      0 24px 54px rgba(99,102,241,.15),
-      0 20px 40px rgba(31,43,94,.10),
-      0 2px 0 rgba(255,255,255,.96) inset;
+    box-shadow: 0 24px 54px rgba(99,102,241,.15), 0 20px 40px rgba(31,43,94,.10);
   }
-
   .numo-showcase-sway:hover {
     animation-play-state: paused;
     translate: 0 -4px;
-    box-shadow:
-      0 48px 120px rgba(3,8,30,.56),
-      0 0 42px rgba(99,102,241,.14),
-      0 0 0 1px rgba(255,255,255,.72) inset;
+    box-shadow: 0 48px 120px rgba(3,8,30,.56), 0 0 42px rgba(99,102,241,.14);
   }
 }
 
 @media (max-width: 639px) {
-  .numo-course-sway {
-    animation-duration: 7.5s;
-  }
+  .numo-course-sway { animation-duration: 5.9s; }
   .numo-showcase-sway {
-    animation:
-      numoFramePulse 6.2s ease-in-out infinite,
-      luxuriousShowcaseSway 8.3s ease-in-out infinite;
+    animation: numoFramePulse 5.8s ease-in-out infinite,
+      numoVisibleShowcaseFloat 6.8s ease-in-out infinite;
   }
-  .numo-hero-cover-float {
-    animation-duration: 8.6s;
-  }
+  .numo-hero-cover-float { animation-duration: 7.1s; }
+  .numo-login-cover-float { animation-duration: 5.5s; }
 }
 
+/* Accessibility: respect explicit OS preference to reduce animations. */
 @media (prefers-reduced-motion: reduce) {
   .numo-course-sway,
   .numo-showcase-sway,
-  .numo-hero-cover-float {
+  .numo-hero-cover-float,
+  .numo-login-cover-float {
     animation: none !important;
     translate: none !important;
     transform: none !important;
     will-change: auto;
+  }
+}
+
+/* Only when the visitor explicitly opts in to animations despite an OS reduced-motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  html.numo-motion-forced .numo-login-cover-float {
+    animation: numoLoginCoversLevitate 5.3s ease-in-out infinite !important;
+    will-change: transform;
+  }
+  html.numo-motion-forced .numo-course-sway {
+    animation: numoVisibleCourseFloat 5.6s ease-in-out infinite !important;
+    will-change: transform;
+  }
+  html.numo-motion-forced .numo-showcase-sway {
+    animation: numoVisibleShowcaseFloat 6.4s ease-in-out infinite !important;
+    will-change: transform;
+  }
+  html.numo-motion-forced .numo-hero-cover-float {
+    animation: numoVisibleHeroFloat 6.8s ease-in-out infinite !important;
+    will-change: transform;
   }
 }
