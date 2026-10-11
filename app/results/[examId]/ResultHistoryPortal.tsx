@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
+import StudentBackNavigation from "@/app/components/StudentBackNavigation";
 
 type SectionScore = {
   sectionId: string;
@@ -148,13 +149,20 @@ export default function ResultHistoryPortal() {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[#f6f7fb] px-3 py-4 text-[#1F2B5E] sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
+        <div className="mb-5">
+          <StudentBackNavigation
+            backHref={data.course?.id ? "/course/" + data.course.id : "/"}
+            backLabel="العودة إلى المادة"
+            context={data.exam.title}
+          />
+        </div>
         <header className="numo-hero-radiance relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] p-6 text-white shadow-[0_26px_70px_rgba(31,43,94,.22)] sm:p-8">
           <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/25 blur-3xl" />
           <div className="relative flex flex-wrap items-start justify-between gap-5">
             <div>
-              <a href="/" className="mb-4 inline-flex items-center gap-2 text-xs font-black text-white/70 hover:text-white">
-                <ArrowLeft size={15} /> العودة إلى {BRAND.nameAr}
-              </a>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#B1785C]/40 bg-[#B1785C]/10 px-3 py-1.5 text-xs font-black text-[#f1c3ac]">
+                <Award size={15} /> سجل الأداء الأكاديمي
+              </div>
               <div className="mb-2 text-[10px] font-black uppercase tracking-[.13em] text-white/55" dir="ltr">
                 {BRAND.nameEn}
               </div>
