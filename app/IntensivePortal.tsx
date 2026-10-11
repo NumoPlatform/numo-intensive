@@ -280,6 +280,38 @@ export default function IntensivePortal() {
                 <NumoBrand className="w-28" priority inverse />
               </div>
 
+              {/* Static public course covers: visible, automatically animated even before login. */}
+              <div className="relative mb-7 mt-2" aria-label="معاينة أغلفة دورات نُمو المتحركة تلقائيًا">
+                <div className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.18em] text-[#E7B79F]" dir="ltr">
+                  <Sparkles size={14} aria-hidden="true" />
+                  NUMO FLOATING COURSE COLLECTION
+                </div>
+                <div className="grid grid-cols-3 items-center gap-3 py-3 sm:gap-4">
+                  {[
+                    { code: "EL097", cover: "/covers/el097-el099e-premium.svg" },
+                    { code: "EL098", cover: "/covers/el098.svg" },
+                    { code: "EL099", cover: "/covers/el099.svg" },
+                  ].map((item) => (
+                    <div
+                      key={item.code}
+                      className="numo-login-cover-float relative rounded-xl border border-[#B1785C]/55 bg-white p-1.5 shadow-[0_14px_27px_rgba(6,12,37,.36)] sm:rounded-2xl sm:p-2"
+                    >
+                      <img
+                        src={item.cover}
+                        alt={"غلاف " + item.code}
+                        width={1536}
+                        height={864}
+                        decoding="async"
+                        className="aspect-[16/9] w-full rounded-lg bg-white object-contain"
+                      />
+                      <div className="pt-1 text-center text-[10px] font-black tracking-[.1em] text-[#1F2B5E] sm:pt-2 sm:text-sm" dir="ltr">
+                        {item.code}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="max-w-3xl">
                 <p className="text-sm font-black tracking-wide text-[#E7B79F]">{BRAND.description}</p>
                 <h1 className="mt-3 text-4xl font-black leading-[1.25] sm:text-5xl lg:text-6xl">
