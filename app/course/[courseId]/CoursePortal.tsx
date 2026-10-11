@@ -393,6 +393,19 @@ export default function CoursePortal() {
           </section>
         ) : (
         <section className={"mt-6 grid gap-4 " + (isEl098Quiz2 ? "md:grid-cols-2" : "md:grid-cols-3")}>
+          {isFoundationThreeStage ? (
+            <div className="md:col-span-full rounded-[1.3rem] border border-[#e2dce5] bg-white px-5 py-4">
+              <div dir="ltr" className="text-xs font-black tracking-[.2em] text-[#B1785C]">02 / 03 — QUIZ 2 (MIDTERM)</div>
+              <h2 className="mt-1 text-xl font-black text-[#1F2B5E]">التقييم النصفي · اختبارات Quiz 2 الحالية</h2>
+              <p className="mt-2 text-sm font-semibold leading-7 text-[#72788d]">
+                {isEl098Quiz2
+                  ? "أربعة نماذج، وكل نموذج يحتفظ بأقسام Grammar and Vocabulary وReading وWriting مستقلة."
+                  : isEl099Quiz2
+                    ? "ثلاثة أقسام: Grammar and Vocabulary، Reading (Passages)، ثم Writing."
+                    : "سبعة أقسام تدريبية متتالية كما في ملف الكويز الثاني، مع إمكانية إعادة المحاولة دون حد."}
+              </p>
+            </div>
+          ) : null}
           {isGeneralCourse ? (
             generalExamDefinitions.map((definition) => {
               const exam = exams.find((item) => item.category === definition.category) ?? null;
@@ -868,6 +881,12 @@ export default function CoursePortal() {
                     ["2", "ابدأ من الأيقونة", "عدد المحاولات يظهر لكل اختبار حسب إعداده الفعلي"],
                     ["3", "راجع نتيجتك", "الدرجة والمراجعة تظهران مباشرة"],
                   ]
+                : isFoundationThreeStage
+                  ? [
+                      ["1", "اختر مرحلة التقييم", "Quiz 1 أو Quiz 2 (MIDTERM) أو Final"],
+                      ["2", "افتح الاختبار المتاح", "داخل Quiz 2 اختر النموذج أو القسم المناسب ثم ابدأ التدريب"],
+                      ["3", "راجع نتيجتك وأعد المحاولة", "التصحيح فوري للأسئلة الموضوعية والمحاولات غير محدودة"],
+                    ]
                 : [
                     ["1", "اختر القسم", isEl099Quiz2 ? "Grammar and Vocabulary أو Reading (Passages) أو Writing" : isEl097Quiz2 ? "اختر من الأقسام السبعة المعتمدة في الملف" : "Grammar أو Vocabulary أو Reading"],
                     ["2", "أكمل الأسئلة", isEl099Quiz2 ? "120 دقيقة للقواعد، و60 للقراءة، و45 للكتابة؛ اختر موضوعًا من ستة" : isEl097Quiz2 ? "30 دقيقة لكل قسم؛ Writing اختر موضوعاً من سبعة" : "الوقت يبدأ عند دخول المحاولة"],
