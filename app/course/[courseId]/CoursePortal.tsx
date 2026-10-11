@@ -87,6 +87,9 @@ export default function CoursePortal() {
   const params = useParams<{ courseId: string }>();
   const [data, setData] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(true);
+  // Only foundation intensive levels use the 3-stage academic assessment journey.
+  // EL111 and EL112 retain their current, independent assessment structure.
+  const [intensiveStage, setIntensiveStage] = useState<"QUIZ 1" | "QUIZ 2" | "FINAL">("QUIZ 2");
 
   useEffect(() => {
     intensiveFetch("/api/dashboard", { cache: "no-store" })
@@ -164,6 +167,20 @@ export default function CoursePortal() {
   const isEl098Quiz2 = normalizedCourseCode === "EL098";
   const isEl099Quiz2 = normalizedCourseCode === "EL099";
   const isEl097Quiz2 = normalizedCourseCode === "EL097_EL099E";
+  const isFoundationThreeStage = isEl097Quiz2 || isEl098Quiz2 || isEl099Quiz2;
+  const quiz2Exams = isFoundationThreeStage ? exams.filter((exam) => exam.category === "QUIZ 2") : [];
+  const quiz2Sections = isFoundationThreeStage
+    ? courseSections.filter((section) => quiz2Exams.some((exam) => exam.id === section.exam_id))
+    : [];
+  const quiz2PrimaryExam = quiz2Exams.find((exam) => quiz2Sections.filter((section) => section.exam_id === exam.id).length > 1) ?? quiz2Exams[0] ?? null;
+  const selectedStageExams = isFoundationThreeStage
+    ? exams.filter((exam) => exam.category === intensiveStage)
+    : [];
+  const intensiveStageDefinitions = [
+    { category: "QUIZ 1", title: "Quiz 1", titleAr: "التقييم الأول", number: "01", Icon: ClipboardCheck, color: "#6366F1", soft: "#F1F1FF" },
+    { category: "QUIZ 2", title: "Quiz 2 (MIDTERM)", titleAr: "التقييم النصفي", number: "02", Icon: BookOpenCheck, color: "#B1785C", soft: "#FBF2ED" },
+    { category: "FINAL", title: "Final", titleAr: "الاختبار النهائي", number: "03", Icon: GraduationCap, color: "#1F2B5E", soft: "#EEF0F7" },
+  ] as const;
   const el098ModelIcons = [ClipboardCheck, FileCheck2, GraduationCap, BookOpenCheck] as const;
   const generalExamDefinitions = [
     {
@@ -246,7 +263,9 @@ export default function CoursePortal() {
                 </h1>
                 <p className="mt-3 text-sm leading-7 text-white/75">
                   {isGeneralCourse
-                    ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار 4 محاولات؛ الكويز 30 دقيقة والميد ترم 60 دقيقة، وتظهر النتيجة مباشرة بعد التسليم."
+                    ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار محاولات مفتوحة، وتظهر النتيجة مباشرة بعد التسليم."
+                    : isFoundationThreeStage
+                      ? "مراحل البرنامج المكثف الثلاث: Quiz 1، ثم Quiz 2 (MIDTERM)، ثم Final. اختر المرحلة لعرض اختباراتك. محتوى الكويز الثاني الموجود محفوظ بأقسامه ونماذجه ومحاولاته، أما المراحل الأخرى فتُفعّل عند إضافة أسئلتها المعتمدة."
                     : isEl098Quiz2
                       ? "QUIZ 2 — أربعة نماذج تدريبية مستقلة. اختر أي نموذج ثم أي قسم: Grammar & Vocabulary أو Reading أو Writing. التصحيح الموضوعي فوري والمحاولات مفتوحة."
                       : isEl097Quiz2
@@ -260,10 +279,10 @@ export default function CoursePortal() {
               <div className="relative mt-5 grid grid-cols-3 gap-2">
                 <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
                   <div className="text-xl font-black sm:text-2xl">
-                    {isGeneralCourse ? 3 : isEl098Quiz2 ? 4 : (sectionCount || exams.length)}
+                    {isGeneralCourse || isFoundationThreeStage ? 3 : (sectionCount || exams.length)}
                   </div>
                   <div className="mt-1 text-[10px] font-bold text-white/55">
-                    {isGeneralCourse ? "الاختبارات" : isEl098Quiz2 ? "النماذج" : "الأقسام"}
+                    {isGeneralCourse || isFoundationThreeStage ? "مراحل التقييم" : "الأقسام"}
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
@@ -281,6 +300,98 @@ export default function CoursePortal() {
           </div>
         </section>
 
+        {isFoundationThreeStage ? (
+          <section aria-label="مراحل اختبارات الدورة المكثفة" className="mt-6">
+            <div className="mb-4 text-right">
+              <h2 className="text-xl font-black text-[#1F2B5E] sm:text-2xl">الاختبارات الأساسية للدورة المكثفة</h2>
+              <p className="mt-1 text-sm font-semibold leading-7 text-[#73788d]">
+                ثلاث مراحل مستقلة لكل مقرر. افتح Quiz 2 (MIDTERM) لمتابعة النماذج والأقسام الحالية، دون دمجها مع Quiz 1 أو Final.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {intensiveStageDefinitions.map((definition) => {
+                const stageExams = exams.filter((exam) => exam.category === definition.category);
+                const now = Date.now();
+                const activeExams = stageExams.filter((exam) =>
+                  exam.status === "LIVE" &&
+                  now >= new Date(exam.starts_at).getTime() &&
+                  now <= new Date(exam.ends_at).getTime()
+                );
+                const selected = intensiveStage === definition.category;
+                const Icon = definition.Icon;
+                return (
+                  <button
+                    type="button"
+                    key={definition.category}
+                    aria-pressed={selected}
+                    onClick={() => setIntensiveStage(definition.category)}
+                    className={"numo-card-lift relative flex min-h-48 w-full flex-col items-stretch rounded-[1.55rem] border-2 bg-white p-5 text-right shadow-[0_12px_32px_rgba(31,43,94,.08)] transition-colors focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] " +
+                      (selected ? "border-[#B1785C] bg-[#fffcf9]" : "border-[#e5e2eb] hover:border-[#B1785C]/70")}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="grid h-12 w-12 place-items-center rounded-2xl" style={{ background: definition.soft, color: definition.color }}>
+                        <Icon size={24} />
+                      </div>
+                      <span className="text-xs font-black tracking-[.2em] text-[#B1785C]">{definition.number} / 03</span>
+                    </div>
+                    <h3 dir="ltr" className="mt-3 text-left text-xl font-black text-[#1F2B5E]">{definition.title}</h3>
+                    <p className="mt-1 text-sm font-bold text-[#73788d]">{definition.titleAr}</p>
+                    <div className="mt-auto pt-4 text-xs font-black" style={{ color: activeExams.length ? "#047857" : "#85899a" }}>
+                      {activeExams.length ? `${activeExams.length} اختبار متاح · محاولات غير محدودة`
+                        : stageExams.length ? "لم يُفتح هذا الاختبار بعد" : "بانتظار إضافة المحتوى المعتمد"}
+                    </div>
+                    {selected ? <span className="mt-2 text-xs font-black text-[#B1785C]">القسم المحدد · التفاصيل أدناه</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        {isFoundationThreeStage && intensiveStage !== "QUIZ 2" ? (
+          <section aria-live="polite" className="mt-6 grid gap-4 md:grid-cols-2">
+            {selectedStageExams.length ? (
+              selectedStageExams.map((exam) => {
+                const sectionList = courseSections.filter((section) => section.exam_id === exam.id);
+                const questionCount = sectionList.reduce((sum, section) => sum + Number(section.question_count ?? 0), 0);
+                const isOpen = exam.status === "LIVE" &&
+                  Date.now() >= new Date(exam.starts_at).getTime() &&
+                  Date.now() <= new Date(exam.ends_at).getTime();
+                const attempts = data.attempts.filter((attempt) => attempt.exam_id === exam.id);
+                const available = isOpen && questionCount > 0;
+                return (
+                  <article key={exam.id} className="rounded-[1.6rem] border border-[#dedbe5] bg-white p-5 shadow-[0_14px_36px_rgba(31,43,94,.07)]">
+                    <div dir="ltr" className="text-xs font-black tracking-widest text-[#B1785C]">{intensiveStage}</div>
+                    <h3 className="mt-3 text-xl font-black text-[#1F2B5E]">{exam.title}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-7 text-[#73788d]">
+                      {questionCount} سؤال · {exam.duration_minutes} دقيقة · {exam.attempts_allowed === 0 ? "محاولات غير محدودة" : `${exam.attempts_allowed} محاولات`}
+                    </p>
+                    {available ? (
+                      <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white">
+                        {attempts.length ? <RotateCcw size={18} /> : <PlayCircle size={18} />}
+                        {attempts.length ? "فتح الاختبار / إعادة المحاولة" : "بدء الاختبار"}
+                      </a>
+                    ) : (
+                      <div className="mt-5 rounded-xl border border-[#e6e3ec] bg-[#f6f5f8] p-4 text-center text-sm font-bold text-[#777c90]">
+                        {questionCount ? "هذا الاختبار غير متاح حاليًا" : "لم تُضف الأسئلة المعتمدة إلى هذا الاختبار بعد"}
+                      </div>
+                    )}
+                  </article>
+                );
+              })
+            ) : (
+              <div role="status" className="col-span-full rounded-[1.6rem] border border-dashed border-[#d9d5e2] bg-white px-5 py-10 text-center">
+                <BookOpenCheck className="mx-auto text-[#B1785C]" size={34} />
+                <h3 className="mt-3 text-xl font-black text-[#1F2B5E]">
+                  {intensiveStage === "QUIZ 1" ? "Quiz 1 — التقييم الأول" : "Final — الاختبار النهائي"}
+                </h3>
+                <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-8 text-[#7b8090]">
+                  لم تُضف لهذا القسم أسئلة أو نماذج معتمدة بعد. سيظهر الاختبار هنا بعد إضافته ونشره من الإدارة، دون التأثير على Quiz 2 (MIDTERM) الحالي.
+                </p>
+              </div>
+            )}
+          </section>
+        ) : (
         <section className={"mt-6 grid gap-4 " + (isEl098Quiz2 ? "md:grid-cols-2" : "md:grid-cols-3")}>
           {isGeneralCourse ? (
             generalExamDefinitions.map((definition) => {
@@ -431,8 +542,8 @@ export default function CoursePortal() {
               );
             })
           ) : (isEl097Quiz2 || isEl099Quiz2) ? (
-            courseSections.map((section) => {
-              const exam = exams.find((item) => item.id === section.exam_id) ?? primaryExam;
+            quiz2Sections.map((section) => {
+              const exam = quiz2Exams.find((item) => item.id === section.exam_id) ?? quiz2PrimaryExam;
               const attempts = exam ? data.attempts.filter((item) => item.exam_id === exam.id) : [];
               const latest = [...attempts].sort((a, b) => b.attempt_number - a.attempt_number)[0];
               const progress = latest?.section_progress?.[section.id];
@@ -510,7 +621,7 @@ export default function CoursePortal() {
               );
             })
           ) : isEl098Quiz2 ? (
-            [...exams]
+            [...quiz2Exams]
               .sort((a, b) => a.title.localeCompare(b.title, "en"))
               .map((exam, modelIndex) => {
                 const modelSections = courseSections.filter((section) => section.exam_id === exam.id);
@@ -742,6 +853,7 @@ export default function CoursePortal() {
             })
           )}
         </section>
+        )}
 
         <section className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
           <div className="rounded-[1.6rem] border border-[#e3dfe8] bg-white p-5 shadow-sm">
