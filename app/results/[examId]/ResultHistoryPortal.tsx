@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  ArrowLeft,
   Award,
   BarChart3,
   CheckCircle2,
