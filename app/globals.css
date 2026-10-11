@@ -48,6 +48,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Readable Arabic wordmark and high-contrast student navigation on mobile.
+   Keep diacritics clear; tight line-height or clipped wrappers erase vowel marks. */
+.numo-crisp-arabic {
+  font-family: "Noto Sans Arabic", "Noto Kufi Arabic", Tahoma, "Segoe UI", Arial, sans-serif;
+  font-weight: 900;
+  line-height: 1.8;
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: auto;
+}
+
 #main-content {
   width: 100%;
   min-width: 0;
