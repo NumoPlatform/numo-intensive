@@ -581,7 +581,7 @@ export default function IntensivePortal() {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[radial-gradient(circle_at_12%_8%,rgba(99,102,241,.08),transparent_24%),radial-gradient(circle_at_88%_18%,rgba(177,120,92,.10),transparent_26%),linear-gradient(180deg,#fbfbfd_0%,#f5f6fa_46%,#f8f5f3_100%)] text-[#1F2B5E]">
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 shadow-[0_10px_35px_rgba(31,43,94,.07)] backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 px-3 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-1.5 px-2 py-2.5 min-[380px]:gap-3 min-[380px]:px-3 sm:px-6 sm:py-3 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <NumoBrand horizontal priority className="w-auto" />
             <div className="hidden h-9 w-px bg-[#e6e2e9] lg:block" />
@@ -623,20 +623,20 @@ export default function IntensivePortal() {
               href="https://numo.academy/"
               target="_blank"
               rel="noopener noreferrer"
-              title="زيارة الموقع الرسمي لمنصة نمو — يفتح في تبويب جديد"
-              aria-label="الموقع الرسمي لمنصة نمو — يفتح في تبويب جديد"
-              className="group inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-2xl border border-[#B1785C]/60 bg-white px-2 py-1.5 text-[#1F2B5E] shadow-[0_5px_18px_rgba(31,43,94,.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B1785C] hover:bg-[#fffbf8] hover:shadow-[0_9px_23px_rgba(177,120,92,.14)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2 sm:px-3"
+              title="زيارة الموقع الرسمي لمنصة نُمُو — يفتح في تبويب جديد"
+              aria-label="الموقع الرسمي لمنصة نُمُو — يفتح في تبويب جديد"
+              className="group inline-flex min-h-11 shrink-0 items-center gap-1 rounded-[1rem] border border-[#C9977B] bg-[#fffaf7] px-1.5 py-1.5 text-[#1F2B5E] shadow-[0_5px_18px_rgba(31,43,94,.09)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B1785C] hover:bg-white hover:shadow-[0_9px_23px_rgba(177,120,92,.16)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:gap-2 sm:px-3"
             >
-              <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#f7eee9] text-[#1F2B5E] transition-colors group-hover:bg-[#f0dfd2]">
+              <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#1F2B5E] text-white transition-colors group-hover:bg-[#B1785C] sm:h-8 sm:w-8">
                 <Globe2 size={17} strokeWidth={2} />
               </span>
-              <span className="whitespace-nowrap text-[11px] font-black sm:text-xs">الموقع الرسمي</span>
+              <span className="numo-crisp-arabic whitespace-nowrap text-[13px] font-black text-[#1F2B5E] sm:text-[15px]">الموقع الرسمي</span>
               <ArrowUpLeft aria-hidden="true" size={15} className="hidden shrink-0 text-[#B1785C] sm:block" />
             </a>
             <button
               type="button"
               onClick={logout}
-              className="grid h-11 w-10 shrink-0 place-items-center rounded-2xl border border-[#e1dde5] bg-white text-[#1F2B5E] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f8f7fa] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:w-11"
+              className="grid h-11 w-9 shrink-0 place-items-center rounded-2xl border border-[#e1dde5] bg-white text-[#1F2B5E] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f8f7fa] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] motion-reduce:transform-none sm:w-11"
               title="تسجيل الخروج"
               aria-label="تسجيل الخروج"
             >
