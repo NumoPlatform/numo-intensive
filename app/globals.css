@@ -578,8 +578,8 @@ textarea {
 }
 
 .course-showcase-frame {
-  animation: numoFramePulse 5.8s ease-in-out infinite;
-  transform: translateZ(0);
+  /* The display and its shadow stay completely stationary; only the cover moves. */
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -986,153 +986,103 @@ textarea {
 }
 
 
-/* NUMO Deluxe Motion v2 — visible automatic floating without any hover / touch.
-   Covers only; existing exams, forms, scoring and student navigation remain untouched.
-   Motion is compositor-based, and reduced-motion settings remain respected. */
-
-@keyframes numoVisibleCourseFloat {
+/* NUMO Deluxe — floating COVER IMAGES ONLY.
+   All card boundaries, links, titles, grades, labels, and open-course controls
+   remain perfectly stationary. Course contents and exam screens are static. */
+@keyframes numoCoverFloat {
   0%, 100% {
-    transform: perspective(980px) translate3d(0, 5px, 0) rotateY(-4.5deg) rotateX(1.2deg) rotateZ(-2.3deg);
+    transform: perspective(1200px) translate3d(0, 5px, 0) rotateY(-3deg) rotateZ(-1.5deg) scale(.90);
   }
   25% {
-    transform: perspective(980px) translate3d(0, -7px, 0) rotateY(-1deg) rotateX(-.5deg) rotateZ(-.65deg);
+    transform: perspective(1200px) translate3d(0, -3px, 0) rotateY(-1deg) rotateZ(-.5deg) scale(.90);
   }
   50% {
-    transform: perspective(980px) translate3d(0, -18px, 0) rotateY(4.5deg) rotateX(-1.2deg) rotateZ(2.3deg);
+    transform: perspective(1200px) translate3d(0, -13px, 0) rotateY(3deg) rotateZ(1.5deg) scale(.90);
   }
   75% {
-    transform: perspective(980px) translate3d(0, -7px, 0) rotateY(1deg) rotateX(.5deg) rotateZ(.65deg);
+    transform: perspective(1200px) translate3d(0, -4px, 0) rotateY(1deg) rotateZ(.5deg) scale(.90);
   }
 }
 
-@keyframes numoVisibleShowcaseFloat {
+@keyframes numoSmallCoverFloat {
   0%, 100% {
-    transform: perspective(1450px) translate3d(0, 5px, 0) rotateY(-3deg) rotateZ(-1.5deg);
+    transform: perspective(700px) translate3d(0, 4px, 0) rotateY(-4deg) rotateZ(-2deg) scale(.83);
   }
   50% {
-    transform: perspective(1450px) translate3d(0, -16px, 0) rotateY(3deg) rotateZ(1.5deg);
+    transform: perspective(700px) translate3d(0, -7px, 0) rotateY(4deg) rotateZ(2deg) scale(.83);
   }
 }
 
-@keyframes numoVisibleHeroFloat {
-  0%, 100% {
-    transform: perspective(1300px) translate3d(0, 5px, 0) rotateY(-2.7deg) rotateZ(-1.3deg);
-  }
-  50% {
-    transform: perspective(1300px) translate3d(0, -13px, 0) rotateY(2.7deg) rotateZ(1.3deg);
-  }
-}
-
-@keyframes numoLoginCoversLevitate {
-  0%, 100% {
-    transform: perspective(800px) translate3d(0, 5px, 0) rotateY(-5deg) rotateZ(-3deg);
-  }
-  50% {
-    transform: perspective(800px) translate3d(0, -17px, 0) rotateY(5deg) rotateZ(3deg);
-  }
-}
-
-.numo-course-sway {
-  animation: numoVisibleCourseFloat 5.6s ease-in-out infinite;
+.numo-floating-cover {
+  animation: numoCoverFloat 6.3s ease-in-out infinite;
+  transform-origin: center center;
   backface-visibility: hidden;
-  transform-origin: center;
   will-change: transform;
-  transition: translate .3s ease, box-shadow .3s ease, border-color .3s ease;
+  pointer-events: none; /* The fixed parent card remains the click target. */
 }
 
-.numo-course-sway:nth-child(3n + 2) {
-  animation-delay: -2.1s;
-  animation-duration: 6.5s;
+.numo-floating-cover--login {
+  animation-name: numoSmallCoverFloat;
+  animation-duration: 5.7s;
 }
-.numo-course-sway:nth-child(3n + 3) {
-  animation-delay: -3.6s;
+.numo-floating-cover--showcase {
   animation-duration: 7.1s;
 }
-
-.numo-login-cover-float {
-  animation: numoLoginCoversLevitate 5.3s ease-in-out infinite;
-  backface-visibility: hidden;
-  transform-origin: center;
-  will-change: transform;
+.numo-course-card:nth-child(3n + 2) .numo-floating-cover--grid,
+.numo-login-cover-frame:nth-child(3n + 2) .numo-floating-cover--login {
+  animation-delay: -2.1s;
+  animation-duration: 6.9s;
 }
-.numo-login-cover-float:nth-child(2) {
-  animation-delay: -1.7s;
-  animation-duration: 6s;
-}
-.numo-login-cover-float:nth-child(3) {
-  animation-delay: -3.1s;
-  animation-duration: 5.8s;
+.numo-course-card:nth-child(3n + 3) .numo-floating-cover--grid,
+.numo-login-cover-frame:nth-child(3n + 3) .numo-floating-cover--login {
+  animation-delay: -4.2s;
+  animation-duration: 7.5s;
 }
 
-.numo-showcase-sway {
-  animation:
-    numoFramePulse 5.8s ease-in-out infinite,
-    numoVisibleShowcaseFloat 6.4s ease-in-out infinite;
-  backface-visibility: hidden;
-  transform-origin: center;
-  will-change: transform;
-  transition: translate .3s ease, box-shadow .3s ease;
+/* This card is intentionally STATIC: no float, sway, transform, or hover-lift. */
+.numo-course-card {
+  transform: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-
-.numo-hero-cover-float {
-  animation: numoVisibleHeroFloat 6.8s ease-in-out infinite;
-  backface-visibility: hidden;
-  transform-origin: center;
-  will-change: transform;
-}
-
 @media (hover: hover) and (pointer: fine) {
-  .numo-course-sway:hover {
-    animation-play-state: paused;
-    translate: 0 -5px;
-    box-shadow: 0 24px 54px rgba(99,102,241,.15), 0 20px 40px rgba(31,43,94,.10);
-  }
-  .numo-showcase-sway:hover {
-    animation-play-state: paused;
-    translate: 0 -4px;
-    box-shadow: 0 48px 120px rgba(3,8,30,.56), 0 0 42px rgba(99,102,241,.14);
+  .numo-course-card:hover {
+    box-shadow: 0 20px 48px rgba(31, 43, 94, .12);
   }
 }
 
 @media (max-width: 639px) {
-  .numo-course-sway { animation-duration: 5.9s; }
-  .numo-showcase-sway {
-    animation: numoFramePulse 5.8s ease-in-out infinite,
-      numoVisibleShowcaseFloat 6.8s ease-in-out infinite;
-  }
-  .numo-hero-cover-float { animation-duration: 7.1s; }
-  .numo-login-cover-float { animation-duration: 5.5s; }
+  .numo-floating-cover--grid { animation-duration: 6.8s; }
+  .numo-floating-cover--showcase { animation-duration: 7.7s; }
+  .numo-floating-cover--login { animation-duration: 6.2s; }
 }
 
-/* Accessibility: respect explicit OS preference to reduce animations. */
 @media (prefers-reduced-motion: reduce) {
-  .numo-course-sway,
-  .numo-showcase-sway,
-  .numo-hero-cover-float,
-  .numo-login-cover-float {
+  .numo-floating-cover {
     animation: none !important;
-    translate: none !important;
     transform: none !important;
     will-change: auto;
   }
 }
 
-/* Only when the visitor explicitly opts in to animations despite an OS reduced-motion setting. */
+/* Explicit opt-in retains accessibility settings for everything except covers. */
 @media (prefers-reduced-motion: reduce) {
-  html.numo-motion-forced .numo-login-cover-float {
-    animation: numoLoginCoversLevitate 5.3s ease-in-out infinite !important;
+  html.numo-motion-forced .numo-floating-cover {
+    animation: numoCoverFloat 6.3s ease-in-out infinite !important;
     will-change: transform;
   }
-  html.numo-motion-forced .numo-course-sway {
-    animation: numoVisibleCourseFloat 5.6s ease-in-out infinite !important;
-    will-change: transform;
+  html.numo-motion-forced .numo-floating-cover--login {
+    animation-name: numoSmallCoverFloat !important;
+    animation-duration: 5.7s !important;
   }
-  html.numo-motion-forced .numo-showcase-sway {
-    animation: numoVisibleShowcaseFloat 6.4s ease-in-out infinite !important;
-    will-change: transform;
+  html.numo-motion-forced .numo-floating-cover--showcase {
+    animation-duration: 7.1s !important;
   }
-  html.numo-motion-forced .numo-hero-cover-float {
-    animation: numoVisibleHeroFloat 6.8s ease-in-out infinite !important;
-    will-change: transform;
+  html.numo-motion-forced .numo-course-card:nth-child(3n + 2) .numo-floating-cover,
+  html.numo-motion-forced .numo-login-cover-frame:nth-child(3n + 2) .numo-floating-cover {
+    animation-delay: -2.1s !important;
+  }
+  html.numo-motion-forced .numo-course-card:nth-child(3n + 3) .numo-floating-cover,
+  html.numo-motion-forced .numo-login-cover-frame:nth-child(3n + 3) .numo-floating-cover {
+    animation-delay: -4.2s !important;
   }
 }
