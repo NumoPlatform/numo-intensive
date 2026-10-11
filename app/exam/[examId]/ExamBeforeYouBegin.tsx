@@ -7,7 +7,6 @@ import {
   Check,
   CheckCircle2,
   ClipboardCheck,
-  Clock3,
   FilePenLine,
   GraduationCap,
   Info,
