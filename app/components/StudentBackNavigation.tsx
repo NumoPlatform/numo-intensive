@@ -10,6 +10,7 @@ type Props = {
   active?: boolean;
   busy?: boolean;
   onBack?: () => void;
+  onHome?: () => void;
   compact?: boolean;
 };
 
@@ -20,6 +21,7 @@ export default function StudentBackNavigation({
   active = false,
   busy = false,
   onBack,
+  onHome,
   compact = false,
 }: Props) {
   const buttonContent = (
@@ -64,10 +66,17 @@ export default function StudentBackNavigation({
             <span className="shrink-0 text-[#1F2B5E]">{active ? "الاختبار" : "مُحاكي نُمو"}</span>
           </div>
         ) : null}
-        <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#e6e2e9] bg-[#f7f8fc] px-3 text-xs font-black text-[#1F2B5E] transition-colors hover:bg-[#ecedf7] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1]" aria-label="العودة إلى لوحة الطالب">
-          <LayoutDashboard size={18} aria-hidden="true" />
-          <span className="hidden sm:inline">لوحة الطالب</span>
-        </Link>
+        {onHome ? (
+          <button type="button" disabled={busy} onClick={onHome} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#e6e2e9] bg-[#f7f8fc] px-3 text-xs font-black text-[#1F2B5E] transition-colors hover:bg-[#ecedf7] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] disabled:opacity-60" aria-label="العودة إلى لوحة الطالب">
+            <LayoutDashboard size={18} aria-hidden="true" />
+            <span className="hidden sm:inline">لوحة الطالب</span>
+          </button>
+        ) : (
+          <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#e6e2e9] bg-[#f7f8fc] px-3 text-xs font-black text-[#1F2B5E] transition-colors hover:bg-[#ecedf7] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1]" aria-label="العودة إلى لوحة الطالب">
+            <LayoutDashboard size={18} aria-hidden="true" />
+            <span className="hidden sm:inline">لوحة الطالب</span>
+          </Link>
+        )}
       </div>
     </nav>
   );
