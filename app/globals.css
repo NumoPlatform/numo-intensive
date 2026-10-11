@@ -986,59 +986,74 @@ textarea {
 }
 
 
-/* NUMO Luxurious Course Sway */
+/* NUMO Deluxe Floating 3D — continuous, calm course cover motion.
+   No cursor or touch interaction required. Only compositor transforms are animated. */
 @keyframes luxuriousSway {
-  0%,
-  100% {
-    transform: rotate(-0.45deg) translateY(0) translateZ(0);
+  0%, 100% {
+    transform: perspective(1100px) translate3d(0, 2px, 0) rotateX(0.6deg) rotateY(-2.8deg) rotateZ(-1.15deg);
   }
-
+  25% {
+    transform: perspective(1100px) translate3d(0, -4px, 0) rotateX(0deg) rotateY(-0.3deg) rotateZ(-0.2deg);
+  }
   50% {
-    transform: rotate(0.45deg) translateY(-3px) translateZ(0);
+    transform: perspective(1100px) translate3d(0, -9px, 0) rotateX(-0.6deg) rotateY(2.8deg) rotateZ(1.15deg);
+  }
+  75% {
+    transform: perspective(1100px) translate3d(0, -5px, 0) rotateX(0deg) rotateY(0.5deg) rotateZ(0.2deg);
   }
 }
 
 @keyframes luxuriousShowcaseSway {
-  0%,
-  100% {
-    transform: rotate(-0.22deg) translateY(0) translateZ(0);
+  0%, 100% {
+    transform: perspective(1500px) translate3d(0, 2px, 0) rotateY(-1.3deg) rotateZ(-0.55deg);
   }
-
   50% {
-    transform: rotate(0.22deg) translateY(-2px) translateZ(0);
+    transform: perspective(1500px) translate3d(0, -7px, 0) rotateY(1.3deg) rotateZ(0.55deg);
+  }
+}
+
+@keyframes luxuriousHeroCoverFloat {
+  0%, 100% {
+    transform: perspective(1250px) translate3d(0, 1px, 0) rotateY(-1.3deg) rotateZ(-0.3deg);
+  }
+  50% {
+    transform: perspective(1250px) translate3d(0, -4px, 0) rotateY(1.3deg) rotateZ(0.3deg);
   }
 }
 
 .numo-course-sway {
-  animation: luxuriousSway 6.2s infinite;
-  animation-timing-function: cubic-bezier(.445,.05,.55,.95);
+  animation: luxuriousSway 6.8s ease-in-out infinite;
   backface-visibility: hidden;
   transform-origin: center center;
   will-change: transform;
-  transition:
-    translate .3s ease,
-    box-shadow .3s ease,
-    border-color .3s ease;
+  transition: translate .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
 .numo-course-sway:nth-child(3n + 2) {
-  animation-delay: -2.05s;
+  animation-delay: -2.4s;
+  animation-duration: 7.5s;
 }
 
 .numo-course-sway:nth-child(3n + 3) {
-  animation-delay: -4.1s;
+  animation-delay: -4.5s;
+  animation-duration: 8.1s;
 }
 
 .numo-showcase-sway {
   animation:
     numoFramePulse 5.8s ease-in-out infinite,
-    luxuriousShowcaseSway 7.4s cubic-bezier(.445,.05,.55,.95) infinite;
+    luxuriousShowcaseSway 7.6s ease-in-out infinite;
   backface-visibility: hidden;
   transform-origin: center center;
   will-change: transform;
-  transition:
-    translate .3s ease,
-    box-shadow .3s ease;
+  transition: translate .3s ease, box-shadow .3s ease;
+}
+
+.numo-hero-cover-float {
+  animation: luxuriousHeroCoverFloat 8s ease-in-out infinite;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1063,19 +1078,22 @@ textarea {
 
 @media (max-width: 639px) {
   .numo-course-sway {
-    animation-duration: 6.8s;
+    animation-duration: 7.5s;
   }
-
   .numo-showcase-sway {
     animation:
       numoFramePulse 6.2s ease-in-out infinite,
-      luxuriousShowcaseSway 8s cubic-bezier(.445,.05,.55,.95) infinite;
+      luxuriousShowcaseSway 8.3s ease-in-out infinite;
+  }
+  .numo-hero-cover-float {
+    animation-duration: 8.6s;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .numo-course-sway,
-  .numo-showcase-sway {
+  .numo-showcase-sway,
+  .numo-hero-cover-float {
     animation: none !important;
     translate: none !important;
     transform: none !important;
