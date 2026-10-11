@@ -294,7 +294,7 @@ export default function IntensivePortal() {
                   ].map((item) => (
                     <div
                       key={item.code}
-                      className="numo-login-cover-float relative rounded-xl border border-[#B1785C]/55 bg-white p-1.5 shadow-[0_14px_27px_rgba(6,12,37,.36)] sm:rounded-2xl sm:p-2"
+                      className="numo-login-cover-frame relative rounded-xl border border-[#B1785C]/55 bg-white p-1.5 shadow-[0_14px_27px_rgba(6,12,37,.36)] sm:rounded-2xl sm:p-2"
                     >
                       <img
                         src={item.cover}
@@ -302,7 +302,7 @@ export default function IntensivePortal() {
                         width={1536}
                         height={864}
                         decoding="async"
-                        className="aspect-[16/9] w-full rounded-lg bg-white object-contain"
+                        className="numo-floating-cover numo-floating-cover--login aspect-[16/9] w-full rounded-lg bg-white object-contain"
                       />
                       <div className="pt-1 text-center text-[10px] font-black tracking-[.1em] text-[#1F2B5E] sm:pt-2 sm:text-sm" dir="ltr">
                         {item.code}
@@ -527,7 +527,7 @@ export default function IntensivePortal() {
       <a
         key={course.id}
         href={"/course/" + course.id}
-        className="numo-course-sway numo-card-lift numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
+        className="numo-course-card numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f7f6fa)]">
           <img
@@ -537,7 +537,7 @@ export default function IntensivePortal() {
             height={864}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-contain"
+            className="numo-floating-cover numo-floating-cover--grid absolute inset-0 h-full w-full object-contain"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/82 via-[#1F2B5E]/10 to-transparent" />
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
@@ -983,7 +983,7 @@ export default function IntensivePortal() {
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
                   <div className="relative w-full max-w-[1220px] px-0 sm:px-3 lg:px-5 xl:px-8">
                     <div className="pointer-events-none absolute inset-x-[9%] bottom-[-24px] h-20 rounded-[50%] bg-black/40 blur-2xl" />
-                    <div className="course-showcase-frame numo-showcase-sway numo-metal-border relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
+                    <div className="course-showcase-frame numo-metal-border relative rounded-[1.35rem] border border-[#d6a089]/65 bg-[linear-gradient(145deg,#fffdfb,#f3efec)] p-1.5 shadow-[0_44px_120px_rgba(3,8,30,.56),0_0_0_1px_rgba(255,255,255,.68)_inset] sm:rounded-[2.5rem] sm:p-3 lg:p-4">
                       <div className="rounded-[1.05rem] border border-[#e0dbe4] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.95)] sm:rounded-[2rem] sm:p-2">
                         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[.8rem] bg-white sm:rounded-[1.6rem]">
                           <img
@@ -993,7 +993,7 @@ export default function IntensivePortal() {
                             width={1536}
                             height={864}
                             decoding="async"
-                            className="h-full w-full object-contain [animation:courseReveal_.72s_cubic-bezier(.22,.61,.36,1)]"
+                            className="numo-floating-cover numo-floating-cover--showcase h-full w-full object-contain"
                           />
                         </div>
                       </div>
