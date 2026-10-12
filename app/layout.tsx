@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";
+import "./login-deluxe.css";
 import NumoMotionOverride from "./components/NumoMotionOverride";
 
 export const viewport: Viewport = {

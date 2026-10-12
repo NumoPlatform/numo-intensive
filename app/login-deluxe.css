@@ -1,0 +1,318 @@
+
+/* NUMO Academic Simulator | approved American Deluxe login redesign.
+   The hero and official cover artwork stay as images; authentication is live HTML. */
+.numo-deluxe-entry {
+  background:
+    radial-gradient(circle at 5% 28%, rgba(99,102,241,.075), transparent 38rem),
+    radial-gradient(circle at 100% 48%, rgba(177,120,92,.10), transparent 26rem),
+    linear-gradient(180deg,#f9faff 0%,#f3f3f7 65%,#f8f8fb 100%);
+}
+
+.numo-deluxe-entry-hero {
+  border-radius: 2.55rem;
+  box-shadow: 0 24px 65px rgba(31,43,94,.14), 0 1px 0 #fff inset;
+}
+
+.numo-login-showcase {
+  width: 100%;
+  padding: clamp(13px,2.2vw,26px) 0 clamp(12px,2vw,20px);
+  isolation: isolate;
+}
+
+.numo-login-showcase::before {
+  position:absolute;
+  inset: -12px 0 -6px;
+  z-index:-1;
+  content:"";
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.84),transparent 67%),
+    linear-gradient(145deg,rgba(99,102,241,.04),rgba(177,120,92,.06));
+}
+
+.numo-login-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: clamp(7px,1.5vw,20px);
+  align-items: stretch;
+  margin: 0;
+  padding: 0 clamp(8px,1.6vw,18px);
+  list-style: none;
+  perspective: 1400px;
+}
+
+.numo-login-showcase-slot {
+  min-width: 0;
+  position: relative;
+}
+
+.numo-login-featured-card {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  aspect-ratio: .94;
+  min-width:0;
+  height:auto;
+  overflow:hidden;
+  border:2px solid rgba(255,255,255,.97);
+  border-radius:clamp(14px,2vw,27px);
+  background:linear-gradient(145deg,#fff,#f9f7f5);
+  box-shadow:
+    0 21px 38px rgba(31,43,94,.13),
+    0 0 0 1px rgba(177,120,92,.22),
+    inset 0 1px 0 rgba(255,255,255,.98);
+  transform-origin:50% 55%;
+  backface-visibility:hidden;
+  will-change:transform;
+  animation:numoLoginSway 6.8s ease-in-out infinite;
+  transition:box-shadow .25s ease,filter .25s ease;
+}
+
+.numo-login-showcase-slot:nth-child(2) .numo-login-featured-card {
+  animation-name:numoLoginSwayMiddle;
+  animation-duration:7.3s;
+  animation-delay:-2.2s;
+}
+.numo-login-showcase-slot:nth-child(3) .numo-login-featured-card {
+  animation-delay:-4.4s;
+  animation-duration:7.7s;
+}
+
+.numo-login-featured-card:focus-visible {
+  outline: 3px solid #6366F1;
+  outline-offset: 4px;
+}
+.numo-login-featured-card:hover {
+  box-shadow:0 26px 54px rgba(31,43,94,.23),0 0 0 1px rgba(177,120,92,.32);
+  filter:saturate(1.04);
+  animation-play-state:paused;
+}
+
+.numo-login-featured-cover {
+  position:relative;
+  width:100%;
+  height:53%;
+  flex:0 0 53%;
+  overflow:hidden;
+  background:#faf8f5;
+}
+.numo-login-featured-cover img {
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:none;
+  object-fit:cover;
+  object-position:center;
+}
+.numo-login-featured-details {
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  min-height:0;
+  padding:clamp(5px,.9vw,14px) clamp(7px,1.15vw,16px);
+  border-top:1px solid rgba(177,120,92,.22);
+  background:
+    radial-gradient(circle at 100% 5%,rgba(99,102,241,.065),transparent 52%),
+    linear-gradient(160deg,#fff,#fcfaf7);
+  color:#1f2b5e;
+}
+
+.numo-login-featured-count {
+  font-size:clamp(7px,.8vw,11px);
+  font-weight:800;
+  letter-spacing:.12em;
+  color:#b1785c;
+}
+.numo-login-featured-details strong {
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(1.16rem,3.3vw,2.7rem);
+  line-height:1.08;
+  letter-spacing:-.025em;
+}
+.numo-login-featured-level {
+  margin-top:2px;
+  font-size:clamp(7px,1.05vw,14px);
+  font-weight:750;
+  line-height:1.25;
+  color:#a86749;
+}
+.numo-login-featured-term {
+  margin-top:clamp(3px,.5vw,7px);
+  border-radius:30px;
+  padding:clamp(2px,.28vw,5px) clamp(4px,.75vw,10px);
+  color:#fff;
+  background:#b1785c;
+  font-weight:800;
+  font-size:clamp(6px,.65vw,10px);
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.numo-login-featured-skills {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  gap:clamp(2px,.5vw,8px);
+  margin-top:auto;
+  padding-top:clamp(4px,.8vw,12px);
+}
+.numo-login-featured-skills > span {
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  min-width:0;
+  font-size:clamp(6px,.75vw,10px);
+  font-weight:650;
+  color:#343c65;
+  text-align:center;
+}
+.numo-login-featured-skills svg {
+  height:clamp(13px,1.8vw,23px);
+  width:clamp(13px,1.8vw,23px);
+  padding:2px;
+  border-radius:50%;
+  color:#1f2b5e;
+  background:rgba(31,43,94,.08);
+}
+.numo-login-featured-skills span:nth-child(2) svg {
+  color:#b1785c;
+  background:rgba(177,120,92,.11);
+}
+.numo-login-featured-skills span:nth-child(3) svg {
+  color:#6366f1;
+  background:rgba(99,102,241,.1);
+}
+.numo-login-featured-shine {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(112deg,transparent 34%,rgba(255,255,255,.14) 44%,transparent 55%);
+}
+.numo-login-showcase-dots {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:9px;
+  padding-top:clamp(11px,2.1vw,26px);
+}
+.numo-login-showcase-dots i {
+  display:block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#cbd0da;
+}
+.numo-login-showcase-dots i:first-child {
+  width:11px;
+  height:11px;
+  background:#b1785c;
+  box-shadow:0 0 0 3px rgba(177,120,92,.1);
+}
+.numo-login-showcase-transition {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin-top:8px;
+  color:#a47259;
+  opacity:.75;
+  font-size:clamp(8px,.8vw,11px);
+  font-weight:750;
+  letter-spacing:.1em;
+  text-align:center;
+}
+
+@keyframes numoLoginSway {
+  0%,100% {transform:translate3d(0,3px,0) rotate(-1.55deg);}
+  50% {transform:translate3d(0,-8px,0) rotate(1.45deg);}
+}
+@keyframes numoLoginSwayMiddle {
+  0%,100% {transform:translate3d(0,-5px,0) rotate(1.25deg);}
+  50% {transform:translate3d(0,6px,0) rotate(-1.5deg);}
+}
+
+.numo-login-deluxe-panel {
+  isolation:isolate;
+  border-radius:2.6rem;
+  background:
+    radial-gradient(circle at 100% 4%,rgba(99,102,241,.07),transparent 25%),
+    radial-gradient(circle at 0% 66%,rgba(177,120,92,.045),transparent 28%),
+    linear-gradient(140deg,#fff 0%,#fefefe 58%,#fafaff 100%);
+  box-shadow:0 24px 80px rgba(31,43,94,.10),inset 0 1px 0 rgba(255,255,255,.96);
+}
+.numo-login-deluxe-panel::after {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  bottom:-90px;
+  left:-110px;
+  width:250px;
+  height:250px;
+  border:1px solid rgba(177,120,92,.35);
+  border-radius:50%;
+  box-shadow:0 0 0 17px rgba(177,120,92,.04),0 0 0 34px rgba(99,102,241,.04);
+  pointer-events:none;
+}
+.numo-deluxe-login-cta {
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(115deg,#121d48,#1f2b5e 55%,#29356e 100%);
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+.numo-deluxe-login-cta::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.3;
+  background:linear-gradient(112deg,transparent 40%,rgba(255,255,255,.16) 55%,transparent 72%);
+  transform:translateX(125%);
+  transition:transform .7s ease;
+}
+.numo-deluxe-login-cta:hover:not(:disabled) {
+  transform:translateY(-2px);
+  box-shadow:0 24px 45px rgba(31,43,94,.30);
+}
+.numo-deluxe-login-cta:hover::after {
+  transform:translateX(-125%);
+}
+.numo-deluxe-login-arrow {
+  box-shadow:0 5px 18px rgba(177,120,92,.3);
+}
+@media(max-width:639px) {
+  .numo-deluxe-entry-hero {
+    border-radius:2rem;
+  }
+  .numo-login-showcase {
+    padding-block:15px 10px;
+  }
+  .numo-login-featured-card {
+    border-radius:15px;
+    aspect-ratio:.86;
+  }
+  .numo-login-featured-cover {height:49%;flex-basis:49%;}
+  .numo-login-featured-details {padding:5px 6px;}
+  .numo-login-featured-details strong {font-size:clamp(1rem,4.3vw,1.45rem);}
+  .numo-login-featured-count {font-size:7px;}
+  .numo-login-featured-level {font-size:clamp(6px,1.8vw,9px);}
+  .numo-login-featured-term {font-size:6px;}
+  .numo-login-featured-skills > span {font-size:6px;white-space:nowrap;letter-spacing:-.02em;}
+  .numo-login-deluxe-panel {border-radius:2rem;}
+  .numo-login-showcase-transition {font-size:8px;}
+}
+@media(max-width:360px) {
+  .numo-login-showcase-grid {gap:5px;padding-inline:5px;}
+  .numo-login-featured-term {letter-spacing:-.06em;}
+  .numo-login-featured-skills > span {font-size:5.5px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .numo-login-featured-card {
+    animation:none!important;
+    transform:none!important;
+    will-change:auto;
+  }
+}
