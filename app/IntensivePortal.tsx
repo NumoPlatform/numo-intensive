@@ -2,7 +2,7 @@
 
 import type { FormEvent } from "react";
 import NumoBrand from "@/app/components/NumoBrand";
-import { BRAND, BRAND_FEATURES } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
 import { useEffect, useMemo, useRef, useState } from "react";
