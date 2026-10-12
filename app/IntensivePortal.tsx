@@ -21,6 +21,12 @@ import {
   LogOut,
   Medal,
   MessageCircle,
+  UserRound,
+  LockKeyhole,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  MonitorSmartphone,
   PlayCircle,
   ShieldCheck,
   Sparkles,
@@ -144,6 +150,7 @@ export default function IntensivePortal() {
   const [message, setMessage] = useState("");
   const [data, setData] = useState<Dashboard | null>(null);
   const [form, setForm] = useState({ username: "", password: "" });
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [carouselInView, setCarouselInView] = useState(false);
   const [carouselPaused, setCarouselPaused] = useState(false);
@@ -286,143 +293,127 @@ export default function IntensivePortal() {
 
   if (stage !== "portal") {
     return (
-      <div className="min-h-screen px-4 py-8 text-[#1F2B5E] sm:py-12">
-        <div className="mx-auto grid min-h-[82vh] max-w-6xl items-center gap-7 lg:grid-cols-[1.08fr_.92fr]">
-          <section className="numo-hero-radiance relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,#1B264F_0%,#1F2B5E_56%,#26366F_100%)] p-7 text-white shadow-[0_32px_90px_rgba(31,43,94,.28)] sm:p-9 lg:p-12">
-            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#B1785C]/24 blur-3xl" />
-            <div className="absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#6366F1]/14 blur-3xl" />
-            <div className="relative">
-              <div className="mb-7 inline-flex rounded-[1.4rem] border border-white/15 bg-white p-2 shadow-[0_18px_45px_rgba(5,12,38,.22)]">
-                <NumoBrand className="w-28" priority inverse />
-              </div>
-
-              {/* Static public course covers: visible, automatically animated even before login. */}
-              <div className="relative mb-7 mt-2" aria-label="معاينة أغلفة دورات نُمو المتحركة تلقائيًا">
-                <div className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.18em] text-[#E7B79F]" dir="ltr">
-                  <Sparkles size={14} aria-hidden="true" />
-                  NUMO FLOATING COURSE COLLECTION
-                </div>
-                <div className="grid grid-cols-3 items-center gap-3 py-3 sm:gap-4">
-                  {[
-                    { code: "EL097", cover: "/covers/el097-el099e-premium.svg" },
-                    { code: "EL098", cover: "/covers/el098.svg" },
-                    { code: "EL099", cover: "/covers/el099.svg" },
-                  ].map((item) => (
-                    <div
-                      key={item.code}
-                      className="numo-login-cover-frame relative rounded-xl border border-[#B1785C]/55 bg-white p-1.5 shadow-[0_14px_27px_rgba(6,12,37,.36)] sm:rounded-2xl sm:p-2"
-                    >
-                      <img
-                        src={item.cover}
-                        alt={"غلاف " + item.code}
-                        width={1536}
-                        height={864}
-                        decoding="async"
-                        className="numo-floating-cover numo-floating-cover--login aspect-[16/9] w-full rounded-lg bg-white object-contain"
-                      />
-                      <div className="pt-1 text-center text-[10px] font-black tracking-[.1em] text-[#1F2B5E] sm:pt-2 sm:text-sm" dir="ltr">
-                        {item.code}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="max-w-3xl">
-                <p className="text-sm font-black tracking-wide text-[#E7B79F]">{BRAND.description}</p>
-                <h1 className="mt-3 text-4xl font-black leading-[1.25] sm:text-5xl lg:text-6xl">
-                  {BRAND.nameAr}
-                </h1>
-                <div className="mt-2 text-xs font-black uppercase tracking-[.2em] text-white/62 sm:text-sm" dir="ltr">
-                  {BRAND.nameEn}
-                </div>
-                <h2 className="mt-7 text-2xl font-black leading-[1.5] text-white sm:text-3xl">
-                  {BRAND.tagline}
-                </h2>
-                <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-white/76 sm:text-lg sm:leading-9">
-                  {BRAND.heroMessage}
-                </p>
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {BRAND_FEATURES.map((feature, index) => {
-                  const FeatureIcon = [BookOpenCheck, CheckCircle2, Target][index];
-                  return (
-                    <div key={feature} className="rounded-2xl border border-white/12 bg-white/[.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">
-                      <FeatureIcon className="mb-3 text-[#E7B79F]" size={21} />
-                      <strong className="block text-sm leading-6">{feature}</strong>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-7 border-t border-white/10 pt-5 text-sm font-black text-[#F3D6C7]">
-                {BRAND.marketingLine}
-              </div>
+      <div className="numo-student-login relative min-h-screen overflow-hidden px-3 pb-10 pt-4 text-[#1F2B5E] sm:px-6 sm:pb-14 sm:pt-8">
+        {/* Design follows the approved NUMO Academic Simulator student-login concept.
+            The artistic banner is decorative; the login is real, keyboard-accessible HTML. */}
+        <div className="pointer-events-none absolute -left-48 top-12 h-[32rem] w-[32rem] rounded-full border border-[#B1785C]/15" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-32 top-64 h-[35rem] w-[35rem] rounded-full border border-[#6366F1]/10" aria-hidden="true" />
+        <div className="relative mx-auto w-full max-w-[1040px]">
+          <header className="numo-student-login-hero relative overflow-hidden rounded-[1.7rem] border border-white/90 bg-[#f7f9ff] shadow-[0_24px_90px_rgba(31,43,94,.09)] sm:rounded-[2.4rem]">
+            <div className="relative aspect-[941/545] w-full overflow-hidden">
+              <img
+                src="/login-hero"
+                alt="محاكي نُمو الأكاديمي — أيقونات الاختبارات والمقررات والتقويم والإنجازات حول حاسوب أكاديمي"
+                width={941}
+                height={1672}
+                decoding="async"
+                fetchPriority="high"
+                className="absolute inset-x-0 top-0 h-auto w-full max-w-none"
+              />
             </div>
-          </section>
+          </header>
 
           <form
             onSubmit={login}
-            className="numo-premium-surface rounded-[2rem] p-7 lg:p-10"
+            className="numo-student-login-card relative z-10 mx-auto -mt-4 w-[calc(100%-14px)] max-w-[760px] overflow-hidden rounded-[2rem] border border-white bg-white/95 px-5 py-7 shadow-[0_28px_85px_rgba(31,43,94,.12),0_0_0_1px_rgba(177,120,92,.11)] backdrop-blur-xl sm:-mt-12 sm:rounded-[2.8rem] sm:px-12 sm:py-11"
+            dir="rtl"
           >
-            <div className="mb-8">
-              <div className="flex items-center gap-3">
-                <NumoBrand className="w-24" priority />
-                <div className="min-w-0">
-                  <div className="text-sm font-black text-[#1F2B5E]">{BRAND.nameAr}</div>
-                  <div className="mt-1 text-[10px] font-black tracking-[.12em] text-[#B1785C]" dir="ltr">{BRAND.nameEn}</div>
-                </div>
+            <div className="mb-7 flex flex-wrap items-center justify-between gap-3">
+              <NumoBrand className="w-auto max-w-full" priority horizontal />
+              <div className="text-right">
+                <div className="text-base font-black text-[#1F2B5E] sm:text-xl">{BRAND.nameAr}</div>
+                <div dir="ltr" className="mt-1 text-[10px] font-black tracking-[.15em] text-[#B1785C] sm:text-xs">{BRAND.nameEn}</div>
               </div>
-              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#f8f0ec] px-3 py-1.5 text-sm font-black text-[#9a6249]">
-                <Sparkles size={15} /> {BRAND.description}
-              </div>
-              <h2 className="mt-4 text-3xl font-black">{BRAND.loginTitle}</h2>
-              <p className="mt-2 leading-7 text-[#68708a]">
-                {BRAND.loginHelper}
-              </p>
-              <p className="mt-2 text-sm font-bold leading-6 text-[#9A6249]">{BRAND.loginNote}</p>
             </div>
 
-            <label className="mb-5 block">
-              <span className="mb-2 block font-black">اسم المستخدم</span>
-              <input
-                className="field"
-                dir="ltr"
-                autoComplete="username"
-                required
-                value={form.username}
-                onChange={(event) => setForm({ ...form, username: event.target.value })}
-              />
-            </label>
+            <div className="mx-auto max-w-[600px] text-center">
+              <div className="inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-[#f3e2d7] bg-[#fff5ef] px-4 py-2 text-xs font-black leading-6 text-[#A76442] sm:text-sm">
+                <Sparkles size={17} className="shrink-0" aria-hidden="true" />
+                {BRAND.description}
+              </div>
+              <h1 className="numo-crisp-arabic mt-5 text-[clamp(1.85rem,5.6vw,3.5rem)] font-black leading-[1.4] tracking-tight text-[#142452]">
+                {BRAND.loginTitle}
+              </h1>
+              <p className="mx-auto mt-3 max-w-lg text-sm font-semibold leading-8 text-[#6c7690] sm:text-lg sm:leading-9">
+                {BRAND.loginHelper}
+              </p>
+              <p className="mt-3 text-sm font-black leading-7 text-[#A56A4D] sm:text-base">
+                {BRAND.loginNote}
+              </p>
+            </div>
 
-            <label className="mb-5 block">
-              <span className="mb-2 block font-black">كلمة المرور</span>
-              <input
-                className="field"
-                dir="ltr"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={form.password}
-                onChange={(event) => setForm({ ...form, password: event.target.value })}
-              />
-            </label>
+            <div className="mt-9 space-y-5 sm:mt-11 sm:space-y-6">
+              <label htmlFor="numo-login-username" className="block">
+                <span className="mb-2 block text-right text-base font-black text-[#1F2B5E]">اسم المستخدم</span>
+                <div className="group relative">
+                  <UserRound className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#7482a6] transition-colors group-focus-within:text-[#6366F1]" size={22} aria-hidden="true" />
+                  <input
+                    id="numo-login-username"
+                    name="username"
+                    className="numo-login-input block min-h-[3.65rem] w-full rounded-[1.1rem] border border-[#c7cde0] bg-white/95 py-4 pl-5 pr-12 text-right text-base font-bold text-[#1F2B5E] outline-none transition focus:border-[#6366F1] focus:ring-4 focus:ring-[#6366F1]/10 sm:min-h-[4.15rem]"
+                    dir="ltr"
+                    placeholder="أدخل اسم المستخدم"
+                    autoComplete="username"
+                    required
+                    value={form.username}
+                    onChange={(event) => setForm({ ...form, username: event.target.value })}
+                  />
+                </div>
+              </label>
+
+              <label htmlFor="numo-login-password" className="block">
+                <span className="mb-2 block text-right text-base font-black text-[#1F2B5E]">كلمة المرور</span>
+                <div className="group relative">
+                  <LockKeyhole className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#7482a6] transition-colors group-focus-within:text-[#6366F1]" size={22} aria-hidden="true" />
+                  <input
+                    id="numo-login-password"
+                    name="password"
+                    className="numo-login-input block min-h-[3.65rem] w-full rounded-[1.1rem] border border-[#c7cde0] bg-white/95 py-4 pl-12 pr-12 text-right text-base font-bold text-[#1F2B5E] outline-none transition focus:border-[#6366F1] focus:ring-4 focus:ring-[#6366F1]/10 sm:min-h-[4.15rem]"
+                    dir="ltr"
+                    type={showLoginPassword ? "text" : "password"}
+                    placeholder="أدخل كلمة المرور"
+                    autoComplete="current-password"
+                    required
+                    value={form.password}
+                    onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  />
+                  <button
+                    type="button"
+                    aria-label={showLoginPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                    aria-pressed={showLoginPassword}
+                    onClick={() => setShowLoginPassword((current) => !current)}
+                    className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-xl text-[#71809e] hover:bg-[#f2f3fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#6366F1]"
+                  >
+                    {showLoginPassword ? <EyeOff size={21} /> : <Eye size={21} />}
+                  </button>
+                </div>
+              </label>
+            </div>
 
             {message ? (
-              <div className="mb-5 rounded-xl border border-rose-100 bg-rose-50 p-3 text-sm font-bold text-rose-700">
-                {message}
-              </div>
+              <div role="alert" className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold leading-7 text-rose-800">{message}</div>
             ) : null}
 
-            <button className="btn w-full" disabled={stage === "loading"}>
-              {stage === "loading" ? "جاري التحقق..." : "تسجيل الدخول"}
+            <button
+              type="submit"
+              disabled={stage === "loading"}
+              className="numo-login-submit mt-7 flex min-h-[4.1rem] w-full items-center justify-center gap-4 rounded-[1.1rem] border border-[#6366F1]/50 bg-[linear-gradient(105deg,#172553_0%,#1F2B5E_55%,#4748B7_100%)] px-5 py-3 text-lg font-black text-white shadow-[0_18px_32px_rgba(31,43,94,.23)] transition-[filter,box-shadow] hover:brightness-110 hover:shadow-[0_22px_38px_rgba(31,43,94,.28)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] disabled:cursor-wait disabled:opacity-70 sm:mt-9 sm:min-h-[4.5rem] sm:text-xl"
+            >
+              {stage === "loading" ? "جاري التحقق من حسابك..." : "تسجيل الدخول"}
+              {stage === "loading" ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" /> : <ArrowLeft size={21} aria-hidden="true" />}
             </button>
 
-            <p className="mt-5 text-center text-xs leading-6 text-[#7c8193]">
-              عند أول تسجيل دخول سيتم ربط الحساب بهذا الجهاز. لتغيير الجهاز تواصل مع الإدارة.
-            </p>
+            <div className="mt-6 flex items-start gap-3 rounded-2xl bg-[#f5f6fa] p-4 text-right text-xs font-semibold leading-7 text-[#707a95] sm:mt-7 sm:p-5 sm:text-sm">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#fbebe2] text-[#B1785C]">
+                <MonitorSmartphone size={21} aria-hidden="true" />
+              </div>
+              <p>عند أول تسجيل دخول سيتم ربط الحساب بهذا الجهاز. لتغيير الجهاز تواصل مع الدعم الفني.</p>
+            </div>
           </form>
+
+          <footer className="mx-auto mt-6 max-w-[760px] text-center text-xs font-semibold tracking-wide text-[#8790a5]" dir="ltr">
+            NUMO PLATFORM · FOCUSED LEARNING, SMARTER PREPARATION
+          </footer>
         </div>
       </div>
     );
