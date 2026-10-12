@@ -58,7 +58,7 @@ export default function OpenGraphImage() {
               background: index === 1 ? "linear-gradient(150deg,#334584,#1A2855)" : "linear-gradient(150deg,#1F2B5E,#0C1A3F)",
               border: "1px solid #C99774", boxShadow: "0 12px 20px rgba(31,43,94,.23)",
             }}>
-              <div style={{ display: "flex", width: 66, height: 66, borderRadius: 38, border: "2px solid #DAB18F", alignItems: "center", justifyContent: "center", fontSize: 34, fontWeight: 900, color: "#F0D0B1" }}>✦</div>
+              <div style={{ display: "flex", width: 66, height: 66, borderRadius: 38, border: "2px solid #DAB18F", alignItems: "center", justifyContent: "center", fontSize: 34, fontWeight: 900, color: "#F0D0B1" }}>N</div>
               <div style={{ display: "flex", color: "#FFFFFF", fontSize: 20, fontWeight: 900 }}>{code}</div>
               <div style={{ display: "flex", fontSize: 10, fontWeight: 800, letterSpacing: 1, color: "#E0BAA0" }}>ENGLISH</div>
             </div>
