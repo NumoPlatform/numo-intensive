@@ -12,7 +12,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_ORIGIN || "https://intensive.numo.academy"),
+  metadataBase: new URL("https://numo-intensive-two.vercel.app"),
   title: {
     default: `${BRAND.nameAr} | ${BRAND.nameEn}`,
     template: `%s | ${BRAND.nameAr}`,
@@ -20,16 +20,19 @@ export const metadata: Metadata = {
   applicationName: BRAND.nameAr,
   description: BRAND.metadataDescription,
   openGraph: {
-    title: `${BRAND.nameAr} | ${BRAND.nameEn}`,
+    title: "محاكي نُمو | NUMO Academic Simulator",
     description: BRAND.metadataDescription,
     siteName: BRAND.nameAr,
+    url: "https://numo-intensive-two.vercel.app/",
     type: "website",
     locale: "ar_SA",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "محاكي نُمو — محاكاة الاختبارات والتدريب الأكاديمي" }],
   },
   twitter: {
-    card: "summary",
-    title: `${BRAND.nameAr} | ${BRAND.nameEn}`,
+    card: "summary_large_image",
+    title: "محاكي نُمو | NUMO Academic Simulator",
     description: BRAND.metadataDescription,
+    images: ["/opengraph-image"],
   },
   manifest: "/manifest.webmanifest",
   robots: { index: false, follow: false },
