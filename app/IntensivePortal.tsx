@@ -105,6 +105,21 @@ type Dashboard = {
   } | null;
 };
 
+// Showcase order is editorial: lead with the five English Intensive courses.
+// Everything else retains the original API order. This does not affect enrollments.
+const SHOWCASE_INTENSIVE_PRIORITY: Record<string, number> = {
+  EL097_EL099E: 0,
+  EL098: 1,
+  EL099: 2,
+  EL111: 3,
+  EL112: 4,
+};
+
+function showcaseCoursePriority(code: string): number {
+  const normalized = code.trim().toUpperCase().replace(/[\s–—-]+/g, "_");
+  return SHOWCASE_INTENSIVE_PRIORITY[normalized] ?? 5;
+}
+
 function getDeviceSecret() {
   const key = "numo-intensive-device-secret";
   let value = window.localStorage.getItem(key);
@@ -143,6 +158,7 @@ export default function IntensivePortal() {
       window.location.replace("/admin");
       return;
     }
+    setCarouselIndex(0);
     setData(payload);
     setStage("portal");
   }
@@ -492,7 +508,8 @@ export default function IntensivePortal() {
     ? data.courses.find((course) => course.id === nextAction.exam.course_id) ?? null
     : data.courses[0] ?? null;
 
-  const catalogCourses = data.catalogCourses?.length ? data.catalogCourses : data.courses;
+  const catalogCourses = [...(data.catalogCourses?.length ? data.catalogCourses : data.courses)]
+    .sort((a, b) => showcaseCoursePriority(a.code) - showcaseCoursePriority(b.code));
   const assignedCourseIds = new Set(data.courses.map((course) => course.id));
   const activeCarouselCourse = catalogCourses[carouselIndex] ?? null;
   const previousCarouselCourse = catalogCourses.length
