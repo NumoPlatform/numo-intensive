@@ -1086,3 +1086,57 @@ textarea {
     animation-delay: -4.2s !important;
   }
 }
+
+/* NUMO Deluxe Academic Student Login — approved visual direction.
+   The artwork and input fields are distinct: image is decorative, form stays functional. */
+.numo-student-login {
+  background:
+    radial-gradient(ellipse at 86% 3%, rgba(99, 102, 241, .09) 0, transparent 37%),
+    radial-gradient(ellipse at 3% 55%, rgba(177, 120, 92, .09) 0, transparent 44%),
+    linear-gradient(145deg, #FDFDFF 0%, #F5F7FC 45%, #FFFFFF 100%);
+  isolation: isolate;
+}
+.numo-student-login::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 26%;
+  left: -14%;
+  width: 75%;
+  height: 60%;
+  pointer-events: none;
+  border-radius: 50%;
+  border: 1px solid rgba(177,120,92,.17);
+  transform: rotate(-23deg);
+}
+.numo-student-login-hero {
+  box-shadow:
+    0 30px 95px rgba(31, 43, 94, .09),
+    0 2px 0 rgba(255,255,255,.95) inset;
+}
+.numo-student-login-card {
+  background: linear-gradient(147deg, rgba(255,255,255,.98), rgba(255,255,255,.96) 62%, rgba(249,249,253,.99));
+}
+.numo-student-login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 15%;
+  left: 15%;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(177,120,92,.65), transparent);
+}
+.numo-student-login .numo-login-input::placeholder {
+  color: #A0AAC3;
+  opacity: 1;
+  font-weight: 500;
+}
+.numo-student-login .numo-login-input:focus {
+  box-shadow: 0 0 0 4px rgba(99,102,241,.085), 0 8px 22px rgba(31,43,94,.04);
+}
+@media (max-width: 639px) {
+  .numo-student-login-card {
+    box-shadow: 0 18px 55px rgba(31,43,94,.105);
+  }
+}
