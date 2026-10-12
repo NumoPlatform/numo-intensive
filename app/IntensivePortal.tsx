@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import NumoBrand from "@/app/components/NumoBrand";
+import LoginShowcase from "@/app/components/LoginShowcase";
 import { BRAND } from "@/lib/brand";
 import { intensiveFetch } from "@/lib/intensive/client";
 import { courseCover, courseVisual } from "@/lib/intensive/ui";
@@ -151,6 +152,7 @@ export default function IntensivePortal() {
   const [data, setData] = useState<Dashboard | null>(null);
   const [form, setForm] = useState({ username: "", password: "" });
   const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [rememberUsername, setRememberUsername] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [carouselInView, setCarouselInView] = useState(false);
   const [carouselPaused, setCarouselPaused] = useState(false);
@@ -172,6 +174,18 @@ export default function IntensivePortal() {
 
   useEffect(() => {
     loadDashboard().catch(() => setStage("login"));
+  }, []);
+
+  useEffect(() => {
+    try {
+      const remembered = window.localStorage.getItem("numo-remember-username");
+      if (remembered) {
+        setForm((current) => ({ ...current, username: remembered }));
+        setRememberUsername(true);
+      }
+    } catch {
+      // Private browsing may disable local storage; the login remains usable.
+    }
   }, []);
 
   useEffect(() => {
@@ -242,6 +256,15 @@ export default function IntensivePortal() {
       return;
     }
 
+    try {
+      if (rememberUsername) {
+        window.localStorage.setItem("numo-remember-username", form.username.trim());
+      } else {
+        window.localStorage.removeItem("numo-remember-username");
+      }
+    } catch {
+      // Remembering the username is optional and must never block login.
+    }
     await loadDashboard();
     } catch {
       setMessage("تعذر تسجيل الدخول. تحقق من اتصالك بالإنترنت ثم حاول مرة أخرى.");
@@ -293,17 +316,15 @@ export default function IntensivePortal() {
 
   if (stage !== "portal") {
     return (
-      <div className="numo-student-login relative min-h-screen overflow-hidden px-3 pb-10 pt-4 text-[#1F2B5E] sm:px-6 sm:pb-14 sm:pt-8">
-        {/* Design follows the approved NUMO Academic Simulator student-login concept.
-            The artistic banner is decorative; the login is real, keyboard-accessible HTML. */}
+      <div className="numo-student-login numo-deluxe-entry relative min-h-screen overflow-hidden px-0 pb-8 pt-0 text-[#1F2B5E] sm:px-4 sm:pb-14 sm:pt-4">
         <div className="pointer-events-none absolute -left-48 top-12 h-[32rem] w-[32rem] rounded-full border border-[#B1785C]/15" aria-hidden="true" />
         <div className="pointer-events-none absolute -right-32 top-64 h-[35rem] w-[35rem] rounded-full border border-[#6366F1]/10" aria-hidden="true" />
-        <div className="relative mx-auto w-full max-w-[1040px]">
-          <header className="numo-student-login-hero relative overflow-hidden rounded-[1.7rem] border border-white/90 bg-[#f7f9ff] shadow-[0_24px_90px_rgba(31,43,94,.09)] sm:rounded-[2.4rem]">
-            <div className="relative aspect-[941/545] w-full overflow-hidden">
+        <div className="relative mx-auto w-full max-w-[1150px]">
+          <header className="numo-student-login-hero numo-deluxe-entry-hero relative overflow-hidden rounded-t-[2.6rem] rounded-b-[2rem] border border-white/90 bg-[#f7f9ff] sm:rounded-[2.7rem]">
+            <div className="relative aspect-[941/455] w-full overflow-hidden">
               <img
                 src="/login-hero"
-                alt="محاكي نُمو الأكاديمي — أيقونات الاختبارات والمقررات والتقويم والإنجازات حول حاسوب أكاديمي"
+                alt="محاكي نمو الأكاديمي — أيقونات الاختبارات والمقررات والتقويم والإنجازات حول حاسوب أكاديمي"
                 width={941}
                 height={1672}
                 decoding="async"
@@ -313,25 +334,28 @@ export default function IntensivePortal() {
             </div>
           </header>
 
+          <LoginShowcase />
+
           <form
+            id="numo-login-form"
             onSubmit={login}
-            className="numo-student-login-card relative z-10 mx-auto -mt-4 w-[calc(100%-14px)] max-w-[760px] overflow-hidden rounded-[2rem] border border-white bg-white/95 px-5 py-7 shadow-[0_28px_85px_rgba(31,43,94,.12),0_0_0_1px_rgba(177,120,92,.11)] backdrop-blur-xl sm:-mt-12 sm:rounded-[2.8rem] sm:px-12 sm:py-11"
+            className="numo-student-login-card numo-login-deluxe-panel relative z-10 mx-auto mt-0 w-full max-w-none overflow-hidden rounded-[2.6rem] border border-white bg-white/95 px-5 py-8 shadow-[0_28px_85px_rgba(31,43,94,.12),0_0_0_1px_rgba(177,120,92,.11)] sm:rounded-[2.8rem] sm:px-12 sm:py-12"
             dir="rtl"
           >
-            <div className="mb-7 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-6 flex flex-col items-center justify-center gap-2 text-center">
               <NumoBrand className="w-auto max-w-full" priority horizontal />
-              <div className="text-right">
-                <div className="text-base font-black text-[#1F2B5E] sm:text-xl">{BRAND.nameAr}</div>
-                <div dir="ltr" className="mt-1 text-[10px] font-black tracking-[.15em] text-[#B1785C] sm:text-xs">{BRAND.nameEn}</div>
+              <div>
+                <div className="numo-crisp-arabic text-lg font-black text-[#1F2B5E] sm:text-xl">{BRAND.nameAr}</div>
+                <div dir="ltr" className="mt-0.5 text-[10px] font-black tracking-[.15em] text-[#B1785C] sm:text-xs">{BRAND.nameEn}</div>
               </div>
             </div>
 
-            <div className="mx-auto max-w-[600px] text-center">
+            <div className="mx-auto max-w-[680px] text-center">
               <div className="inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-[#f3e2d7] bg-[#fff5ef] px-4 py-2 text-xs font-black leading-6 text-[#A76442] sm:text-sm">
                 <Sparkles size={17} className="shrink-0" aria-hidden="true" />
                 {BRAND.description}
               </div>
-              <h1 className="numo-crisp-arabic mt-5 text-[clamp(1.85rem,5.6vw,3.5rem)] font-black leading-[1.4] tracking-tight text-[#142452]">
+              <h1 className="numo-crisp-arabic mt-5 text-[clamp(1.8rem,5.7vw,3.6rem)] font-black leading-[1.4] tracking-tight text-[#142452]">
                 {BRAND.loginTitle}
               </h1>
               <p className="mx-auto mt-3 max-w-lg text-sm font-semibold leading-8 text-[#6c7690] sm:text-lg sm:leading-9">
@@ -342,7 +366,7 @@ export default function IntensivePortal() {
               </p>
             </div>
 
-            <div className="mt-9 space-y-5 sm:mt-11 sm:space-y-6">
+            <div className="mx-auto mt-9 max-w-[710px] space-y-5 sm:mt-11 sm:space-y-6">
               <label htmlFor="numo-login-username" className="block">
                 <span className="mb-2 block text-right text-base font-black text-[#1F2B5E]">اسم المستخدم</span>
                 <div className="group relative">
@@ -390,20 +414,47 @@ export default function IntensivePortal() {
               </label>
             </div>
 
+            <div className="mx-auto mt-5 flex max-w-[710px] flex-wrap items-center justify-between gap-3 text-sm font-bold">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-[#1F2B5E]">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 accent-[#1F2B5E]"
+                  checked={rememberUsername}
+                  onChange={(event) => setRememberUsername(event.target.checked)}
+                />
+                تذكر اسم المستخدم
+              </label>
+              <a
+                href="https://wa.me/966542758318"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#6366F1] underline-offset-4 hover:underline"
+                aria-label="نسيت كلمة المرور؟ تواصل مع دعم نُمو عبر واتساب"
+              >
+                نسيت كلمة المرور؟
+              </a>
+            </div>
+
             {message ? (
-              <div role="alert" className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold leading-7 text-rose-800">{message}</div>
+              <div role="alert" className="mx-auto mt-5 max-w-[710px] rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold leading-7 text-rose-800">{message}</div>
             ) : null}
 
             <button
               type="submit"
               disabled={stage === "loading"}
-              className="numo-login-submit mt-7 flex min-h-[4.1rem] w-full items-center justify-center gap-4 rounded-[1.1rem] border border-[#6366F1]/50 bg-[linear-gradient(105deg,#172553_0%,#1F2B5E_55%,#4748B7_100%)] px-5 py-3 text-lg font-black text-white shadow-[0_18px_32px_rgba(31,43,94,.23)] transition-[filter,box-shadow] hover:brightness-110 hover:shadow-[0_22px_38px_rgba(31,43,94,.28)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] disabled:cursor-wait disabled:opacity-70 sm:mt-9 sm:min-h-[4.5rem] sm:text-xl"
+              className="numo-login-submit numo-deluxe-login-cta mx-auto mt-6 flex min-h-[4.25rem] w-full max-w-[710px] items-center justify-center gap-4 rounded-[1.3rem] border border-[#6366F1]/30 bg-[#1F2B5E] px-5 py-3 text-lg font-black text-white shadow-[0_18px_32px_rgba(31,43,94,.23)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] disabled:cursor-wait disabled:opacity-70 sm:mt-8 sm:min-h-[4.8rem] sm:text-xl"
             >
-              {stage === "loading" ? "جاري التحقق من حسابك..." : "تسجيل الدخول"}
-              {stage === "loading" ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" /> : <ArrowLeft size={21} aria-hidden="true" />}
+              {stage === "loading" ? (
+                <>جاري التحقق من حسابك... <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" /></>
+              ) : (
+                <>
+                  <span className="flex flex-col items-center leading-tight"><span>تسجيل الدخول</span><small className="mt-1 text-xs font-medium tracking-wide text-white/75" dir="ltr">Login to NUMO</small></span>
+                  <span className="numo-deluxe-login-arrow absolute left-3 grid h-11 w-11 place-items-center rounded-full bg-[#B1785C] text-white" aria-hidden="true"><ChevronLeft size={25} /></span>
+                </>
+              )}
             </button>
 
-            <div className="mt-6 flex items-start gap-3 rounded-2xl bg-[#f5f6fa] p-4 text-right text-xs font-semibold leading-7 text-[#707a95] sm:mt-7 sm:p-5 sm:text-sm">
+            <div className="mx-auto mt-6 flex max-w-[710px] items-start gap-3 rounded-2xl bg-[#f5f6fa] p-4 text-right text-xs font-semibold leading-7 text-[#707a95] sm:mt-7 sm:p-5 sm:text-sm">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#fbebe2] text-[#B1785C]">
                 <MonitorSmartphone size={21} aria-hidden="true" />
               </div>
