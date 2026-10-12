@@ -9,13 +9,13 @@ export const metadata: Metadata = {
     title: "محاكي نُمو | NUMO Academic Simulator",
     description: BRAND.metadataDescription,
     url: "https://numo-intensive-two.vercel.app/",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "محاكي نُمو — منصة التدريب الأكاديمي" }],
+    images: [{ url: "https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/e4e7e770-c491-44ef-82fe-ad0752f8cc5b.png", width: 1536, height: 807, alt: "محاكي نُمو — منصة التدريب الأكاديمي" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "محاكي نُمو | NUMO Academic Simulator",
     description: BRAND.metadataDescription,
-    images: ["/opengraph-image"],
+    images: ["https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/e4e7e770-c491-44ef-82fe-ad0752f8cc5b.png"],
   },
   robots: { index: false, follow: false },
 };
