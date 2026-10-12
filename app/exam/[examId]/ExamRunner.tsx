@@ -259,6 +259,7 @@ export default function ExamRunner() {
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const [flags, setFlags] = useState<Record<string, boolean>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [passagePickerOpen, setPassagePickerOpen] = useState(false);
   const [remaining, setRemaining] = useState(0);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [exitingExam, setExitingExam] = useState(false);
@@ -675,6 +676,13 @@ export default function ExamRunner() {
     setAnswers(restoredAnswers);
     setFlags(restoredFlags);
     setCurrentIndex(0);
+    setPassagePickerOpen(
+      courseCode.trim().toUpperCase() === "EL099" &&
+      Boolean(incoming.current_section_id) &&
+      (incoming.questions ?? []).some(
+        (question) => question.sectionId === incoming.current_section_id && Boolean(question.passage?.id),
+      ),
+    );
 
     if (incoming.current_section_id && incoming.current_section_expires_at) {
       setRemaining(Math.max(0, new Date(incoming.current_section_expires_at).getTime() - Date.now()));
@@ -798,6 +806,12 @@ export default function ExamRunner() {
       setWritingAssessment(null);
       setWritingHistory([]);
       setCurrentIndex(0);
+      setPassagePickerOpen(
+        courseCode.trim().toUpperCase() === "EL099" &&
+        (attempt.questions ?? []).some(
+          (question) => question.sectionId === selectedId && Boolean(question.passage?.id),
+        ),
+      );
       setRemaining(Math.max(0, new Date(expiresAt).getTime() - Date.now()));
       setStage("active");
     } catch (error) {
@@ -975,6 +989,7 @@ export default function ExamRunner() {
   const activeSectionTitle = sections[activeSectionIndex]?.title ?? "";
   const isReadingSection =
     activeQuestions.some((question) => Boolean(question.passage));
+  const isEl099ReadingSection = normalizedCourseCode === "EL099" && isReadingSection;
 
   const passageIds = isReadingSection
     ? activeQuestions.reduce<string[]>((list, question) => {
@@ -1005,6 +1020,25 @@ export default function ExamRunner() {
   const hasNextPassage =
     isReadingSection && currentPassageIndex < passageIds.length - 1;
 
+  // Preserve passage identity from the question snapshot. Never infer
+  // completion from a sequential index: each of the seven pieces is selectable.
+  const el099ReadingPassages = isEl099ReadingSection
+    ? passageIds.map((id, index) => {
+        const items = activeQuestions.filter((question) => question.passage?.id === id);
+        return {
+          id,
+          index,
+          title: items[0]?.passage?.title || `Passage ${index + 1}`,
+          firstQuestionIndex: activeQuestions.findIndex((question) => question.passage?.id === id),
+          questionCount: items.length,
+          answeredCount: items.filter((question) => hasAnswerValue(answers[question.id])).length,
+        };
+      })
+    : [];
+  const allReadingQuestionsAnswered =
+    isEl099ReadingSection && activeQuestions.length > 0 &&
+    activeQuestions.every((question) => hasAnswerValue(answers[question.id]));
+
   const currentHasAnswer = current ? hasAnswerValue(answers[current.id]) : false;
 
   useEffect(() => {
@@ -1031,14 +1065,16 @@ export default function ExamRunner() {
 
   function goToQuestion(targetIndex: number) {
     if (targetIndex === currentIndex) return;
-    if (!requireCurrentAnswer()) return;
+    // EL099 Reading is free-choice: moving to another question or passage
+    // must not require completing earlier questions.
+    if (!isEl099ReadingSection && !requireCurrentAnswer()) return;
     setMessage("");
     setCurrentIndex(targetIndex);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function moveToNextPassage() {
-    if (!hasNextPassage || !requireCurrentAnswer()) return;
+    if (!hasNextPassage || (!isEl099ReadingSection && !requireCurrentAnswer())) return;
     const nextPassageId = passageIds[currentPassageIndex + 1];
     const nextGlobalIndex = activeQuestions.findIndex(
       (question) => question.passage?.id === nextPassageId,
@@ -1739,6 +1775,103 @@ export default function ExamRunner() {
     );
   }
 
+  if (stage === "active" && attempt && isEl099ReadingSection && passagePickerOpen) {
+    return (
+      <div className="deluxe-canvas min-h-screen px-3 py-5 text-[#1F2B5E] sm:px-6 sm:py-9" dir="rtl">
+        <div className="mx-auto w-full max-w-6xl">
+          <StudentBackNavigation
+            backHref={courseBackHref}
+            backLabel="حفظ والعودة للمادة"
+            context="EL099 · Reading"
+            active
+            busy={exitingExam}
+            onBack={() => void navigateOutOfExam()}
+            onHome={() => void navigateOutOfExam("/")}
+          />
+          <header className="numo-hero-radiance mt-5 overflow-hidden rounded-[2rem] border border-white/15 bg-[linear-gradient(135deg,#17204B,#1F2B5E_58%,#303B78)] px-5 py-7 text-white shadow-[0_25px_60px_rgba(31,43,94,.18)] sm:px-9 sm:py-9">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span dir="ltr" className="rounded-full border border-[#B1785C]/60 bg-white/10 px-4 py-2 text-xs font-black tracking-[.15em] text-[#f2c9b0]">
+                EL099 · READING · PASSAGE LIBRARY
+              </span>
+              <span className="flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black">
+                <Clock3 size={18} /> الوقت المتبقي للقسم <span dir="ltr">{formatRemaining(remaining)}</span>
+              </span>
+            </div>
+            <h1 className="mt-5 text-2xl font-black leading-relaxed sm:text-4xl">اختر قطعة القراءة التي ترغب في اختبارها</h1>
+            <p className="mt-3 max-w-3xl text-sm font-semibold leading-8 text-white/85 sm:text-base">
+              جميع القطع السبع متاحة لك من البداية. اختر أي قطعة وبأي ترتيب، وتابع أسئلتها وتصحيحها دون الحاجة إلى حل القطع السابقة.
+              إجاباتك محفوظة، ويمكنك العودة إلى هذا الفهرس والانتقال إلى قطعة أخرى في أي وقت.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3 text-xs font-black">
+              <span className="rounded-xl border border-white/20 bg-white/10 px-4 py-2">{el099ReadingPassages.filter((item) => item.answeredCount === item.questionCount && item.questionCount > 0).length} / {el099ReadingPassages.length} قطع مجاب عنها بالكامل</span>
+              <span className="rounded-xl border border-white/20 bg-white/10 px-4 py-2">{answeredCount} / {activeQuestions.length} إجابة محفوظة</span>
+            </div>
+          </header>
+
+          {message ? <div role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-7 text-amber-900">{message}</div> : null}
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="قائمة قطع قراءة EL099">
+            {el099ReadingPassages.map((passage) => {
+              const completed = passage.questionCount > 0 && passage.answeredCount === passage.questionCount;
+              const started = passage.answeredCount > 0 && !completed;
+              return (
+                <article key={passage.id} className="flex min-w-0 flex-col rounded-[1.7rem] border border-[#e4e0e9] bg-white p-5 shadow-[0_12px_36px_rgba(31,43,94,.07)] sm:p-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <span dir="ltr" className="text-xs font-black tracking-[.13em] text-[#B1785C]">PASSAGE {String(passage.index + 1).padStart(2, "0")}</span>
+                    {completed ? (
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700"><CheckCircle2 size={15} /> مكتملة</span>
+                    ) : started ? (
+                      <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-black text-amber-800">قيد التقدم</span>
+                    ) : (
+                      <span className="rounded-full bg-[#f3f3ff] px-3 py-1.5 text-xs font-black text-[#5554c5]">متاحة الآن</span>
+                    )}
+                  </div>
+                  <div className="mt-4 flex items-start gap-3">
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#f7f2ed] text-[#B1785C]"><BookOpen size={25} /></div>
+                    <div className="min-w-0">
+                      <h2 dir="ltr" className="break-words text-left text-xl font-black leading-8 text-[#1F2B5E]">{passage.title}</h2>
+                      <p className="mt-1 text-xs font-bold text-[#73788d]">{passage.questionCount} أسئلة فهم واستيعاب</p>
+                    </div>
+                  </div>
+                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#eceaf0]">
+                    <div className="h-full rounded-full bg-[#6366F1] transition-all" style={{ width: passage.questionCount ? Math.round((passage.answeredCount / passage.questionCount) * 100) + "%" : "0%" }} />
+                  </div>
+                  <p className="mt-2 text-xs font-bold text-[#72778b]">{passage.answeredCount} من {passage.questionCount} أسئلة تمت الإجابة عنها</p>
+                  <button
+                    type="button"
+                    className="btn mt-auto flex min-h-12 w-full items-center justify-center gap-2 pt-3"
+                    disabled={remaining <= 0 || passage.firstQuestionIndex < 0 || advancing}
+                    onClick={() => {
+                      setMessage("");
+                      setCurrentIndex(passage.firstQuestionIndex);
+                      setPassagePickerOpen(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                    <BookOpen size={18} /> {completed ? "مراجعة القطعة" : started ? "متابعة اختبار القطعة" : "اختبر هذه القطعة"}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          <p className="mt-5 rounded-xl border border-[#e4e0e9] bg-white p-4 text-center text-sm font-semibold leading-7 text-[#666d83]">
+            التصحيح يظهر بعد كل إجابة. تظهر درجة Reading النهائية بعد إكمال جميع أسئلة القسم وتسليمه؛ أما ترتيب القطع فاختياري تمامًا.
+          </p>
+          {allReadingQuestionsAnswered ? (
+            <button
+              type="button"
+              className="btn mt-5 flex min-h-14 w-full items-center justify-center gap-3"
+              disabled={advancing || submitting}
+              onClick={() => void completeSection(false)}
+            >
+              {advancing ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />} إنهاء قسم Reading وعرض الدرجة والتصحيح
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   if (!current || !attempt) return null;
 
   const answer = answers[current.id];
@@ -1934,6 +2067,17 @@ export default function ExamRunner() {
         </aside>
 
         <main className="min-w-0 w-full overflow-hidden">
+          {isEl099ReadingSection ? (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#dedbe9] bg-white p-4 shadow-sm" dir="rtl">
+              <div>
+                <div className="text-xs font-black text-[#B1785C]">EL099 · Reading Passages</div>
+                <div className="mt-1 text-sm font-bold text-[#1F2B5E]">أنت تختبر: {current.passage?.title ?? "Reading"} · بإمكانك تغيير القطعة في أي وقت</div>
+              </div>
+              <button type="button" onClick={() => { setMessage(""); setPassagePickerOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#B1785C]/60 bg-[#FAF9F6] px-5 text-sm font-black text-[#1F2B5E]">
+                <BookOpen size={18} /> فهرس القطع السبع · اختر أي قطعة
+              </button>
+            </div>
+          ) : null}
           <div className="mb-4 flex min-w-0 flex-col gap-3 rounded-2xl border border-[#e3dfe8] bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <div>
               <div className="text-xs font-black text-[#B1785C]">{current.sectionTitle} · {current.skill}</div>
@@ -2477,7 +2621,7 @@ export default function ExamRunner() {
 
           {message ? <div className="mt-4 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{message}</div> : null}
 
-          {!currentHasAnswer ? (
+          {!currentHasAnswer && !isEl099ReadingSection ? (
             <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-black text-amber-800">
               <ShieldCheck size={17} />
               {isArabicGeneralExam ? "يجب اختيار إجابة قبل الانتقال للسؤال التالي" : "Answer required to continue · يجب اختيار إجابة للمتابعة"}
@@ -2519,6 +2663,14 @@ export default function ExamRunner() {
                 className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
               >
                 Next Passage <BookOpen size={18} />
+              </button>
+            ) : isEl099ReadingSection && !allReadingQuestionsAnswered ? (
+              <button
+                type="button"
+                onClick={() => { setMessage(""); setPassagePickerOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                className="btn col-span-2 w-full px-3 text-sm sm:col-span-1 sm:w-auto sm:px-5 sm:text-base"
+              >
+                اختر قطعة أخرى <BookOpen size={18} />
               </button>
             ) : !isReadingSection && currentIndex < activeQuestions.length - 1 ? (
               <button
