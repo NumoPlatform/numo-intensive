@@ -21,7 +21,7 @@ WITH dataset AS (
  INSERT INTO public.intensive_question_options (id,question_id,label,value,is_correct,position)
  SELECT md5('NUMO:EL097:FINAL:'||(d.row->>'part')||':'||(d.row->>'id')||':OPTION:'||(o.value->>'label'))::uuid,
  q.id,o.value->>'label',o.value->>'text',
- (o.value->>'label')=(d.row->>'key'),ascii(o.value->>'label')-96
+ COALESCE((o.value->>'label')=(d.row->>'key'),false),ascii(o.value->>'label')-96
  FROM dataset d JOIN questions_added q ON q.id=md5('NUMO:EL097:FINAL:'||(d.row->>'part')||':'||(d.row->>'id'))::uuid
  CROSS JOIN LATERAL jsonb_array_elements(d.row->'options') AS o(value)
  ON CONFLICT(id) DO NOTHING RETURNING id
