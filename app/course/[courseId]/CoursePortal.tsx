@@ -332,7 +332,7 @@ export default function CoursePortal() {
                     <p className="mt-1 text-sm font-bold text-[#73788d]">{definition.titleAr}</p>
                     <div className="mt-auto pt-4 text-xs font-black" style={{ color: activeExams.length ? "#047857" : "#85899a" }}>
                       {activeExams.length ? `${activeExams.length} اختبار متاح · محاولات غير محدودة`
-                        : stageExams.length ? "لم يُفتح هذا الاختبار بعد" : "بانتظار إضافة المحتوى المعتمد"}
+                        : stageExams.length ? (stageExams.every((exam) => exam.status === "DRAFT") ? "مسودة قيد إعداد الأسئلة" : "لم يُفتح هذا الاختبار بعد") : "بانتظار إضافة المحتوى المعتمد"}
                     </div>
                     {selected ? <span className="mt-2 text-xs font-black text-[#B1785C]">القسم المحدد · التفاصيل أدناه</span> : null}
                   </button>
@@ -358,7 +358,7 @@ export default function CoursePortal() {
                     <div dir="ltr" className="text-xs font-black tracking-widest text-[#B1785C]">{intensiveStage}</div>
                     <h3 className="mt-3 text-xl font-black text-[#1F2B5E]">{exam.title}</h3>
                     <p className="mt-3 text-sm font-semibold leading-7 text-[#73788d]">
-                      {questionCount} سؤال · {exam.duration_minutes} دقيقة · {exam.attempts_allowed === 0 ? "محاولات غير محدودة" : `${exam.attempts_allowed} محاولات`}
+                      {questionCount > 0 ? `${questionCount} سؤال · ${exam.duration_minutes} دقيقة · ${exam.attempts_allowed === 0 ? "محاولات غير محدودة" : `${exam.attempts_allowed} محاولات`}` : "المحتوى والمدة النهائية قيد الإعداد — لم يُفعّل الاختبار بعد"}
                     </p>
                     {available ? (
                       <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white">
