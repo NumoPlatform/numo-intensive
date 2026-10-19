@@ -211,10 +211,14 @@ export async function POST(request: NextRequest) {
         new URLSearchParams({ select: "code", id: "eq." + exam.course_id, limit: "1" }).toString(),
     );
     const courseCode = (courses[0]?.code ?? "").trim().toUpperCase();
-    if (!["EL098", "EL097_EL099E", "EL099"].includes(courseCode) || exam.category !== "QUIZ 2" || question.skill !== "Writing") {
-      return NextResponse.json({ ok: false, message: "هذا التقييم مخصص لقسم Writing في دورات الكويز الثاني المعتمدة." }, { status: 403 });
+    if (!["EL098", "EL097_EL099E", "EL099"].includes(courseCode) ||
+        !(exam.category === "QUIZ 2" || (courseCode === "EL097_EL099E" && exam.category === "FINAL")) ||
+        question.skill !== "Writing") {
+      return NextResponse.json({ ok: false, message: "هذا التقييم مخصص لقسم Writing في الاختبارات الأكاديمية المعتمدة." }, { status: 403 });
     }
-    const rubricVersion = courseCode === "EL098" ? RUBRIC_VERSION : courseCode === "EL099" ? "EL099-NUMO-ESSAY-v1" : "EL097-FOUNDATION-NUMO-v1";
+    const rubricVersion = courseCode === "EL097_EL099E" && exam.category === "FINAL"
+      ? "EL097-FINAL-NUMO-ESSAY-v1"
+      : courseCode === "EL098" ? RUBRIC_VERSION : courseCode === "EL099" ? "EL099-NUMO-ESSAY-v1" : "EL097-FOUNDATION-NUMO-v1";
 
     const answer =
       !pending && answerRow?.answer && typeof answerRow.answer === "object" && !Array.isArray(answerRow.answer)
@@ -222,7 +226,7 @@ export async function POST(request: NextRequest) {
         : null;
     const topicIndex = pending ? Number(pending.topic_index ?? 0) : Number(answer?.topicIndex ?? 0);
     const originalText = pending ? pending.original_text.trim() : String(answer?.text ?? "").trim();
-    const maxTopics = courseCode === "EL098" ? 2 : courseCode === "EL099" ? 6 : 7;
+    const maxTopics = courseCode === "EL097_EL099E" && exam.category === "FINAL" ? 8 : courseCode === "EL098" ? 2 : courseCode === "EL099" ? 6 : 7;
     const topicText = Number.isInteger(topicIndex) && topicIndex >= 1 && topicIndex <= maxTopics
       ? tagValue(question.tags, `TOPIC${topicIndex}=`)
       : null;

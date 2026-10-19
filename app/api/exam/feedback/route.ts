@@ -80,7 +80,11 @@ function sourceLockedExplanation(args: {
   const { skill, prompt, selectedAnswer, correctAnswer, reference } = args;
   const reason = (reference?.explanation ?? "").trim();
   const evidence = (reference?.reference_evidence ?? "").trim();
-  const sourceNote = evidence.startsWith("EL099_SOURCE_NOTE:") ? evidence.slice("EL099_SOURCE_NOTE:".length).trim() : "";
+  const sourceNote = evidence.startsWith("EL099_SOURCE_NOTE:")
+    ? evidence.slice("EL099_SOURCE_NOTE:".length).trim()
+    : evidence.startsWith("EL097_FINAL_SOURCE_NOTE:")
+      ? evidence.slice("EL097_FINAL_SOURCE_NOTE:".length).trim()
+      : "";
   if (sourceNote) {
     return {
       whyIncorrect: `اختيارك «${selectedAnswer}» لا يطابق الخيار «${correctAnswer}» المحدد في مفتاح ملف التجميعات.`,
@@ -306,9 +310,12 @@ export async function GET(request: NextRequest) {
       const explanationRequested = request.nextUrl.searchParams.get("explain") === "1";
       // Source-locked answer verification remains unchanged. AI never chooses the key.
       // Generate detailed feedback only AFTER a student's incorrect choice was saved.
-      const sourceNote = (reference?.reference_evidence ?? "").startsWith("EL099_SOURCE_NOTE:")
-        ? (reference?.reference_evidence ?? "").slice("EL099_SOURCE_NOTE:".length).trim()
-        : "";
+      const sourceEvidence = (reference?.reference_evidence ?? "").trim();
+      const sourceNote = sourceEvidence.startsWith("EL099_SOURCE_NOTE:")
+        ? sourceEvidence.slice("EL099_SOURCE_NOTE:".length).trim()
+        : sourceEvidence.startsWith("EL097_FINAL_SOURCE_NOTE:")
+          ? sourceEvidence.slice("EL097_FINAL_SOURCE_NOTE:".length).trim()
+          : "";
       // Disputed source questions must never receive invented Gemini justifications.
       const wrongFeedback = isCorrect || Boolean(sourceNote)
         ? null

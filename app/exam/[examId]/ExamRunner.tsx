@@ -569,7 +569,7 @@ export default function ExamRunner() {
       ? (value as Record<string, unknown>)
       : { topicIndex: 0, text: "" };
     const words = writingWordCount(String(row.text ?? ""));
-    const availableTopics = Array.from({ length: 7 }, (_, index) =>
+    const availableTopics = Array.from({ length: courseCode.trim().toUpperCase() === "EL097_EL099E" && exam?.category === "FINAL" ? 8 : 7 }, (_, index) =>
       writingTag(question.tags, `TOPIC${index + 1}=`),
     ).filter(Boolean);
     const topicIndex = Number(row.topicIndex ?? 0);
@@ -1887,7 +1887,7 @@ export default function ExamRunner() {
       ? (answer as Record<string, unknown>)
       : { topicIndex: 0, text: "" };
   const writingTopics = isWritingQuestion
-    ? Array.from({ length: 7 }, (_, index) => writingTag(current.tags, `TOPIC${index + 1}=`)).filter(Boolean)
+    ? Array.from({ length: normalizedCourseCode === "EL097_EL099E" && exam?.category === "FINAL" ? 8 : 7 }, (_, index) => writingTag(current.tags, `TOPIC${index + 1}=`)).filter(Boolean)
     : [];
   const currentWritingText = String(writingAnswer.text ?? "");
   const currentWritingWords = writingWordCount(currentWritingText);
