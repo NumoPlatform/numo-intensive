@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
     );
     const courseCode = (courses[0]?.code ?? "").trim().toUpperCase();
     if (!["EL098", "EL097_EL099E", "EL099"].includes(courseCode) ||
-        !(exam.category === "QUIZ 2" || (courseCode === "EL097_EL099E" && exam.category === "FINAL")) ||
+        !(exam.category === "QUIZ 2" || ((courseCode === "EL097_EL099E" || courseCode === "EL098") && exam.category === "FINAL")) ||
         question.skill !== "Writing") {
       return NextResponse.json({ ok: false, message: "هذا التقييم مخصص لقسم Writing في الاختبارات الأكاديمية المعتمدة." }, { status: 403 });
     }
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
         : null;
     const topicIndex = pending ? Number(pending.topic_index ?? 0) : Number(answer?.topicIndex ?? 0);
     const originalText = pending ? pending.original_text.trim() : String(answer?.text ?? "").trim();
-    const maxTopics = courseCode === "EL097_EL099E" && exam.category === "FINAL" ? 8 : courseCode === "EL098" ? 2 : courseCode === "EL099" ? 6 : 7;
+    const maxTopics = courseCode === "EL098" && exam.category === "FINAL" ? 10 : courseCode === "EL097_EL099E" && exam.category === "FINAL" ? 8 : courseCode === "EL098" ? 2 : courseCode === "EL099" ? 6 : 7;
     const topicText = Number.isInteger(topicIndex) && topicIndex >= 1 && topicIndex <= maxTopics
       ? tagValue(question.tags, `TOPIC${topicIndex}=`)
       : null;
