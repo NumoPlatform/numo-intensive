@@ -288,12 +288,20 @@ export default function AdminPortal() {
 
   const selectedSection = sectionsForQuestion.find((section) => section.id === questionForm.sectionId);
 
-  const enrolledCodes = (studentId: string) =>
-    (data?.enrollments ?? [])
-      .filter((item) => item.student_id === studentId && item.is_active)
-      .map((item) => courseMap.get(item.course_id)?.code)
-      .filter(Boolean)
-      .join(",  ");
+  const enrolledCodesByStudent = useMemo(() => {
+    const codes = new Map<string, string[]>();
+    for (const enrollment of data?.enrollments ?? []) {
+      if (!enrollment.is_active) continue;
+      const code = courseMap.get(enrollment.course_id)?.code;
+      if (!code) continue;
+      const existing = codes.get(enrollment.student_id);
+      if (existing) existing.push(code);
+      else codes.set(enrollment.student_id, [code]);
+    }
+    return new Map(Array.from(codes, ([id, values]) => [id, values.join(",  ")]));
+  }, [data?.enrollments, courseMap]);
+
+  const enrolledCodes = (studentId: string) => enrolledCodesByStudent.get(studentId) ?? "";
 
   function toggleCourse(courseId: string) {
     setStudentForm((current) => ({
