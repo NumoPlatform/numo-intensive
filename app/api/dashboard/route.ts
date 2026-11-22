@@ -126,15 +126,16 @@ export async function GET(request: NextRequest) {
       is_active: "eq.true",
       order: "code.asc",
     });
-    courses = await serviceRequest<Course[]>("/rest/v1/intensive_courses?" + courseQuery.toString());
-
     const examQuery = new URLSearchParams({
       select: "id,course_id,title,category,starts_at,ends_at,duration_minutes,attempts_allowed,total_marks,status",
       course_id: "in.(" + courseIds.join(",") + ")",
       status: "in.(SCHEDULED,LIVE,CLOSED,PUBLISHED)",
       order: "starts_at.asc",
     });
-    exams = await serviceRequest<Exam[]>("/rest/v1/intensive_exams?" + examQuery.toString());
+    [courses, exams] = await Promise.all([
+      serviceRequest<Course[]>("/rest/v1/intensive_courses?" + courseQuery.toString()),
+      serviceRequest<Exam[]>("/rest/v1/intensive_exams?" + examQuery.toString()),
+    ]);
 
     const examIds = exams.map((item) => item.id);
     if (examIds.length) {
