@@ -282,7 +282,12 @@ export default function IntensivePortal() {
   const examsByCourse = useMemo(() => {
     const map = new Map<string, Dashboard["exams"]>();
     for (const exam of data?.exams ?? []) {
-      map.set(exam.course_id, [...(map.get(exam.course_id) ?? []), exam]);
+      const group = map.get(exam.course_id);
+      if (group) {
+        group.push(exam);
+      } else {
+        map.set(exam.course_id, [exam]);
+      }
     }
     return map;
   }, [data]);
