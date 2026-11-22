@@ -30,7 +30,7 @@ export default function LoginShowcase() {
   return (
     <section className="numo-login-showcase relative" aria-label="مقررات اللغة الإنجليزية المكثفة">
       <ul className="numo-login-showcase-grid" dir="ltr">
-        {FEATURED_COURSES.map((course, index) => (
+        {FEATURED_COURSES.map((course) => (
           <li key={course.code} className="numo-login-showcase-slot">
             <a
               className="numo-login-featured-card"
@@ -44,7 +44,8 @@ export default function LoginShowcase() {
                   width={1600}
                   height={900}
                   decoding="async"
-                  loading="eager"
+                  loading="lazy"
+                  fetchPriority="low"
                 />
               </div>
               <div className="numo-login-featured-details" dir="ltr">
