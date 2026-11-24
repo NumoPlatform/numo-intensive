@@ -206,6 +206,14 @@ export default function CoursePortal() {
       accent: "#1F2B5E",
       soft: "#EEF0F7",
     },
+    {
+      category: "FINAL",
+      title: "تجميعات Final",
+      duration: 60,
+      Icon: FileCheck2,
+      accent: "#6366F1",
+      soft: "#F1F1FF",
+    },
   ] as const;
 
   return (
@@ -257,7 +265,7 @@ export default function CoursePortal() {
                 </h1>
                 <p className="mt-3 text-sm leading-7 text-white/75">
                   {isGeneralCourse
-                    ? "اختر تجميعات Quiz 1 أو Quiz 2 أو Midterm. لكل اختبار محاولات مفتوحة، وتظهر النتيجة مباشرة بعد التسليم."
+                    ? "اختر تجميعات Quiz 1 أو Quiz 2 أو MIDTERM أو FINAL. لكل اختبار محاولات مفتوحة، وتظهر النتيجة مباشرة بعد التسليم."
                     : isFoundationThreeStage
                       ? "مراحل البرنامج المكثف الثلاث: Quiz 1، ثم Quiz 2 (MIDTERM)، ثم Final. اختر المرحلة لعرض اختباراتك. محتوى الكويز الثاني الموجود محفوظ بأقسامه ونماذجه ومحاولاته، أما المراحل الأخرى فتُفعّل عند إضافة أسئلتها المعتمدة."
                     : isEl098Quiz2
@@ -273,7 +281,7 @@ export default function CoursePortal() {
               <div className="relative mt-5 grid grid-cols-3 gap-2">
                 <div className="rounded-2xl border border-white/12 bg-white/[.07] p-3 text-center">
                   <div className="text-xl font-black sm:text-2xl">
-                    {isGeneralCourse || isFoundationThreeStage ? 3 : (sectionCount || exams.length)}
+                    {isGeneralCourse ? generalExamDefinitions.length : isFoundationThreeStage ? 3 : (sectionCount || exams.length)}
                   </div>
                   <div className="mt-1 text-[10px] font-bold text-white/55">
                     {isGeneralCourse || isFoundationThreeStage ? "مراحل التقييم" : "الأقسام"}
@@ -386,7 +394,7 @@ export default function CoursePortal() {
             )}
           </section>
         ) : (
-        <section className={"mt-6 grid gap-4 " + (isEl098Quiz2 ? "md:grid-cols-2" : "md:grid-cols-3")}>
+        <section className={"mt-6 grid gap-4 " + (isEl098Quiz2 ? "md:grid-cols-2" : isGeneralCourse ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>
           {isFoundationThreeStage ? (
             <div className="md:col-span-full rounded-[1.3rem] border border-[#e2dce5] bg-white px-5 py-4">
               <div dir="ltr" className="text-xs font-black tracking-[.2em] text-[#B1785C]">02 / 03 — QUIZ 2 (MIDTERM)</div>
@@ -516,7 +524,7 @@ export default function CoursePortal() {
                         {unlimitedAttempts ? "محاولات غير محدودة" : `${allowedAttempts} محاولات`}
                       </span>
                       <span className="rounded-full bg-[#fbf2ed] px-2.5 py-1 text-[#956047]">
-                        {definition.category === "MIDTERM" ? "60 دقيقة" : "30 دقيقة"}
+                        {definition.category === "MIDTERM" || definition.category === "FINAL" ? "60 دقيقة" : "30 دقيقة"}
                       </span>
                       <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">نتيجة مباشرة</span>
                     </div>
@@ -871,7 +879,7 @@ export default function CoursePortal() {
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {(isGeneralCourse
                 ? [
-                    ["1", "اختر الاختبار", "Quiz 1 أو Quiz 2 أو Midterm"],
+                    ["1", "اختر الاختبار", "Quiz 1 أو Quiz 2 أو MIDTERM أو FINAL"],
                     ["2", "ابدأ من الأيقونة", "عدد المحاولات يظهر لكل اختبار حسب إعداده الفعلي"],
                     ["3", "راجع نتيجتك", "الدرجة والمراجعة تظهران مباشرة"],
                   ]
@@ -910,3 +918,4 @@ export default function CoursePortal() {
     </main>
   );
 }
+
