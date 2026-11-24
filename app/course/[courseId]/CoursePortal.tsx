@@ -185,6 +185,8 @@ export default function CoursePortal() {
     {
       category: "QUIZ 1",
       title: "تجميعات Quiz 1",
+      subtitle: "تدريب هادئ يهيئك للانطلاقة",
+      number: "01",
       duration: 30,
       Icon: ClipboardCheck,
       accent: "#6366F1",
@@ -193,6 +195,8 @@ export default function CoursePortal() {
     {
       category: "QUIZ 2",
       title: "تجميعات Quiz 2",
+      subtitle: "تثبيت المفاهيم بخطوات قصيرة",
+      number: "02",
       duration: 30,
       Icon: FileCheck2,
       accent: "#B1785C",
@@ -201,6 +205,8 @@ export default function CoursePortal() {
     {
       category: "MIDTERM",
       title: "تجميعات Midterm",
+      subtitle: "مراجعة مركزة قبل منتصف الفصل",
+      number: "03",
       duration: 60,
       Icon: GraduationCap,
       accent: "#1F2B5E",
@@ -209,6 +215,8 @@ export default function CoursePortal() {
     {
       category: "FINAL",
       title: "تجميعات Final",
+      subtitle: "استعداد شامل بثقة ووضوح",
+      number: "04",
       duration: 60,
       Icon: FileCheck2,
       accent: "#6366F1",
@@ -449,106 +457,110 @@ export default function CoursePortal() {
                 isOpen &&
                 (unlimitedAttempts || (remaining !== null && remaining > 0) || Boolean(inProgress));
               const Icon = definition.Icon;
+              const availabilityLabel = canEnter
+                ? "جاهز للبدء"
+                : !exam || !hasQuestions
+                  ? "قيد الإعداد"
+                  : !isOpen
+                    ? "غير متاح الآن"
+                    : "اكتملت المحاولات";
 
               return (
                 <article
                   key={definition.category}
-                  className="numo-metal-border overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.07)]"
+                  className="group relative isolate overflow-hidden rounded-[1.8rem] border border-[#e3dfe8] bg-white shadow-[0_16px_42px_rgba(31,43,94,.08)] transition duration-300 hover:-translate-y-1 hover:border-[#B1785C]/50 hover:shadow-[0_24px_54px_rgba(31,43,94,.14)] motion-reduce:transform-none"
+                  style={{ background: `linear-gradient(145deg, ${definition.soft} 0%, #ffffff 42%, #ffffff 100%)` }}
                 >
-                  <div className="h-2" style={{ background: definition.accent }} />
-                  <div className="p-4 sm:p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#B1785C]" dir="ltr">
-                          {definition.category}
-                        </div>
-                        <h2 dir="auto" className="mt-1 break-words text-2xl font-black">
-                          {definition.title}
-                        </h2>
-                      </div>
-                      {canEnter && exam ? (
-                        <a
-                          href={"/exam/" + exam.id}
-                          aria-label={"دخول " + definition.title}
-                          className="numo-icon-medallion grid h-14 w-14 shrink-0 place-items-center rounded-2xl transition "
-                          style={{ background: definition.soft, color: definition.accent }}
-                        >
-                          <Icon size={25} />
-                        </a>
-                      ) : (
+                  <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full opacity-25 blur-2xl" style={{ background: definition.accent }} />
+                  <div className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full border-[18px] opacity-20" style={{ borderColor: definition.accent }} />
+                  <div className="relative h-2 overflow-hidden" style={{ background: `${definition.accent}22` }}>
+                    <div className="h-full w-2/3 rounded-e-full" style={{ background: definition.accent }} />
+                  </div>
+
+                  <div className="relative p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-start gap-3">
                         <div
-                          className="numo-icon-medallion grid h-14 w-14 shrink-0 place-items-center rounded-2xl opacity-70"
+                          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border-4 border-white shadow-[0_8px_18px_rgba(31,43,94,.14)]"
                           style={{ background: definition.soft, color: definition.accent }}
                         >
-                          <Icon size={25} />
+                          <Icon size={26} strokeWidth={2.2} />
                         </div>
-                      )}
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 text-[10px] font-black tracking-[.14em]" dir="ltr">
+                            <span className="rounded-full px-2.5 py-1 text-white" style={{ background: definition.accent }}>
+                              {definition.number} / 04
+                            </span>
+                            <span className="text-[#9b6b52]">{definition.category}</span>
+                          </div>
+                          <h2 dir="auto" className="mt-2 break-words text-[1.35rem] font-black leading-8 text-[#1F2B5E]">
+                            {definition.title}
+                          </h2>
+                          <p className="mt-0.5 text-xs font-bold text-[#85899a]">{definition.subtitle}</p>
+                        </div>
+                      </div>
+                      <span
+                        className={"shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-black " +
+                          (canEnter ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-[#e5e0e8] bg-white/80 text-[#85899a]")}
+                      >
+                        {availabilityLabel}
+                      </span>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                      <div className="rounded-xl bg-[#f8f7fa] p-3">
-                        <div className="flex items-center gap-1 font-black">
-                          <Clock3 size={14} /> {exam?.duration_minutes ?? definition.duration} دقيقة
+                    <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
+                      <div className="rounded-2xl border border-white/80 bg-white/75 p-3.5 shadow-[0_6px_18px_rgba(31,43,94,.05)]">
+                        <div className="flex items-center gap-1.5 font-black text-[#1F2B5E]">
+                          <Clock3 size={15} style={{ color: definition.accent }} />
+                          {exam?.duration_minutes ?? definition.duration} دقيقة
                         </div>
-                        <div className="mt-1 text-[#868a9b]">{questionCount} سؤال</div>
+                        <div className="mt-1.5 text-[#868a9b]">{questionCount} سؤال</div>
                       </div>
-                      <div className="rounded-xl bg-[#f8f7fa] p-3">
-                        <div dir={unlimitedAttempts ? "rtl" : "ltr"} className="font-black">
+                      <div className="rounded-2xl border border-white/80 bg-white/75 p-3.5 shadow-[0_6px_18px_rgba(31,43,94,.05)]">
+                        <div dir={unlimitedAttempts ? "rtl" : "ltr"} className="font-black text-[#1F2B5E]">
                           {unlimitedAttempts ? "غير محدودة" : `${remaining ?? 4} / ${allowedAttempts}`}
                         </div>
-                        <div className="mt-1 text-[#868a9b]">محاولات متبقية</div>
+                        <div className="mt-1.5 text-[#868a9b]">محاولات متبقية</div>
                       </div>
                     </div>
 
                     {bestResult ? (
-                      <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="flex items-center gap-1 text-xs font-black text-emerald-700">
-                            <Award size={14} /> أفضل درجة
-                          </span>
-                          <span className="text-xl font-black text-emerald-800">
-                            {Number(bestResult.percentage ?? 0).toFixed(0)}%
-                          </span>
-                        </div>
+                      <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/90 px-4 py-3">
+                        <span className="flex items-center gap-1.5 text-xs font-black text-emerald-700">
+                          <Award size={15} /> أفضل درجة
+                        </span>
+                        <span className="text-xl font-black text-emerald-800">{Number(bestResult.percentage ?? 0).toFixed(0)}%</span>
                       </div>
                     ) : (
-                      <div className="mt-3 rounded-xl border border-[#e9e5ed] bg-[#faf9fb] p-3 text-xs leading-6 text-[#777c8f]">
-                        {hasQuestions
-                          ? "النتيجة تظهر مباشرة بعد التسليم مع إمكانية المراجعة."
-                          : "تم تجهيز مسار الاختبار، وسيُفعّل فور إضافة الأسئلة المعتمدة."}
+                      <div className="mt-4 rounded-2xl border border-white/80 bg-white/65 px-4 py-3 text-xs leading-6 text-[#777c8f]">
+                        {hasQuestions ? "النتيجة تظهر مباشرة بعد التسليم مع إمكانية مراجعة الإجابات." : "سيُفعّل الاختبار فور إضافة الأسئلة المعتمدة."}
                       </div>
                     )}
 
                     <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-                      <span className="rounded-full bg-[#f2f1ff] px-2.5 py-1 text-[#5559ca]">
+                      <span className="rounded-full bg-[#f1f0ff] px-3 py-1.5 text-[#5559ca]">
                         {unlimitedAttempts ? "محاولات غير محدودة" : `${allowedAttempts} محاولات`}
                       </span>
-                      <span className="rounded-full bg-[#fbf2ed] px-2.5 py-1 text-[#956047]">
+                      <span className="rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[#956047]">
                         {definition.category === "MIDTERM" || definition.category === "FINAL" ? "60 دقيقة" : "30 دقيقة"}
                       </span>
-                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">نتيجة مباشرة</span>
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
+                        <CheckCircle2 size={13} /> نتيجة مباشرة
+                      </span>
                     </div>
 
                     {canEnter && exam ? (
-                      <a href={"/exam/" + exam.id} className="btn mt-4 w-full">
+                      <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(31,43,94,.2)] transition hover:bg-[#2a3976] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1]">
                         {usedAttempts > 0 ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
                         {usedAttempts > 0 ? "إعادة المحاولة" : "دخول الاختبار"}
                       </a>
                     ) : (
-                      <div className="mt-4 rounded-xl bg-[#f0eff4] px-4 py-3 text-center text-xs font-black text-[#7b8092]">
-                        {!exam || !hasQuestions
-                          ? "بانتظار إضافة الأسئلة"
-                          : !isOpen
-                            ? "الاختبار غير متاح حاليا"
-                            : "تم استخدام جميع المحاولات"}
+                      <div className="mt-5 rounded-2xl border border-white/80 bg-white/65 px-4 py-3 text-center text-xs font-black text-[#7b8092]">
+                        {!exam || !hasQuestions ? "بانتظار إضافة الأسئلة" : !isOpen ? "الاختبار غير متاح حاليا" : "تم استخدام جميع المحاولات"}
                       </div>
                     )}
 
                     {exam && results.length ? (
-                      <a
-                        href={"/results/" + exam.id}
-                        className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-[#ddd8e5] bg-white px-4 py-3 text-xs font-black"
-                      >
+                      <a href={"/results/" + exam.id} className="mt-3 flex items-center justify-center gap-2 rounded-2xl border border-[#ddd8e5] bg-white/80 px-4 py-3 text-xs font-black transition hover:border-[#B1785C]/50 hover:bg-white">
                         <History size={15} /> سجل النتائج
                       </a>
                     ) : null}
