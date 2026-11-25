@@ -586,7 +586,7 @@ export default function IntensivePortal() {
       <a
         key={course.id}
         href={"/course/" + course.id}
-        className="numo-course-card numo-metal-border group relative overflow-hidden rounded-[2rem] border border-white/85 bg-white shadow-[0_18px_50px_rgba(31,43,94,.08)] ring-1 ring-[#e8e3ec]"
+        className="numo-course-card numo-metal-border group relative isolate overflow-hidden rounded-[2rem] border border-[#B1785C]/25 bg-white shadow-[0_18px_50px_rgba(31,43,94,.12)] ring-1 ring-[#e8e3ec] transition-shadow duration-300 hover:shadow-[0_24px_60px_rgba(31,43,94,.22)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] motion-reduce:transition-none"
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-[linear-gradient(145deg,#ffffff,#f7f6fa)]">
           <img
@@ -598,7 +598,7 @@ export default function IntensivePortal() {
             decoding="async"
             className="numo-floating-cover numo-floating-cover--grid absolute inset-0 h-full w-full object-contain"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1F2B5E]/82 via-[#1F2B5E]/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101831]/95 via-[#1F2B5E]/20 to-transparent" />
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
             <span className="rounded-full border border-white/30 bg-white/90 px-3 py-1.5 text-[11px] font-black text-[#1F2B5E] shadow-sm backdrop-blur">
               {visual.level}
@@ -607,7 +607,7 @@ export default function IntensivePortal() {
               <ArrowUpLeft size={17} />
             </span>
           </div>
-          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+          <div className="absolute inset-x-0 bottom-0 border-b-2 border-[#B1785C] p-5 text-white">
             <div className="text-xs font-black tracking-[.12em] text-[#efc4ae]" dir="ltr">{course.code}</div>
             <h3 className="mt-1 text-xl font-black leading-7" dir="auto">{course.title}</h3>
           </div>
