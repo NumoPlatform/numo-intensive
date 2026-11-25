@@ -88,6 +88,7 @@ export default function CoursePortal() {
   const [loading, setLoading] = useState(true);
   // Only foundation intensive levels use the 3-stage academic assessment journey.
   // EL111 and EL112 retain their current, independent assessment structure.
+  const [el112Stage, setEl112Stage] = useState<"MIDTERM" | "FINAL" | null>(null);
   const [intensiveStage, setIntensiveStage] = useState<"QUIZ 1" | "QUIZ 2" | "FINAL">("QUIZ 2");
 
   useEffect(() => {
@@ -158,6 +159,7 @@ export default function CoursePortal() {
 
   const normalizedCourseCode = course.code.trim().toUpperCase();
   const displayCourseCode = normalizedCourseCode === "TU170_GT101" ? "TU170 / GT101" : course.code;
+  const isEl112 = normalizedCourseCode === "EL112";
   const isGeneralCourse =
     normalizedCourseCode.startsWith("GR") ||
     normalizedCourseCode.startsWith("AR") ||
@@ -358,7 +360,14 @@ export default function CoursePortal() {
           </section>
         ) : null}
 
-        {isFoundationThreeStage && intensiveStage !== "QUIZ 2" ? (
+        {isEl112 ? (
+          <section className="mt-6" aria-label="EL112 exam stages">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(["MIDTERM", "FINAL"] as const).map((stage, i) => { const Icon = i ? GraduationCap : ClipboardCheck; return <button key={stage} type="button" aria-expanded={el112Stage === stage} onClick={() => setEl112Stage(stage)} className={"group relative isolate overflow-hidden rounded-[2rem] border p-6 text-left text-white shadow-[0_18px_48px_rgba(31,43,94,.18)] transition hover:shadow-[0_24px_60px_rgba(31,43,94,.25)] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] "+(el112Stage===stage?"border-[#B1785C] ring-2 ring-[#B1785C]":"border-white/20")} style={{background:i?"linear-gradient(145deg,#151e43,#4548a4)":"linear-gradient(145deg,#101831,#1F2B5E)"}} dir="ltr"><div aria-hidden="true" className="absolute -right-12 -top-16 -z-10 h-56 w-56 rounded-full border-[24px] border-white/10"/><div className="flex items-center justify-between"><span className="text-xs font-black tracking-[.22em] text-[#edc2ad]">NUMO · EL112</span><Icon size={34}/></div><h2 className="mt-8 text-2xl font-black sm:text-3xl">{stage} EXAM</h2><p className="mt-2 text-sm text-white/80">{i?"Final assessment":"Midterm assessment"}</p><div className="mt-5 flex items-center justify-between border-t border-[#B1785C] pt-4 text-sm font-bold"><span>4 Academic Sections</span><PlayCircle size={22}/></div></button>; })}
+            </div>
+            {el112Stage && <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">{(["Grammar","Vocabulary","Reading","Writing"] as const).map((name,i)=>{const Icon=[ClipboardCheck,BookOpenCheck,GraduationCap,FileCheck2][i]; const stageExams=exams.filter(e=>e.category.trim().toUpperCase()===el112Stage || (el112Stage==="MIDTERM" && e.category.trim().toUpperCase()==="QUIZ 2")); const matches=courseSections.filter(s=>stageExams.some(e=>e.id===s.exam_id)&&s.title.trim().toLowerCase()===name.toLowerCase()); return <article key={name} className="overflow-hidden rounded-[1.7rem] border border-[#e3dfe8] bg-white shadow-[0_14px_38px_rgba(31,43,94,.10)]"><div dir="ltr" className="relative overflow-hidden p-5 text-white" style={{background:["linear-gradient(135deg,#101831,#1F2B5E)","linear-gradient(135deg,#343878,#6366F1)","linear-gradient(135deg,#744936,#B1785C)","linear-gradient(135deg,#1F2B5E,#4548A4)"][i]}}><div className="flex items-center justify-between"><Icon size={28}/><span className="text-xs font-black text-white/80">0{i+1}</span></div><h3 className="mt-6 text-xl font-black">{name}</h3><p className="mt-1 text-xs text-white/90">{el112Stage} EXAM</p></div><div className="space-y-2 p-4">{matches.length?matches.map(section=>{const exam=stageExams.find(e=>e.id===section.exam_id)!; const open=exam.status==="LIVE"&&Date.now()>=new Date(exam.starts_at).getTime()&&Date.now()<=new Date(exam.ends_at).getTime(); return <div key={section.id}><p className="text-xs font-semibold text-[#73788d]">{section.question_count ?? 0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id} className="btn mt-2 w-full">فتح الاختبار واختيار القسم <PlayCircle size={16}/></a>:<p className="mt-2 text-xs text-[#73788d]">الاختبار غير متاح حاليا</p>}</div>}):<p className="text-sm leading-6 text-[#73788d]">بانتظار نشر المحتوى المعتمد</p>}</div></article>})}</div>}
+          </section>
+        ) : isFoundationThreeStage && intensiveStage !== "QUIZ 2" ? (
           <section aria-live="polite" className="mt-6 grid gap-4 md:grid-cols-2">
             {selectedStageExams.length ? (
               selectedStageExams.map((exam) => {
