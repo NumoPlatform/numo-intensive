@@ -95,12 +95,13 @@ export default function ExamBeforeYouBegin({
     <section
       dir="rtl"
       aria-labelledby="exam-guide-title"
-      className="overflow-hidden rounded-[1.6rem] border border-[#e6e1df] bg-white text-right shadow-[0_22px_65px_rgba(31,43,94,.09)] sm:rounded-[2rem]"
+      className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[#B1785C]/35 bg-[#fcfbf9] text-right shadow-[0_32px_90px_rgba(31,43,94,.16)] sm:rounded-[2.5rem]"
     >
       <div aria-hidden="true" className="h-1.5 bg-[linear-gradient(90deg,#1F2B5E,#6366F1_58%,#B1785C)]" />
-      <header className="relative overflow-hidden bg-[linear-gradient(135deg,#101831,#1F2B5E_60%,#4548a4)] px-5 py-9 text-white sm:px-8 sm:py-8">
+      <header className="relative isolate overflow-hidden bg-[radial-gradient(ellipse_at_top_left,#5558a8_0%,transparent_55%),linear-gradient(135deg,#101831,#1F2B5E_75%)] px-6 py-10 text-white sm:px-12 sm:py-14">
         <div aria-hidden="true" className="pointer-events-none absolute -left-14 -top-24 h-52 w-52 rounded-full border border-white/10" />
         <div aria-hidden="true" className="pointer-events-none absolute -left-5 -top-16 h-36 w-36 rounded-full border border-white/10" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-12 left-5 select-none text-[7rem] font-black tracking-tighter text-white/[.045] sm:text-[12rem]">NUMO</div>
         <div className="relative">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#B1785C]/60 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-[#f2c8b0]">
@@ -114,7 +115,7 @@ export default function ExamBeforeYouBegin({
               <GraduationCap size={29} strokeWidth={1.8} aria-hidden="true" />
             </div>
             <div>
-              <h1 id="exam-guide-title" className="text-2xl font-black leading-normal sm:text-3xl">
+              <h1 id="exam-guide-title" className="text-3xl font-black leading-normal sm:text-5xl">
                 جاهز لتبدأ بثقة؟
               </h1>
               <p className="mt-1 text-sm font-semibold leading-7 text-[#e6eaf7]">
@@ -128,7 +129,7 @@ export default function ExamBeforeYouBegin({
         </div>
       </header>
 
-      <div className="space-y-5 px-4 py-5 sm:px-7 sm:py-7">
+      <div className="space-y-6 px-4 py-6 sm:px-10 sm:py-9">
         {sections.length === 1 && <div className="rounded-2xl border border-[#B1785C]/40 bg-[#faf6f2] p-4 text-center"><p className="text-xs font-bold text-[#99634E]">القسم الذي اخترته</p><h2 dir="auto" className="mt-1 text-2xl font-black text-[#1F2B5E]">{sections[0].title}</h2></div>}
         <div className="grid grid-cols-2 gap-3" aria-label="معلومات الاختبار">
           <div className="rounded-2xl border border-[#e4e5f0] bg-[#f7f8fd] p-3.5">
@@ -156,10 +157,10 @@ export default function ExamBeforeYouBegin({
             <Target size={19} className="text-[#B1785C]" aria-hidden="true" />
             ثلاث خطوات… وتبدأ رحلتك!
           </h2>
-          <div className="space-y-2.5">
+          <div className="grid gap-3 sm:grid-cols-3">
             {journey.map((item) => (
-              <div key={item.step} className="flex items-start gap-3 rounded-xl border border-[#e8e6ec] bg-[#fdfdfd] px-3 py-3">
-                <span dir="ltr" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#edf0f9] text-sm font-black text-[#1F2B5E]">
+              <div key={item.step} className="flex flex-col items-start gap-4 rounded-2xl border border-[#e8e0da] bg-white p-5 shadow-[0_8px_24px_rgba(31,43,94,.06)]">
+                <span dir="ltr" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#1F2B5E] text-lg font-black text-white">
                   {item.step}
                 </span>
                 <div className="min-w-0">
@@ -197,7 +198,7 @@ export default function ExamBeforeYouBegin({
           <span>تُحفظ الإجابات عند اختيارها، ولا يتغير الاختيار بعد التصحيح في المحاولة نفسها. عند الرجوع يستمر وقت القسم؛ تأكد من الحفظ أولًا.</span>
         </div>
 
-        <div className="rounded-2xl border border-[#eddfd6] bg-[#fffbf7] p-4 sm:p-5">
+        <div className="rounded-[1.8rem] border border-[#B1785C]/40 bg-gradient-to-br from-white to-[#f5e9e1] p-5 shadow-lg sm:p-7">
           <div className="flex items-start gap-3">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f7e9df] text-[#B1785C]">
               <Sparkles size={22} aria-hidden="true" />
