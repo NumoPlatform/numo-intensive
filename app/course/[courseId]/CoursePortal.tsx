@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import WritingLab from "./WritingLab";
+import { NumoExamCard } from "@/app/components/NumoExamCard";
 import { SpellCheck, BookA, BookOpen, PenTool, ArrowUpRight } from "lucide-react";
 import { useParams } from "next/navigation";
 import {
@@ -338,33 +339,7 @@ export default function CoursePortal() {
                 const selected = intensiveStage === definition.category;
                 const Icon = definition.Icon;
                 return (
-isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-expanded={selected} onClick={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} className={"relative isolate overflow-hidden rounded-[2rem] p-6 text-left text-white shadow-[0_18px_48px_rgba(31,43,94,.18)] transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] "+(selected?"ring-2 ring-[#B1785C]":"")} style={{background:selected?"linear-gradient(145deg,#101831,#1F2B5E 55%,#4548a4)":"linear-gradient(145deg,#101831,#1F2B5E 65%,#343878)"}}>
-                  <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 rounded-full border border-white/15"><div className="absolute inset-5 rounded-full border border-white/15"/><div className="absolute inset-10 rounded-full border border-[#B1785C]/60"/></div>
-                  <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-black tracking-[.35em] text-[#edc2ad]">N U M O</div><p className="mt-5 text-[10px] font-semibold tracking-[.20em] text-white/80 sm:text-xs">ACADEMIC COLLECTION</p></div><GraduationCap size={62} strokeWidth={1.4} className="shrink-0 text-[#ddb39f]"/></div>
-                  <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">{definition.title.toUpperCase()}</h2><p className="mt-1 text-sm text-[#dedfff]">EL099 / LEVEL 3</p>
-                  <div className="mt-5 flex items-end justify-between gap-2 border-t border-[#B1785C] pt-4"><div className="space-y-2 text-xs text-white/90"><p>{courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length} SECTIONS</p><p>{activeExams.length?"2026 — 2027":"COMING SOON"}</p></div><span className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#b98568] to-[#88533f] px-4 py-3 text-xs font-black text-white">EXPLORE <ArrowUpRight size={16}/></span></div>
-                </button>) : (                  <button
-                    type="button"
-                    key={definition.category}
-                    aria-pressed={selected}
-                    onClick={() => setIntensiveStage(definition.category)}
-                    className={"relative flex min-h-48 w-full flex-col items-stretch rounded-[1.55rem] border-2 bg-white p-5 text-right shadow-[0_12px_32px_rgba(31,43,94,.08)] transition-colors focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] " +
-                      (selected ? "border-[#B1785C] bg-[#fffcf9]" : "border-[#e5e2eb] hover:border-[#B1785C]/70")}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="grid h-12 w-12 place-items-center rounded-2xl" style={{ background: definition.soft, color: definition.color }}>
-                        <Icon size={24} />
-                      </div>
-                      <span className="text-xs font-black tracking-[.2em] text-[#B1785C]">{definition.number} / 03</span>
-                    </div>
-                    <h3 dir="ltr" className="mt-3 text-left text-xl font-black text-[#1F2B5E]">{definition.title}</h3>
-                    <p className="mt-1 text-sm font-bold text-[#73788d]">{definition.titleAr}</p>
-                    <div className="mt-auto pt-4 text-xs font-black" style={{ color: activeExams.length ? "#047857" : "#85899a" }}>
-                      {activeExams.length ? `${activeExams.length} اختبار متاح · محاولات غير محدودة`
-                        : stageExams.length ? (stageExams.every((exam) => exam.status === "DRAFT") ? "مسودة قيد إعداد الأسئلة" : "لم يُفتح هذا الاختبار بعد") : "بانتظار إضافة المحتوى المعتمد"}
-                    </div>
-                    {selected ? <span className="mt-2 text-xs font-black text-[#B1785C]">القسم المحدد · التفاصيل أدناه</span> : null}
-                  </button>)
+<NumoExamCard key={definition.category} number={definition.number} title={definition.title} course={displayCourseCode+" · "+definition.titleAr} meta={courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length+" SECTIONS"} selected={selected} locked={!activeExams.length} onSelect={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} />
                 );
               })}
             </div>
@@ -376,12 +351,7 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
           <section className="mt-6" aria-label="EL112 exam stages">
             <div className="grid gap-4 sm:grid-cols-2">
               {(["MIDTERM", "FINAL"] as const).map((stage, i) => (
-                <button key={stage} type="button" dir="ltr" aria-expanded={el112Stage===stage} onClick={()=>{setEl112Stage(stage);setWritingOpen(false)}} className={"relative isolate overflow-hidden rounded-[2rem] p-6 text-left text-white shadow-[0_18px_48px_rgba(31,43,94,.18)] transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] "+(el112Stage===stage?"ring-2 ring-[#B1785C]":"")} style={{background:i?"linear-gradient(145deg,#101831,#1F2B5E 55%,#4548a4)":"linear-gradient(145deg,#101831,#1F2B5E 65%,#343878)"}}>
-                  <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 rounded-full border border-white/15"><div className="absolute inset-5 rounded-full border border-white/15"/><div className="absolute inset-10 rounded-full border border-[#B1785C]/60"/></div>
-                  <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-black tracking-[.35em] text-[#edc2ad]">N U M O</div><p className="mt-5 text-[10px] font-semibold tracking-[.20em] text-white/80 sm:text-xs">ACADEMIC COLLECTION</p></div><GraduationCap size={62} strokeWidth={1.4} className="shrink-0 text-[#ddb39f]"/></div>
-                  <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">{stage} EXAM</h2><p className="mt-1 text-sm text-[#dedfff]">EL112 / LEVEL 5</p>
-                  <div className="mt-5 flex items-end justify-between gap-2 border-t border-[#B1785C] pt-4"><div className="space-y-2 text-xs text-white/90"><p>4 SECTIONS</p><p>2026 — 2027</p></div><span className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#b98568] to-[#88533f] px-4 py-3 text-xs font-black text-white">EXPLORE <ArrowUpRight size={16}/></span></div>
-                </button>
+                <NumoExamCard key={stage} number={String(i+1).padStart(2,"0")} title={stage+" EXAM"} course={displayCourseCode+" / LEVEL 5"} selected={el112Stage===stage} meta={courseSections.filter(section=>exams.some(exam=>exam.id===section.exam_id&&(exam.category===stage||(stage==="MIDTERM"&&exam.category==="QUIZ 2")))).length+" SECTIONS"} onSelect={()=>{setEl112Stage(stage);setWritingOpen(false)}} />
               ))}
             </div>
             {el112Stage && !writingOpen && <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4" dir="rtl" aria-live="polite">
@@ -524,106 +494,7 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
                     : "اكتملت المحاولات";
 
               return (
-                <article
-                  key={definition.category}
-                  className="group relative isolate overflow-hidden rounded-[1.8rem] border border-[#e3dfe8] bg-white shadow-[0_16px_42px_rgba(31,43,94,.08)] transition duration-300 hover:-translate-y-1 hover:border-[#B1785C]/50 hover:shadow-[0_24px_54px_rgba(31,43,94,.14)] motion-reduce:transform-none"
-                  style={{ background: `linear-gradient(145deg, ${definition.soft} 0%, #ffffff 42%, #ffffff 100%)` }}
-                >
-                  <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full opacity-25 blur-2xl" style={{ background: definition.accent }} />
-                  <div className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full border-[18px] opacity-20" style={{ borderColor: definition.accent }} />
-                  <div className="relative h-2 overflow-hidden" style={{ background: `${definition.accent}22` }}>
-                    <div className="h-full w-2/3 rounded-e-full" style={{ background: definition.accent }} />
-                  </div>
-
-                  <div className="relative p-5 sm:p-6">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex min-w-0 items-start gap-3">
-                        <div
-                          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border-4 border-white shadow-[0_8px_18px_rgba(31,43,94,.14)]"
-                          style={{ background: definition.soft, color: definition.accent }}
-                        >
-                          <Icon size={26} strokeWidth={2.2} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 text-[10px] font-black tracking-[.14em]" dir="ltr">
-                            <span className="rounded-full px-2.5 py-1 text-white" style={{ background: definition.accent }}>
-                              {definition.number} / 04
-                            </span>
-                            <span className="text-[#9b6b52]">{definition.category}</span>
-                          </div>
-                          <h2 dir="auto" className="mt-2 break-words text-[1.35rem] font-black leading-8 text-[#1F2B5E]">
-                            {definition.title}
-                          </h2>
-                          <p className="mt-0.5 text-xs font-bold text-[#85899a]">{definition.subtitle}</p>
-                        </div>
-                      </div>
-                      <span
-                        className={"shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-black " +
-                          (canEnter ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-[#e5e0e8] bg-white/80 text-[#85899a]")}
-                      >
-                        {availabilityLabel}
-                      </span>
-                    </div>
-
-                    <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
-                      <div className="rounded-2xl border border-white/80 bg-white/75 p-3.5 shadow-[0_6px_18px_rgba(31,43,94,.05)]">
-                        <div className="flex items-center gap-1.5 font-black text-[#1F2B5E]">
-                          <Clock3 size={15} style={{ color: definition.accent }} />
-                          {exam?.duration_minutes ?? definition.duration} دقيقة
-                        </div>
-                        <div className="mt-1.5 text-[#868a9b]">{questionCount} سؤال</div>
-                      </div>
-                      <div className="rounded-2xl border border-white/80 bg-white/75 p-3.5 shadow-[0_6px_18px_rgba(31,43,94,.05)]">
-                        <div dir={unlimitedAttempts ? "rtl" : "ltr"} className="font-black text-[#1F2B5E]">
-                          {unlimitedAttempts ? "غير محدودة" : `${remaining ?? 4} / ${allowedAttempts}`}
-                        </div>
-                        <div className="mt-1.5 text-[#868a9b]">محاولات متبقية</div>
-                      </div>
-                    </div>
-
-                    {bestResult ? (
-                      <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/90 px-4 py-3">
-                        <span className="flex items-center gap-1.5 text-xs font-black text-emerald-700">
-                          <Award size={15} /> أفضل درجة
-                        </span>
-                        <span className="text-xl font-black text-emerald-800">{Number(bestResult.percentage ?? 0).toFixed(0)}%</span>
-                      </div>
-                    ) : (
-                      <div className="mt-4 rounded-2xl border border-white/80 bg-white/65 px-4 py-3 text-xs leading-6 text-[#777c8f]">
-                        {hasQuestions ? "النتيجة تظهر مباشرة بعد التسليم مع إمكانية مراجعة الإجابات." : "سيُفعّل الاختبار فور إضافة الأسئلة المعتمدة."}
-                      </div>
-                    )}
-
-                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-                      <span className="rounded-full bg-[#f1f0ff] px-3 py-1.5 text-[#5559ca]">
-                        {unlimitedAttempts ? "محاولات غير محدودة" : `${allowedAttempts} محاولات`}
-                      </span>
-                      <span className="rounded-full bg-[#fbf2ed] px-3 py-1.5 text-[#956047]">
-                        {definition.category === "MIDTERM" || definition.category === "FINAL" ? "60 دقيقة" : "30 دقيقة"}
-                      </span>
-                      <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-                        <CheckCircle2 size={13} /> نتيجة مباشرة
-                      </span>
-                    </div>
-
-                    {canEnter && exam ? (
-                      <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#1F2B5E] px-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(31,43,94,.2)] transition hover:bg-[#2a3976] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1]">
-                        {usedAttempts > 0 ? <RotateCcw size={17} /> : <PlayCircle size={17} />}
-                        {usedAttempts > 0 ? "إعادة المحاولة" : "دخول الاختبار"}
-                      </a>
-                    ) : (
-                      <div className="mt-5 rounded-2xl border border-white/80 bg-white/65 px-4 py-3 text-center text-xs font-black text-[#7b8092]">
-                        {!exam || !hasQuestions ? "بانتظار إضافة الأسئلة" : !isOpen ? "الاختبار غير متاح حاليا" : "تم استخدام جميع المحاولات"}
-                      </div>
-                    )}
-
-                    {exam && results.length ? (
-                      <a href={"/results/" + exam.id} className="mt-3 flex items-center justify-center gap-2 rounded-2xl border border-[#ddd8e5] bg-white/80 px-4 py-3 text-xs font-black transition hover:border-[#B1785C]/50 hover:bg-white">
-                        <History size={15} /> سجل النتائج
-                      </a>
-                    ) : null}
-                  </div>
-                </article>
+                <NumoExamCard key={definition.category} number={definition.number} title={definition.title} course={displayCourseCode} meta={questionCount+" سؤال · "+(exam?.duration_minutes??definition.duration)+" دقيقة"} locked={!canEnter} href={exam?"/exam/"+exam.id:undefined} cta={usedAttempts>0?"إعادة المحاولة":"دخول الاختبار"} secondary={exam&&results.length?<a href={"/results/"+exam.id} className="text-sm font-bold text-white underline">سجل النتائج</a>:null}><div className="text-sm leading-7">{availabilityLabel} · {unlimitedAttempts?"محاولات غير محدودة":remaining+" محاولات متبقية"}{bestResult&&<p>أفضل درجة: {bestResult.percentage}%</p>}</div></NumoExamCard>
               );
             })
           ) : (isEl097Quiz2 || isEl099Quiz2) ? (
