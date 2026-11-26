@@ -2150,7 +2150,7 @@ export default function ExamRunner() {
               </section>
             ) : null}
 
-            <section className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#dfe2ec] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+            <section className="min-w-0 overflow-hidden rounded-[2rem] border border-[#B1785C]/30 bg-white p-4 shadow-[0_20px_55px_rgba(31,43,94,.12)] sm:p-6 lg:p-8">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div className="text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">
                   {isArabicGeneralExam
@@ -2166,7 +2166,7 @@ export default function ExamRunner() {
               <div
                 dir={isArabicGeneralExam ? "rtl" : "ltr"}
                 className={
-                  "w-full break-words rounded-[1.35rem] border border-[#d9ddea] bg-gradient-to-br from-white to-[#f7f8fc] px-4 py-5 text-[1.05rem] font-black leading-8 text-[#1F2B5E] shadow-[inset_0_1px_0_rgba(255,255,255,.8),0_10px_30px_rgba(31,43,94,.05)] sm:px-6 sm:py-7 sm:text-xl sm:leading-10 " +
+                  "w-full break-words rounded-[1.35rem] border border-[#B1785C]/35 bg-gradient-to-br from-[#f7f8fc] via-white to-[#faf4ef] px-4 py-6 text-[1.15rem] font-black leading-8 text-[#1F2B5E] shadow-[inset_0_1px_0_rgba(255,255,255,.8),0_10px_30px_rgba(31,43,94,.05)] sm:px-6 sm:py-7 sm:text-xl sm:leading-10 " +
                   (isArabicGeneralExam ? "text-right" : "text-left")
                 }
               >
@@ -2175,7 +2175,7 @@ export default function ExamRunner() {
 
               {current.type === "MULTIPLE_CHOICE" ? (
                 <div dir={isArabicGeneralExam ? "rtl" : "ltr"} className="mt-5 grid gap-3 sm:mt-7 sm:grid-cols-2">
-                  {(current.options ?? []).map((option) => {
+                  {(current.options ?? []).map((option, optionIndex) => {
                     // Preserve empty source options in DB, but explain their
                     // absence rather than rendering an invisible choice.
                     const optionText =
@@ -2200,14 +2200,14 @@ export default function ExamRunner() {
                       <label
                         key={option.id}
                         className={
-                          "group flex min-h-[4.5rem] w-full min-w-0 cursor-pointer items-center gap-3 rounded-2xl border px-4 py-4 transition-all duration-200 sm:px-5 " +
+                          "group flex min-h-[5rem] w-full min-w-0 cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-4 focus-within:ring-2 focus-within:ring-[#6366F1] transition-all duration-200 sm:px-5 " +
                           (feedbackCorrect
                             ? "border-emerald-300 bg-emerald-50 shadow-[0_10px_28px_rgba(16,185,129,.10)] ring-1 ring-emerald-200"
                             : feedbackWrong
                               ? "border-rose-300 bg-rose-50 shadow-[0_10px_28px_rgba(244,63,94,.08)] ring-1 ring-rose-200"
                               : selected
                                 ? "border-[#6366F1] bg-[#f3f3ff] shadow-[0_10px_28px_rgba(99,102,241,.12)] ring-1 ring-[#6366F1]/20"
-                                : "border-[#e1dde7] bg-white hover:-translate-y-0.5 hover:border-[#B1785C]/55 hover:shadow-[0_10px_24px_rgba(31,43,94,.07)]")
+                                : "border-[#e1dde7] bg-gradient-to-br from-white to-[#f8f9fc] hover:-translate-y-0.5 hover:border-[#B1785C]/55 hover:shadow-[0_10px_24px_rgba(31,43,94,.07)]")
                         }
                       >
                         <input
@@ -2218,7 +2218,7 @@ export default function ExamRunner() {
                           disabled={questionAnswerLocked}
                           onChange={() => updateAnswer(current.id, option.id)}
                         />
-                        {compactLabel ? (
+                        {(compactLabel || optionIndex >= 0) ? (
                           <span
                             className={
                               "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-base font-black transition " +
@@ -2231,7 +2231,7 @@ export default function ExamRunner() {
                                     : "bg-[#eef0f7] text-[#1F2B5E] group-hover:bg-[#fbf2ed] group-hover:text-[#8f5b43]")
                             }
                           >
-                            {option.label}
+                            {compactLabel ? option.label : String.fromCharCode(65 + optionIndex)}
                           </span>
                         ) : null}
                         <span
@@ -2246,7 +2246,7 @@ export default function ExamRunner() {
                         {feedbackCorrect ? (
                           <CheckCircle2 className="shrink-0 text-emerald-600" size={22} />
                         ) : selected ? (
-                          <CheckCircle2 className={"shrink-0 " + (feedbackWrong ? "text-rose-600" : "text-[#6366F1]")} size={21} />
+                          feedbackWrong ? <XCircle className="shrink-0 text-rose-600" size={22} /> : <CheckCircle2 className="shrink-0 text-[#6366F1]" size={21} />
                         ) : null}
                       </label>
                     );
