@@ -89,7 +89,7 @@ export default function ExamBeforeYouBegin({
       ? "الاختبار لم يبدأ بعد"
       : afterEnd
         ? "انتهت فترة إتاحة الاختبار"
-        : "جاهز! ابدأ الاختبار";
+        : "ابدأ التدريب الآن";
 
   return (
     <section
@@ -98,7 +98,7 @@ export default function ExamBeforeYouBegin({
       className="overflow-hidden rounded-[1.6rem] border border-[#e6e1df] bg-white text-right shadow-[0_22px_65px_rgba(31,43,94,.09)] sm:rounded-[2rem]"
     >
       <div aria-hidden="true" className="h-1.5 bg-[linear-gradient(90deg,#1F2B5E,#6366F1_58%,#B1785C)]" />
-      <header className="relative overflow-hidden bg-[#1F2B5E] px-5 py-6 text-white sm:px-8 sm:py-8">
+      <header className="relative overflow-hidden bg-[linear-gradient(135deg,#101831,#1F2B5E_60%,#4548a4)] px-5 py-9 text-white sm:px-8 sm:py-8">
         <div aria-hidden="true" className="pointer-events-none absolute -left-14 -top-24 h-52 w-52 rounded-full border border-white/10" />
         <div aria-hidden="true" className="pointer-events-none absolute -left-5 -top-16 h-36 w-36 rounded-full border border-white/10" />
         <div className="relative">
@@ -115,10 +115,10 @@ export default function ExamBeforeYouBegin({
             </div>
             <div>
               <h1 id="exam-guide-title" className="text-2xl font-black leading-normal sm:text-3xl">
-                مستعدّ تتحدى نفسك؟
+                جاهز لتبدأ بثقة؟
               </h1>
               <p className="mt-1 text-sm font-semibold leading-7 text-[#e6eaf7]">
-                كل سؤال فرصة لتفهم أكثر وتتقدم بثقة. ابدأ بهدوء، واستمتع بتجربتك!
+                هذه مساحة للتعلم والتدريب. خذ وقتك، فالخطأ فرصة لفهم القاعدة وتحسين مستواك.
               </p>
             </div>
           </div>
@@ -129,6 +129,7 @@ export default function ExamBeforeYouBegin({
       </header>
 
       <div className="space-y-5 px-4 py-5 sm:px-7 sm:py-7">
+        {sections.length === 1 && <div className="rounded-2xl border border-[#B1785C]/40 bg-[#faf6f2] p-4 text-center"><p className="text-xs font-bold text-[#99634E]">القسم الذي اخترته</p><h2 dir="auto" className="mt-1 text-2xl font-black text-[#1F2B5E]">{sections[0].title}</h2></div>}
         <div className="grid grid-cols-2 gap-3" aria-label="معلومات الاختبار">
           <div className="rounded-2xl border border-[#e4e5f0] bg-[#f7f8fd] p-3.5">
             <span className="flex items-center gap-2 text-xs font-bold text-[#686f84]">
@@ -136,7 +137,7 @@ export default function ExamBeforeYouBegin({
               الوقت
             </span>
             <strong className="mt-1.5 block text-sm font-black leading-6 text-[#1F2B5E]">
-              {hasIndependentTimers ? "مؤقّت مستقل لكل قسم" : exam ? `${exam.duration_minutes} دقيقة` : "حسب الاختبار"}
+              {sections.length === 1 ? `${sections[0].timeLimitMinutes} دقيقة` : hasIndependentTimers ? "مؤقّت مستقل لكل قسم" : exam ? `${exam.duration_minutes} دقيقة` : "حسب الاختبار"}
             </strong>
           </div>
           <div className="rounded-2xl border border-[#eeded3] bg-[#fdf8f3] p-3.5">
@@ -217,7 +218,7 @@ export default function ExamBeforeYouBegin({
             type="button"
             onClick={onStart}
             disabled={cannotStart}
-            className="group mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 py-3 text-center text-sm font-black text-white shadow-[0_11px_26px_rgba(31,43,94,.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#293976] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none sm:text-base"
+            className="group mt-4 flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-br from-[#1F2B5E] to-[#4548a4] ring-2 ring-[#B1785C]/50 px-4 py-3 text-center text-sm font-black text-white shadow-[0_11px_26px_rgba(31,43,94,.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#293976] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#6366F1] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transform-none sm:text-base"
           >
             {starting ? <Loader2 size={19} className="animate-spin" aria-hidden="true" /> : <LockKeyhole size={17} aria-hidden="true" />}
             {startLabel}
