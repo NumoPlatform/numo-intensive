@@ -327,7 +327,7 @@ export default function CoursePortal() {
                 ثلاث مراحل مستقلة لكل مقرر. افتح Quiz 2 (MIDTERM) لمتابعة النماذج والأقسام الحالية، دون دمجها مع Quiz 1 أو Final.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className={isEl099Quiz2?"mx-auto grid w-full max-w-xl grid-cols-1 gap-4 bg-[#F4F5F9] p-2 sm:p-5":"grid gap-3 md:grid-cols-3"}>
               {intensiveStageDefinitions.map((definition) => {
                 const stageExams = exams.filter((exam) => exam.category === definition.category);
                 const now = Date.now();
@@ -339,7 +339,7 @@ export default function CoursePortal() {
                 const selected = intensiveStage === definition.category;
                 const Icon = definition.Icon;
                 return (
-<NumoExamCard key={definition.category} number={definition.number} title={definition.title} course={isEl099Quiz2?"EL099 / LEVEL 3":displayCourseCode} meta={courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).map(section=>"• "+section.title).join("  |  ")+"\n"+courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length+" SECTIONS"} selected={selected} locked={!activeExams.length} onSelect={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} />
+<NumoExamCard key={definition.category} number={definition.number} title={definition.title} course={isEl099Quiz2?"EL099 / LEVEL 3":displayCourseCode} sections={isEl099Quiz2?(definition.number==="01"?["Reading","Vocabulary","Grammar"]:["Grammar and Vocabulary","Reading (passages)","Writing"]):undefined} meta={isEl099Quiz2?"3 SECTIONS":courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).map(section=>"• "+section.title).join("  |  ")+"\n"+courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length+" SECTIONS"} selected={selected} locked={!activeExams.length} onSelect={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} />
                 );
               })}
             </div>
