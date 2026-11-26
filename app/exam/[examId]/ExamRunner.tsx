@@ -701,6 +701,7 @@ export default function ExamRunner() {
 
     setRemaining(0);
     if (requestedSection && incoming.sections?.some(section=>section.id===requestedSection)) {
+      setStage("section-select");
       await selectSection(requestedSection, incoming);
       return;
     }
@@ -844,7 +845,7 @@ export default function ExamRunner() {
       const response = await intensiveFetch("/api/exam/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId: activeAttempt.attempt_id }),
+        body: JSON.stringify({ attemptId: attempt.attempt_id }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر تسليم الاختبار.");
@@ -853,7 +854,7 @@ export default function ExamRunner() {
       setSectionBreakdown((payload.sectionBreakdown ?? []) as SectionScore[]);
       setPendingGrading(Boolean(payload.result?.pending_grading));
       if (payload.publishedResult) {
-        void loadReview(activeAttempt.attempt_id);
+        void loadReview(attempt.attempt_id);
       }
       setStage("done");
     } catch (error) {
@@ -867,7 +868,7 @@ export default function ExamRunner() {
     if (!attempt || advancing || submitting) return;
 
     if (!automatic) {
-      const active = activeAttempt.questions.filter(
+      const active = attempt.questions.filter(
         (question) => question.sectionId === attempt.current_section_id,
       );
       const firstUnansweredIndex = active.findIndex(
@@ -911,7 +912,7 @@ export default function ExamRunner() {
       const response = await intensiveFetch("/api/exam/section/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId: activeAttempt.attempt_id }),
+        body: JSON.stringify({ attemptId: attempt.attempt_id }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر إنهاء القسم.");
