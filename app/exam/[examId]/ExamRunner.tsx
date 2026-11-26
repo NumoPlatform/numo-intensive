@@ -687,6 +687,22 @@ export default function ExamRunner() {
       ),
     );
 
+    if (incoming.current_section_id && incoming.current_section_expires_at && requestedSection && incoming.current_section_id !== requestedSection) {
+      const previous = incoming.sections?.find(section => section.id === incoming.current_section_id)?.title ?? "القسم السابق";
+      if (!window.confirm(`لديك محاولة جارية في ${previous}. هل تريد تسليمها بالإجابات المحفوظة والبدء بالقسم الذي اخترته؟`)) {
+        setStage("intro");
+        setMessage("لم يتم بدء القسم المختار. يمكنك العودة للقسم السابق لإكماله.");
+        return;
+      }
+      const completion = await intensiveFetch("/api/exam/section/complete", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({attemptId:incoming.attempt_id}) });
+      const completed = await completion.json();
+      if (!completion.ok) { setMessage(completed.message || "تعذر إنهاء القسم السابق."); setStage("intro"); return; }
+      const cleared = {...incoming, current_section_id:null, current_section_expires_at:null, section_progress:completed.result?.sectionProgress ?? incoming.section_progress};
+      setAttempt(cleared);
+      setStage("section-select");
+      await selectSection(requestedSection, cleared);
+      return;
+    }
     if (incoming.current_section_id && incoming.current_section_expires_at) {
       setRemaining(Math.max(0, new Date(incoming.current_section_expires_at).getTime() - Date.now()));
       setStage("active");
@@ -783,7 +799,7 @@ export default function ExamRunner() {
       const expiresAt = String(payload.result?.sectionExpiresAt || "");
       const selectedId = String(payload.result?.sectionId || "");
       const resumed = Boolean(payload.result?.resumed);
-      if (!selectedId || !expiresAt) throw new Error("تعذر تشغيل مؤقت القسم.");
+      if (!selectedId || !expiresAt || selectedId !== sectionId) throw new Error("تعذر فتح القسم المحدد. يرجى المحاولة مجددا.");
 
       setAttempt((currentAttempt) =>
         currentAttempt
