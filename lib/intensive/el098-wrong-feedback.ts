@@ -29,8 +29,8 @@ type Cached = {
 
 // Access to Gemini 2.5 Flash is unavailable for some newly provisioned API keys (404).
 // Use production-supported models; switch to a second model on access/quota errors.
-const DIRECT_MODELS = ["gemini-3.6-flash", "gemini-3.8-flash"] as const;
-const GATEWAY_MODELS = ["google/gemini-3.6-flash", "google/gemini-3.8-flash"] as const;
+const DIRECT_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite"] as const;
+const GATEWAY_MODELS = ["openai/gpt-5-mini", "google/gemini-2.5-flash"] as const;
 const ACADEMIC_FORMAT_VERSION = "numo-academic-in-depth-v3";
 const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value);
 const compact = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -149,7 +149,7 @@ export async function getIntensiveEnglishWrongFeedback(context: Context, cacheOn
               method: "POST",
               headers: { "x-goog-api-key": directKey, "Content-Type": "application/json" },
               cache: "no-store",
-              signal: AbortSignal.timeout(19000),
+              signal: AbortSignal.timeout(12000),
               body: JSON.stringify({
                 systemInstruction: { parts: [{ text: guidance }] },
                 contents: [{ role: "user", parts: [{ text: input }] }],
@@ -157,14 +157,14 @@ export async function getIntensiveEnglishWrongFeedback(context: Context, cacheOn
                   temperature: 0.15,
                   responseMimeType: "application/json",
                   maxOutputTokens: 5600,
-                  thinkingConfig: { thinkingLevel: "low" },
+                  
                 },
               }),
             },
           );
           if (!response.ok) {
             console.error("NUMO_ENGLISH_TUTOR_PROVIDER_FAILED", model, response.status);
-            if ([400, 401, 403].includes(response.status)) break;
+            if ([401, 403].includes(response.status)) break;
             // A restricted model, overloaded provider or quota cap can recover
             // on another model without changing the original question/answer key.
             continue;
@@ -182,7 +182,8 @@ export async function getIntensiveEnglishWrongFeedback(context: Context, cacheOn
           console.error("NUMO_ENGLISH_TUTOR_PROVIDER_TIMEOUT", model);
         }
       }
-    } else {
+    }
+    if (!raw.trim() && gatewayToken) {
       for (const model of GATEWAY_MODELS) {
         try {
           const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
@@ -192,7 +193,6 @@ export async function getIntensiveEnglishWrongFeedback(context: Context, cacheOn
             signal: AbortSignal.timeout(19000),
             body: JSON.stringify({
               model,
-              temperature: 0.15,
               stream: false,
               messages: [
                 { role: "system", content: guidance },
