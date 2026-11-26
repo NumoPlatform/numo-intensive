@@ -9,10 +9,16 @@ try {
  execFileSync('curl',['--fail','--location','--retry','3','--max-time','90','-o',zip,'https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/f985197c-ebb6-4b19-92ed-1e12d4e880cd.zip']);
  if(createHash('sha256').update(readFileSync(zip)).digest('hex')!=='46002f4c4f7b9bcb9021774f964486523d830812552de106b7d20057431a6406') throw Error('Cover archive checksum mismatch');
  mkdirSync('public/covers',{recursive:true});
- for(const code of ['gr101','gr111','gr112','gr118','ar111','ar112']){
+ for(const code of ['gr101','gr118','ar112']){
  const path='public/covers/'+code+'-2026.webp';
  const bytes=execFileSync('unzip',['-p',zip,path]);
  if(bytes.toString('ascii',0,4)!=='RIFF'||bytes.toString('ascii',8,12)!=='WEBP') throw Error('Invalid cover '+code);
  writeFileSync(path,bytes);
+ }
+ for(const [code,id] of Object.entries({"gr111":"32f8ed8f-c210-47df-be7b-ebbc80edf999","gr112":"dab852f6-d521-4131-847d-18551868885a","ar111":"239b376d-89c2-40ce-ad67-769ad6145f83"})){
+ const path='public/covers/'+code+'-2026.webp';
+ execFileSync('curl',['--fail','--location','--retry','3','--max-time','90','-o',path,'https://d2ol7oe51mr4n9.cloudfront.net/user_387CgECRaZUrXUVQQOH52f4rZ37/'+id+'.png']);
+ const bytes=readFileSync(path);
+ if(bytes.toString('ascii',0,4)!=='RIFF'||bytes.toString('ascii',8,12)!=='WEBP') throw Error('Invalid cover '+code);
  }
 } finally {rmSync(dir,{recursive:true,force:true});}
