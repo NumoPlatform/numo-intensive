@@ -354,20 +354,13 @@ export default function CoursePortal() {
                 <NumoExamCard key={stage} number={String(i+1).padStart(2,"0")} title={stage+" EXAM"} course={displayCourseCode+" / LEVEL 5"} selected={el112Stage===stage} meta={courseSections.filter(section=>exams.some(exam=>exam.id===section.exam_id&&(exam.category===stage||(stage==="MIDTERM"&&exam.category==="QUIZ 2")))).length+" SECTIONS"} onSelect={()=>{setEl112Stage(stage);setWritingOpen(false)}} />
               ))}
             </div>
-            {el112Stage && !writingOpen && <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4" dir="rtl" aria-live="polite">
+            {el112Stage && !writingOpen && <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" dir="rtl" aria-live="polite">
               {(["Grammar","Vocabulary","Reading","Writing"] as const).map((name,i)=>{
                 const Icon=[SpellCheck,BookA,BookOpen,PenTool][i];
                 const stageExams=exams.filter(e=>e.category.trim().toUpperCase()===el112Stage||(el112Stage==="MIDTERM"&&e.category.trim().toUpperCase()==="QUIZ 2"));
                 const matches=courseSections.filter(s=>stageExams.some(e=>e.id===s.exam_id)&&s.title.trim().toLowerCase()===name.toLowerCase());
                 const lab=name==="Writing"&&el112Stage==="FINAL";
-                return <article key={name} className="flex min-w-0 flex-col rounded-[1.7rem] p-3 text-white shadow-[0_12px_32px_rgba(31,43,94,.14)] sm:p-5" style={{background:["#1F2B5E","#5558B7","#99634E","#343878"][i]}}>
-                  <div className="flex items-center justify-between gap-1"><span className="text-xs font-bold">NUMO</span><span className="text-sm text-[#f1d5c5]">0{i+1}</span></div>
-                  <div className="mt-5 grid h-12 w-12 place-items-center rounded-2xl bg-white/10 sm:h-16 sm:w-16"><Icon size={27}/></div>
-                  <h3 dir="ltr" className="mt-4 break-words text-right text-lg font-black sm:text-2xl">{name}</h3><p dir="ltr" className="mt-2 min-h-10 text-right text-xs leading-5 text-white/90 sm:text-sm">{["Grammar Mastery","Word Mastery","Reading Skills","Academic Writing Lab"][i]}</p>
-                  <div className="mt-auto border-t border-white/25 pt-3">
-                    {lab?<button type="button" onClick={()=>setWritingOpen(true)} className="flex min-h-10 w-full items-center justify-between gap-1 text-right text-xs font-bold sm:text-sm">Start Practice <ArrowUpRight size={16}/></button>:matches.length?matches.map(section=>{const exam=stageExams.find(e=>e.id===section.exam_id)!;const open=exam.status==="LIVE"&&Date.now()>=new Date(exam.starts_at).getTime()&&Date.now()<=new Date(exam.ends_at).getTime();return <div key={section.id} className="mb-2"><p className="text-[11px] text-white/90">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id} className="mt-2 flex min-h-10 items-center justify-between gap-1 text-xs font-bold sm:text-sm">Start Practice <ArrowUpRight size={16}/></a>:<p className="mt-2 text-xs">غير متاح حاليا</p>}</div>}):<p className="text-xs leading-5">بانتظار المحتوى المعتمد</p>}
-                  </div>
-                </article>
+                return <NumoExamCard key={name} number={String(i+1).padStart(2,"0")} title={name} course={displayCourseCode+" · "+el112Stage} meta={["Grammar Mastery","Word Mastery","Reading Skills","Academic Writing Lab"][i]} onSelect={lab?()=>setWritingOpen(true):undefined} href={!lab&&matches.length===1&&stageExams.some(e=>e.id===matches[0].exam_id&&e.status==="LIVE"&&Date.now()>=new Date(e.starts_at).getTime()&&Date.now()<=new Date(e.ends_at).getTime())?"/exam/"+matches[0].exam_id+"?section="+matches[0].id:undefined} cta="Start Practice">{!lab&&matches.map(section=><div key={section.id} className="text-sm">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة{matches.length>1&&stageExams.some(e=>e.id===section.exam_id&&e.status==="LIVE"&&Date.now()>=new Date(e.starts_at).getTime()&&Date.now()<=new Date(e.ends_at).getTime())&&<a className="block underline" href={"/exam/"+section.exam_id+"?section="+section.id}>Start Practice</a>}</div>)}</NumoExamCard>
               })}
             </div>}
             {el112Stage==="FINAL"&&writingOpen&&<WritingLab onBack={()=>setWritingOpen(false)}/>}
@@ -378,12 +371,7 @@ export default function CoursePortal() {
             {(["Grammar","Vocabulary","Reading"] as const).map((name,i)=>{
               const Icon=[SpellCheck,BookA,BookOpen][i];
               const matches=courseSections.filter(section=>selectedStageExams.some(exam=>exam.id===section.exam_id)&&section.title.trim().toLowerCase()===name.toLowerCase());
-              return <article key={name} className="group relative isolate flex min-h-[320px] min-w-0 flex-col overflow-hidden rounded-[2rem] border border-[#B1785C]/50 p-6 text-white shadow-[0_20px_45px_rgba(31,43,94,.20)] transition duration-300 hover:-translate-y-1 hover:shadow-2xl motion-reduce:transform-none" style={{background:["linear-gradient(145deg,#111a38,#1F2B5E 65%,#3d4d92)","linear-gradient(145deg,#25264d,#5558B7 75%,#7779c9)","linear-gradient(145deg,#382b35,#805746 65%,#B1785C)"][i]}}>
-                <div aria-hidden="true" className="pointer-events-none absolute -left-8 -top-12 h-44 w-44 rounded-full border border-white/10"/><div aria-hidden="true" className="pointer-events-none absolute -bottom-8 -left-2 text-[8rem] font-black text-white/[.05]">0{i+1}</div><div className="relative flex items-center justify-between"><span className="text-[10px] font-black tracking-[.2em] text-[#f1d5c5]">NUMO · SKILLS</span><span className="rounded-full border border-white/25 px-3 py-1 text-xs">0{i+1}</span></div>
-                <div className="mt-6 grid h-20 w-20 place-items-center rounded-[1.6rem] border border-white/25 bg-white/10 shadow-lg"><Icon size={36} strokeWidth={1.6}/></div>
-                <h3 dir="ltr" className="mt-4 break-words text-right text-2xl font-black">{name}</h3><p dir="ltr" className="mt-2 min-h-10 text-right text-sm leading-5 text-white/90">{["Grammar Mastery","Word Mastery","Reading Skills"][i]}</p>
-                <div className="mt-auto border-t border-white/25 pt-3">{matches.length?matches.map(section=>{const exam=selectedStageExams.find(e=>e.id===section.exam_id)!;const open=exam.status==="LIVE"&&Date.now()<=new Date(exam.ends_at).getTime()&&Date.now()>=new Date(exam.starts_at).getTime();return <div key={section.id}><p className="text-xs">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id+"?section="+section.id} className="relative mt-4 flex min-h-16 items-center justify-between gap-2 rounded-2xl border border-white/60 bg-gradient-to-br from-white to-[#f2e3d9] px-5 text-base font-black text-[#1F2B5E] shadow-lg transition hover:bg-[#f5e8df] focus-visible:ring-4 focus-visible:ring-[#B1785C]">Start Practice <ArrowUpRight size={16}/></a>:<p className="mt-2 text-xs">غير متاح حاليا</p>}</div>}):<p className="text-xs">بانتظار المحتوى المعتمد</p>}</div>
-              </article>
+              return <NumoExamCard key={name} number={String(i+1).padStart(2,"0")} title={name} course={displayCourseCode+" · QUIZ 1"} meta={["Grammar Mastery","Word Mastery","Reading Skills"][i]} href={matches.length===1&&selectedStageExams.some(e=>e.id===matches[0].exam_id&&e.status==="LIVE"&&Date.now()>=new Date(e.starts_at).getTime()&&Date.now()<=new Date(e.ends_at).getTime())?"/exam/"+matches[0].exam_id+"?section="+matches[0].id:undefined} cta="Start Practice">{matches.map(section=><div key={section.id} className="text-sm">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة{matches.length>1&&selectedStageExams.some(e=>e.id===section.exam_id&&e.status==="LIVE"&&Date.now()>=new Date(e.starts_at).getTime()&&Date.now()<=new Date(e.ends_at).getTime())&&<a className="block underline" href={"/exam/"+section.exam_id+"?section="+section.id}>Start Practice</a>}</div>)}</NumoExamCard>
             })}
           </section>
         ) : isFoundationThreeStage && intensiveStage !== "QUIZ 2" ? (
@@ -398,23 +386,7 @@ export default function CoursePortal() {
                 const attempts = data.attempts.filter((attempt) => attempt.exam_id === exam.id);
                 const available = isOpen && questionCount > 0;
                 return (
-                  <article key={exam.id} className="rounded-[1.6rem] border border-[#dedbe5] bg-white p-5 shadow-[0_14px_36px_rgba(31,43,94,.07)]">
-                    <div dir="ltr" className="text-xs font-black tracking-widest text-[#B1785C]">{intensiveStage}</div>
-                    <h3 className="mt-3 text-xl font-black text-[#1F2B5E]">{exam.title}</h3>
-                    <p className="mt-3 text-sm font-semibold leading-7 text-[#73788d]">
-                      {questionCount > 0 ? `${questionCount} سؤال · ${exam.duration_minutes} دقيقة · ${exam.attempts_allowed === 0 ? "محاولات غير محدودة" : `${exam.attempts_allowed} محاولات`}` : "المحتوى والمدة النهائية قيد الإعداد — لم يُفعّل الاختبار بعد"}
-                    </p>
-                    {available ? (
-                      <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white">
-                        {attempts.length ? <RotateCcw size={18} /> : <PlayCircle size={18} />}
-                        {attempts.length ? "فتح الاختبار / إعادة المحاولة" : "بدء الاختبار"}
-                      </a>
-                    ) : (
-                      <div className="mt-5 rounded-xl border border-[#e6e3ec] bg-[#f6f5f8] p-4 text-center text-sm font-bold text-[#777c90]">
-                        {questionCount ? "هذا الاختبار غير متاح حاليًا" : "لم تُضف الأسئلة المعتمدة إلى هذا الاختبار بعد"}
-                      </div>
-                    )}
-                  </article>
+                  <NumoExamCard key={exam.id} number={String(selectedStageExams.indexOf(exam)+1).padStart(2,"0")} title={exam.title} course={displayCourseCode+" · "+intensiveStage} meta={questionCount+" سؤال · "+exam.duration_minutes+" دقيقة"} locked={!available} href={"/exam/"+exam.id} cta={attempts.length?"فتح الاختبار / إعادة المحاولة":"بدء الاختبار"} />
                 );
               })
             ) : (
@@ -530,50 +502,7 @@ export default function CoursePortal() {
                 : section.position === 3 ? BookOpenCheck
                 : section.position <= 6 ? GraduationCap : FileCheck2;
               return (
-                <article key={section.id} className="group relative overflow-hidden rounded-[1.6rem] border border-[#dedbe5] bg-white shadow-[0_14px_36px_rgba(31,43,94,.07)] transition duration-300  hover:border-[#B1785C]/60 hover:shadow-[0_24px_48px_rgba(31,43,94,.12)] motion-reduce:transform-none">
-                  <div className="h-1.5 bg-[#1F2B5E]" />
-                  <div className="p-5 sm:p-6">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-black tracking-[.13em] text-[#B1785C]" dir="ltr">
-                          {String(section.position).padStart(2, "0")} / {isEl099Quiz2 ? "EL099" : "EL097"} QUIZ 2
-                        </div>
-                        <h3 className="mt-2 text-xl font-black leading-8 text-[#1F2B5E]" dir="ltr">{section.title}</h3>
-                      </div>
-                      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#eef0f7] text-[#6366F1]">
-                        <Icon size={23} />
-                      </div>
-                    </div>
-                    <p className="mt-2 min-h-10 text-sm font-semibold leading-6 text-[#72788e]" dir="ltr">
-                      {explanations[section.position]}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
-                      <span className="rounded-full bg-[#f1f2f9] px-3 py-1.5 text-[#1F2B5E]">
-                        {isEl099Quiz2 && section.position === 3 ? "6 writing topics" : section.position === 7 ? "7 writing topics" : `${section.question_count ?? 0} questions`}
-                      </span>
-                      <span className="rounded-full bg-[#faf0ea] px-3 py-1.5 text-[#9c644a]">
-                        {section.time_limit_minutes} دقيقة
-                      </span>
-                      <span className={"rounded-full px-3 py-1.5 " + (done ? "bg-emerald-50 text-emerald-700" : "bg-[#f1f2f9] text-[#73788f]")}>
-                        {done ? "مكتمل" : "جاهز للتدريب"}
-                      </span>
-                    </div>
-                    {progress?.best_percentage !== undefined ? (
-                      <div className="mt-3 text-sm font-black text-emerald-700">
-                        أفضل نتيجة {Number(progress.best_percentage).toFixed(0)}%
-                      </div>
-                    ) : null}
-                    {exam && isOpen ? (
-                      <a href={"/exam/" + exam.id + (isEl099Quiz2 ? "?section="+section.id : "")} className="mt-5 flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#1F2B5E] to-[#4548a4] px-4 text-base font-black text-white shadow-lg ring-2 ring-[#B1785C]/40 transition hover:brightness-110 focus-visible:ring-4">
-                        <PlayCircle size={18} /> {isEl099Quiz2 ? "Start Practice" : "فتح الاختبار واختيار القسم"}
-                      </a>
-                    ) : (
-                      <div className="mt-5 rounded-xl bg-[#f1f0f5] px-4 py-3 text-center text-sm font-bold text-[#777c90]">
-                        القسم غير متاح حالياً
-                      </div>
-                    )}
-                  </div>
-                </article>
+                <NumoExamCard key={section.id} number={String(section.position).padStart(2,"0")} title={section.title} course={displayCourseCode+" · QUIZ 2"} meta={explanations[section.position]} locked={!exam||!isOpen} href={exam?"/exam/"+exam.id+(isEl099Quiz2?"?section="+section.id:""):undefined} cta={isEl099Quiz2?"Start Practice":"فتح الاختبار واختيار القسم"}><p className="text-sm">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة · {done?"مكتمل":"جاهز للتدريب"}</p>{progress?.best_percentage!==undefined&&<p>أفضل نتيجة {Number(progress.best_percentage).toFixed(0)}%</p>}</NumoExamCard>
               );
             })
           ) : isEl098Quiz2 ? (
@@ -615,87 +544,7 @@ export default function CoursePortal() {
                 const arabicLabel = exam.title.split("—")[1]?.trim() || `النموذج ${modelIndex + 1}`;
 
                 return (
-                  <article
-                    key={exam.id}
-                    className="group relative overflow-hidden rounded-[1.8rem] border border-[#B1785C]/35 bg-[#FAF9F6] shadow-[0_16px_42px_rgba(31,43,94,.08)] transition-all duration-300  hover:border-[#B1785C]/70 hover:shadow-[0_24px_58px_rgba(31,43,94,.13)] motion-reduce:transition-none"
-                  >
-                    <div className="h-2 bg-[#1F2B5E]" />
-                    <div className="p-5 sm:p-6">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <div
-                            dir="ltr"
-                            className="text-[11px] font-black uppercase tracking-[.2em] text-[#B1785C]"
-                            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-                          >
-                            EL098 · QUIZ 2
-                          </div>
-                          <h2
-                            dir="ltr"
-                            className="mt-2 break-words text-3xl font-black tracking-tight text-[#1F2B5E] sm:text-4xl"
-                            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-                          >
-                            {modelLabel}
-                          </h2>
-                          <div className="mt-1 text-base font-black text-[#555b73]">{arabicLabel}</div>
-                        </div>
-                        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#B1785C]/20 bg-white text-[#6366F1] shadow-sm transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 motion-reduce:transform-none">
-                          <Icon size={25} />
-                        </div>
-                      </div>
-
-                      <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-                        <div className="rounded-xl border border-[#ebe6e1] bg-white p-3">
-                          <div className="text-lg font-black text-[#1F2B5E]">20</div>
-                          <div className="mt-1 text-[10px] font-bold text-[#7b8091]">Grammar & Vocab</div>
-                        </div>
-                        <div className="rounded-xl border border-[#ebe6e1] bg-white p-3">
-                          <div className="text-lg font-black text-[#1F2B5E]">8</div>
-                          <div className="mt-1 text-[10px] font-bold text-[#7b8091]">Reading</div>
-                        </div>
-                        <div className="rounded-xl border border-[#ebe6e1] bg-white p-3">
-                          <div className="text-lg font-black text-[#1F2B5E]">1</div>
-                          <div className="mt-1 text-[10px] font-bold text-[#7b8091]">Writing</div>
-                        </div>
-                      </div>
-
-                      <div className="mt-5">
-                        <div className="mb-2 flex items-center justify-between text-xs font-black">
-                          <span className="text-[#73788d]">تقدم النموذج</span>
-                          <span className="text-[#6366F1]">{progress}%</span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-[#e9e7ec]">
-                          <div
-                            className="h-full rounded-full bg-[#6366F1] transition-all duration-300"
-                            style={{ width: progress + "%" }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs font-black">
-                        <span className="rounded-full bg-[#eef0f7] px-3 py-1.5 text-[#1F2B5E]">{stateLabel}</span>
-                        <span className="rounded-full bg-[#f8efe9] px-3 py-1.5 text-[#9a6147]">محاولات مفتوحة ∞</span>
-                        {bestResult ? (
-                          <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-                            أفضل نتيجة {bestResult.percentage}%
-                          </span>
-                        ) : null}
-                      </div>
-
-                      {canEnter ? (
-                        <a
-                          href={"/exam/" + exam.id}
-                          className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 font-black text-white shadow-[0_12px_28px_rgba(31,43,94,.18)] transition-all duration-300  hover:shadow-[0_16px_34px_rgba(31,43,94,.25)] motion-reduce:transform-none"
-                        >
-                          استعراض النموذج <PlayCircle size={18} />
-                        </a>
-                      ) : (
-                        <div className="mt-5 rounded-xl border border-[#e1dde7] bg-white p-3 text-center text-xs font-black text-[#888c9e]">
-                          النموذج غير متاح حالياً.
-                        </div>
-                      )}
-                    </div>
-                  </article>
+                  <NumoExamCard key={exam.id} number={String(modelIndex+1).padStart(2,"0")} title={modelLabel} course={displayCourseCode+" · QUIZ 2"} meta={arabicLabel+" · "+questionCount+" questions"} locked={!canEnter} href={"/exam/"+exam.id} cta="استعراض النموذج"><p className="text-sm">{stateLabel} · {progress}% · محاولات مفتوحة ∞</p>{bestResult&&<p>أفضل نتيجة {bestResult.percentage}%</p>}</NumoExamCard>
                 );
               })
           ) : (
