@@ -63,7 +63,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   AR111: {
     level: "General Studies",
     label: "Arabic Communication Skills 1",
-    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/ar111-official.png",
+    cover: "/covers/ar111-2026.webp",
     accent: "#B1785C",
     accentDark: "#7E503C",
     accentSoft: "#FBF2ED",
@@ -73,7 +73,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   AR112: {
     level: "General Studies",
     label: "Arabic Communication Skills 2",
-    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/ar112-official.png",
+    cover: "/covers/ar112-2026.webp",
     accent: "#6366F1",
     accentDark: "#4043B4",
     accentSoft: "#F0F0FF",
@@ -103,7 +103,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR101: {
     level: "General Studies",
     label: "Self-Learning Skills",
-    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr101-official.png",
+    cover: "/covers/gr101-2026.webp",
     accent: "#B1785C",
     accentDark: "#7E503C",
     accentSoft: "#FBF2ED",
@@ -113,7 +113,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR111: {
     level: "General Studies",
     label: "Islamic Civilization",
-    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr111-official.png",
+    cover: "/covers/gr111-2026.webp",
     accent: "#1F2B5E",
     accentDark: "#152047",
     accentSoft: "#EEF0F7",
@@ -123,7 +123,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR112: {
     level: "General Studies",
     label: "Development Issues in the Arab World",
-    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr112-official.png",
+    cover: "/covers/gr112-2026.webp",
     accent: "#6366F1",
     accentDark: "#4043B4",
     accentSoft: "#F0F0FF",
@@ -133,7 +133,7 @@ const COURSE_VISUALS: Record<string, CourseVisual> = {
   GR118: {
     level: "General Studies",
     label: "Life Skills",
-    cover: "https://feiwxpjbzdlvgkndlcjx.supabase.co/storage/v1/object/public/course-covers/gr118-official.png",
+    cover: "/covers/gr118-2026.webp",
     accent: "#B1785C",
     accentDark: "#7E503C",
     accentSoft: "#FBF2ED",
@@ -157,5 +157,6 @@ export function courseVisual(code: string): CourseVisual {
 }
 
 export function courseCover(code: string, remote?: string | null) {
-  return remote || courseVisual(code).cover;
+  const visual = courseVisual(code);
+  return visual.cover.endsWith('-2026.webp') ? visual.cover : (remote || visual.cover);
 }
