@@ -2150,7 +2150,7 @@ export default function ExamRunner() {
               </section>
             ) : null}
 
-            <section className="min-w-0 overflow-hidden rounded-[2rem] border border-[#B1785C]/30 bg-white p-4 shadow-[0_20px_55px_rgba(31,43,94,.12)] sm:p-6 lg:p-8">
+            <section className="min-w-0 overflow-hidden relative isolate rounded-[2rem] border border-[#B1785C]/30 bg-white p-4 shadow-[0_25px_65px_rgba(31,43,94,.14)] sm:p-6 lg:p-8">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div className="text-xs font-black uppercase tracking-[0.14em] text-[#B1785C]">
                   {isArabicGeneralExam
@@ -2163,6 +2163,7 @@ export default function ExamRunner() {
                   </div>
                 ) : null}
               </div>
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-br from-[#111a38] via-[#1F2B5E] to-[#4548a4] px-5 py-4 text-white shadow-lg"><span className="text-xs font-black tracking-[.15em] text-[#e8bda5]">NUMO · ACADEMIC PRACTICE</span><span dir="ltr" className="rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-black">{currentIndex+1} / {activeQuestions.length}</span></div>
               <div
                 dir={isArabicGeneralExam ? "rtl" : "ltr"}
                 className={
@@ -2581,8 +2582,8 @@ export default function ExamRunner() {
                           <p className="mt-3 whitespace-pre-line text-[15px] font-semibold leading-9 text-[#3f465d]">{currentInlineFeedback.whyCorrect}</p>
                         </div>
                         {currentInlineFeedback.academicExplanation ? (
-                          <div className="rounded-2xl border border-[#dfe4f2] bg-[#f7f8fc] p-5">
-                            <div className="flex items-center justify-end gap-2 text-sm font-black text-[#1F2B5E]">
+                          <div className="rounded-[1.6rem] border border-[#B1785C]/35 bg-gradient-to-br from-[#f7f8fc] to-[#faf4ef] p-5 shadow-sm">
+                            <div className="flex items-center justify-end gap-2 rounded-xl bg-[#1F2B5E] p-4 text-base font-black text-white">
                               <span>03 | درس أكاديمي موسّع وأمثلة مترجمة · Academic Lesson</span>
                               <BookOpen size={18} />
                             </div>
