@@ -327,7 +327,7 @@ export default function CoursePortal() {
                 ثلاث مراحل مستقلة لكل مقرر. افتح Quiz 2 (MIDTERM) لمتابعة النماذج والأقسام الحالية، دون دمجها مع Quiz 1 أو Final.
               </p>
             </div>
-            <div className={isEl099Quiz2?"mx-auto grid w-full max-w-xl grid-cols-1 gap-4 bg-[#F4F5F9] p-2 sm:p-5":"grid gap-3 md:grid-cols-3"}>
+            <div dir="ltr" className={isEl099Quiz2?"mx-auto grid w-full max-w-[1140px] grid-cols-1 gap-5 bg-[#F4F5F9] p-2 sm:p-4 lg:grid-cols-3 lg:gap-6":"grid gap-3 md:grid-cols-3"}>
               {intensiveStageDefinitions.map((definition) => {
                 const stageExams = exams.filter((exam) => exam.category === definition.category);
                 const now = Date.now();
