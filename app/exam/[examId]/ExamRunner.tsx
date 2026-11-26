@@ -254,6 +254,7 @@ export default function ExamRunner() {
   const examId = String(params?.examId ?? "");
   const [stage, setStage] = useState<"loading" | "intro" | "starting" | "section-select" | "active" | "section-result" | "done">("loading");
   const [exam, setExam] = useState<ExamInfo | null>(null);
+  const [requestedSection, setRequestedSection] = useState("");
   const [previewSections, setPreviewSections] = useState<SectionState[]>([]);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
@@ -321,6 +322,8 @@ export default function ExamRunner() {
         }));
       setExam(found);
       setPreviewSections(sections);
+      const requested = new URLSearchParams(window.location.search).get("section") ?? "";
+      setRequestedSection(sections.some(section=>section.id===requested) ? requested : "");
       setStage("intro");
     }
     if (examId) loadExam();
@@ -697,6 +700,10 @@ export default function ExamRunner() {
     }
 
     setRemaining(0);
+    if (requestedSection && incoming.sections?.some(section=>section.id===requestedSection)) {
+      await selectSection(requestedSection, incoming);
+      return;
+    }
     setStage("section-select");
   }
 
@@ -758,15 +765,16 @@ export default function ExamRunner() {
     }
   }
 
-  async function selectSection(sectionId: string) {
-    if (!attempt || advancing || submitting) return;
+  async function selectSection(sectionId: string, freshAttempt?: Attempt) {
+    const activeAttempt = freshAttempt ?? attempt;
+    if (!activeAttempt || advancing || submitting) return;
     setAdvancing(true);
     setMessage("");
     try {
       const response = await intensiveFetch("/api/exam/section/select", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId: attempt.attempt_id, sectionId }),
+        body: JSON.stringify({ attemptId: activeAttempt.attempt_id, sectionId }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر فتح القسم.");
@@ -790,7 +798,7 @@ export default function ExamRunner() {
 
       if (!resumed) {
         const sectionQuestionIds = new Set(
-          (attempt.questions ?? [])
+          (activeAttempt.questions ?? [])
             .filter((question) => question.sectionId === selectedId)
             .map((question) => question.id),
         );
@@ -808,7 +816,7 @@ export default function ExamRunner() {
       setCurrentIndex(0);
       setPassagePickerOpen(
         courseCode.trim().toUpperCase() === "EL099" &&
-        (attempt.questions ?? []).some(
+        (activeAttempt.questions ?? []).some(
           (question) => question.sectionId === selectedId && Boolean(question.passage?.id),
         ),
       );
@@ -836,7 +844,7 @@ export default function ExamRunner() {
       const response = await intensiveFetch("/api/exam/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId: attempt.attempt_id }),
+        body: JSON.stringify({ attemptId: activeAttempt.attempt_id }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر تسليم الاختبار.");
@@ -845,7 +853,7 @@ export default function ExamRunner() {
       setSectionBreakdown((payload.sectionBreakdown ?? []) as SectionScore[]);
       setPendingGrading(Boolean(payload.result?.pending_grading));
       if (payload.publishedResult) {
-        void loadReview(attempt.attempt_id);
+        void loadReview(activeAttempt.attempt_id);
       }
       setStage("done");
     } catch (error) {
@@ -859,7 +867,7 @@ export default function ExamRunner() {
     if (!attempt || advancing || submitting) return;
 
     if (!automatic) {
-      const active = attempt.questions.filter(
+      const active = activeAttempt.questions.filter(
         (question) => question.sectionId === attempt.current_section_id,
       );
       const firstUnansweredIndex = active.findIndex(
@@ -903,7 +911,7 @@ export default function ExamRunner() {
       const response = await intensiveFetch("/api/exam/section/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId: attempt.attempt_id }),
+        body: JSON.stringify({ attemptId: activeAttempt.attempt_id }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || "تعذر إنهاء القسم.");
@@ -1119,7 +1127,7 @@ export default function ExamRunner() {
           </div>
           <ExamBeforeYouBegin
             exam={exam}
-            sections={previewSections}
+            sections={requestedSection ? previewSections.filter(section=>section.id===requestedSection) : previewSections}
             beforeStart={beforeStart}
             afterEnd={afterEnd}
             starting={stage === "starting"}
