@@ -90,6 +90,7 @@ export default function CoursePortal() {
   const [loading, setLoading] = useState(true);
   // Only foundation intensive levels use the 3-stage academic assessment journey.
   // EL111 and EL112 retain their current, independent assessment structure.
+  const [foundationExplore, setFoundationExplore] = useState(false);
   const [writingOpen, setWritingOpen] = useState(false);
   const [el112Stage, setEl112Stage] = useState<"MIDTERM" | "FINAL" | null>(null);
   const [intensiveStage, setIntensiveStage] = useState<"QUIZ 1" | "QUIZ 2" | "FINAL">("QUIZ 2");
@@ -104,7 +105,8 @@ export default function CoursePortal() {
           return;
         }
         setData(payload);
-        if (payload.courses?.some((c: Course) => c.id === params.courseId && c.code.trim().toUpperCase() === "EL099")) setIntensiveStage("QUIZ 1");
+        const stage = new URLSearchParams(window.location.search).get("stage");
+        if (stage === "QUIZ 1" || stage === "QUIZ 2" || stage === "FINAL") { setIntensiveStage(stage); setFoundationExplore(true); }
       })
       .catch(() => window.location.replace("/"))
       .finally(() => setLoading(false));
@@ -316,7 +318,7 @@ export default function CoursePortal() {
           </div>
         </section>
 
-        {isFoundationThreeStage ? (
+        {isFoundationThreeStage && (!isEl099Quiz2 || !foundationExplore) ? (
           <section aria-label="مراحل اختبارات الدورة المكثفة" className="mt-6">
             <div className="mb-4 text-right">
               <h2 className="text-xl font-black text-[#1F2B5E] sm:text-2xl">الاختبارات الأساسية للدورة المكثفة</h2>
@@ -336,7 +338,7 @@ export default function CoursePortal() {
                 const selected = intensiveStage === definition.category;
                 const Icon = definition.Icon;
                 return (
-isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-expanded={selected} onClick={()=>setIntensiveStage(definition.category)} className={"relative isolate overflow-hidden rounded-[2rem] p-6 text-left text-white shadow-[0_18px_48px_rgba(31,43,94,.18)] transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] "+(selected?"ring-2 ring-[#B1785C]":"")} style={{background:selected?"linear-gradient(145deg,#101831,#1F2B5E 55%,#4548a4)":"linear-gradient(145deg,#101831,#1F2B5E 65%,#343878)"}}>
+isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-expanded={selected} onClick={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} className={"relative isolate overflow-hidden rounded-[2rem] p-6 text-left text-white shadow-[0_18px_48px_rgba(31,43,94,.18)] transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] "+(selected?"ring-2 ring-[#B1785C]":"")} style={{background:selected?"linear-gradient(145deg,#101831,#1F2B5E 55%,#4548a4)":"linear-gradient(145deg,#101831,#1F2B5E 65%,#343878)"}}>
                   <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 rounded-full border border-white/15"><div className="absolute inset-5 rounded-full border border-white/15"/><div className="absolute inset-10 rounded-full border border-[#B1785C]/60"/></div>
                   <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-black tracking-[.35em] text-[#edc2ad]">N U M O</div><p className="mt-5 text-[10px] font-semibold tracking-[.20em] text-white/80 sm:text-xs">ACADEMIC COLLECTION</p></div><GraduationCap size={62} strokeWidth={1.4} className="shrink-0 text-[#ddb39f]"/></div>
                   <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">{definition.title.toUpperCase()}</h2><p className="mt-1 text-sm text-[#dedfff]">EL099 / LEVEL 3</p>
@@ -369,7 +371,8 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
           </section>
         ) : null}
 
-        {isEl112 ? (
+        {isEl099Quiz2 && foundationExplore && <div className="mt-6 flex items-center justify-between gap-3"><button type="button" onClick={()=>setFoundationExplore(false)} className="rounded-xl border border-[#B1785C] bg-white px-4 py-3 font-bold">العودة للاختبارات</button><h2 dir="ltr" className="text-xl font-black">{intensiveStage} · SECTIONS</h2></div>}
+        {isEl099Quiz2 && !foundationExplore ? null : isEl112 ? (
           <section className="mt-6" aria-label="EL112 exam stages">
             <div className="grid gap-4 sm:grid-cols-2">
               {(["MIDTERM", "FINAL"] as const).map((stage, i) => (
@@ -402,13 +405,13 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
           </section>
         ) : isEl099Quiz2 && intensiveStage === "QUIZ 1" ? (
           <section className="mt-5 grid gap-3 sm:grid-cols-3" aria-live="polite">
-            {(["Reading","Grammar","Vocabulary"] as const).map((name,i)=>{
-              const Icon=[BookOpen,SpellCheck,BookA][i];
+            {(["Grammar","Vocabulary","Reading"] as const).map((name,i)=>{
+              const Icon=[SpellCheck,BookA,BookOpen][i];
               const matches=courseSections.filter(section=>selectedStageExams.some(exam=>exam.id===section.exam_id)&&section.title.trim().toLowerCase()===name.toLowerCase());
-              return <article key={name} className="flex min-w-0 flex-col rounded-[1.7rem] p-5 text-white shadow-[0_12px_32px_rgba(31,43,94,.14)]" style={{background:["#99634E","#1F2B5E","#5558B7"][i]}}>
+              return <article key={name} className="flex min-w-0 flex-col rounded-[1.7rem] p-5 text-white shadow-[0_12px_32px_rgba(31,43,94,.14)]" style={{background:["#1F2B5E","#5558B7","#99634E"][i]}}>
                 <div className="flex items-center justify-between"><span className="text-xs font-bold">NUMO</span><span className="text-sm text-[#f1d5c5]">0{i+1}</span></div>
                 <div className="mt-5 grid h-16 w-16 place-items-center rounded-2xl bg-white/10"><Icon size={27}/></div>
-                <h3 dir="ltr" className="mt-4 break-words text-right text-2xl font-black">{name}</h3><p dir="ltr" className="mt-2 min-h-10 text-right text-sm leading-5 text-white/90">{["Reading Skills","Grammar Mastery","Word Mastery"][i]}</p>
+                <h3 dir="ltr" className="mt-4 break-words text-right text-2xl font-black">{name}</h3><p dir="ltr" className="mt-2 min-h-10 text-right text-sm leading-5 text-white/90">{["Grammar Mastery","Word Mastery","Reading Skills"][i]}</p>
                 <div className="mt-auto border-t border-white/25 pt-3">{matches.length?matches.map(section=>{const exam=selectedStageExams.find(e=>e.id===section.exam_id)!;const open=exam.status==="LIVE"&&Date.now()<=new Date(exam.ends_at).getTime()&&Date.now()>=new Date(exam.starts_at).getTime();return <div key={section.id}><p className="text-xs">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id+"?section="+section.id} className="mt-2 flex min-h-10 items-center justify-between text-sm font-bold">Start Practice <ArrowUpRight size={16}/></a>:<p className="mt-2 text-xs">غير متاح حاليا</p>}</div>}):<p className="text-xs">بانتظار المحتوى المعتمد</p>}</div>
               </article>
             })}
@@ -690,8 +693,8 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
                       </div>
                     ) : null}
                     {exam && isOpen ? (
-                      <a href={"/exam/" + exam.id} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white transition hover:bg-[#303f7e]">
-                        <PlayCircle size={18} /> فتح الاختبار واختيار القسم
+                      <a href={"/exam/" + exam.id + (isEl099Quiz2 ? "?section="+section.id : "")} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white transition hover:bg-[#303f7e]">
+                        <PlayCircle size={18} /> {isEl099Quiz2 ? "Start Practice" : "فتح الاختبار واختيار القسم"}
                       </a>
                     ) : (
                       <div className="mt-5 rounded-xl bg-[#f1f0f5] px-4 py-3 text-center text-sm font-bold text-[#777c90]">
