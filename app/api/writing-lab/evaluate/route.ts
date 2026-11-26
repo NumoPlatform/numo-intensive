@@ -40,7 +40,7 @@ export async function POST(request:NextRequest){
  const cached=await serviceRequest<Array<{assessment:Record<string,unknown>}>>(cacheQuery);
  if(cached[0])return NextResponse.json({ok:true,reused:true,assessment:cached[0].assessment});
  const wordCount=count(essay);
- const paragraphs=essay.trim().split(/\r\n|\r|\n/).filter(p=>p.trim()).length;
+ const paragraphs=essay.trim().split(/\r\n|\r|\n/).filter((p: string) =>p.trim()).length;
  const key=process.env.NUMO_INTENSIVE_GEMINI_API_KEY;
  const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||request.headers.get("x-vercel-oidc-token");
  if(!key&&!token)return fail("خدمة التصحيح غير مفعلة حاليا. لم تسجل درجة، ونصك باق في المحرر.",503);
