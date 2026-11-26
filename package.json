@@ -8,7 +8,7 @@
   },
   "scripts": {
     "verify": "node scripts/check-isolation.mjs && tsc --noEmit",
-    "prebuild": "node scripts/check-isolation.mjs && tsc --noEmit",
+    "prebuild": "node scripts/import-original-covers.mjs && node scripts/check-isolation.mjs && tsc --noEmit",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
