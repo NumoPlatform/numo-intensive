@@ -104,6 +104,7 @@ export default function CoursePortal() {
           return;
         }
         setData(payload);
+        if (payload.courses?.some((c: Course) => c.id === params.courseId && c.code.trim().toUpperCase() === "EL099")) setIntensiveStage("QUIZ 1");
       })
       .catch(() => window.location.replace("/"))
       .finally(() => setLoading(false));
@@ -335,7 +336,12 @@ export default function CoursePortal() {
                 const selected = intensiveStage === definition.category;
                 const Icon = definition.Icon;
                 return (
-                  <button
+isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-expanded={selected} onClick={()=>setIntensiveStage(definition.category)} className={"relative isolate overflow-hidden rounded-[2rem] p-6 text-left text-white shadow-[0_18px_48px_rgba(31,43,94,.18)] transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#6366F1] "+(selected?"ring-2 ring-[#B1785C]":"")} style={{background:selected?"linear-gradient(145deg,#101831,#1F2B5E 55%,#4548a4)":"linear-gradient(145deg,#101831,#1F2B5E 65%,#343878)"}}>
+                  <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 rounded-full border border-white/15"><div className="absolute inset-5 rounded-full border border-white/15"/><div className="absolute inset-10 rounded-full border border-[#B1785C]/60"/></div>
+                  <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-black tracking-[.35em] text-[#edc2ad]">N U M O</div><p className="mt-5 text-[10px] font-semibold tracking-[.20em] text-white/80 sm:text-xs">ACADEMIC COLLECTION</p></div><GraduationCap size={62} strokeWidth={1.4} className="shrink-0 text-[#ddb39f]"/></div>
+                  <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">{definition.title.toUpperCase()}</h2><p className="mt-1 text-sm text-[#dedfff]">EL099 / LEVEL 3</p>
+                  <div className="mt-5 flex items-end justify-between gap-2 border-t border-[#B1785C] pt-4"><div className="space-y-2 text-xs text-white/90"><p>{courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length} SECTIONS</p><p>{activeExams.length?"2026 — 2027":"COMING SOON"}</p></div><span className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#b98568] to-[#88533f] px-4 py-3 text-xs font-black text-white">EXPLORE <ArrowUpRight size={16}/></span></div>
+                </button>) : (                  <button
                     type="button"
                     key={definition.category}
                     aria-pressed={selected}
@@ -356,7 +362,7 @@ export default function CoursePortal() {
                         : stageExams.length ? (stageExams.every((exam) => exam.status === "DRAFT") ? "مسودة قيد إعداد الأسئلة" : "لم يُفتح هذا الاختبار بعد") : "بانتظار إضافة المحتوى المعتمد"}
                     </div>
                     {selected ? <span className="mt-2 text-xs font-black text-[#B1785C]">القسم المحدد · التفاصيل أدناه</span> : null}
-                  </button>
+                  </button>)
                 );
               })}
             </div>
@@ -393,6 +399,19 @@ export default function CoursePortal() {
             </div>}
             {el112Stage==="FINAL"&&writingOpen&&<WritingLab onBack={()=>setWritingOpen(false)}/>}
 
+          </section>
+        ) : isEl099Quiz2 && intensiveStage === "QUIZ 1" ? (
+          <section className="mt-5 grid gap-3 sm:grid-cols-3" aria-live="polite">
+            {(["Reading","Grammar","Vocabulary"] as const).map((name,i)=>{
+              const Icon=[BookOpen,SpellCheck,BookA][i];
+              const matches=courseSections.filter(section=>selectedStageExams.some(exam=>exam.id===section.exam_id)&&section.title.trim().toLowerCase()===name.toLowerCase());
+              return <article key={name} className="flex min-w-0 flex-col rounded-[1.7rem] p-5 text-white shadow-[0_12px_32px_rgba(31,43,94,.14)]" style={{background:["#99634E","#1F2B5E","#5558B7"][i]}}>
+                <div className="flex items-center justify-between"><span className="text-xs font-bold">NUMO</span><span className="text-sm text-[#f1d5c5]">0{i+1}</span></div>
+                <div className="mt-5 grid h-16 w-16 place-items-center rounded-2xl bg-white/10"><Icon size={27}/></div>
+                <h3 dir="ltr" className="mt-4 break-words text-right text-2xl font-black">{name}</h3><p dir="ltr" className="mt-2 min-h-10 text-right text-sm leading-5 text-white/90">{["Reading Skills","Grammar Mastery","Word Mastery"][i]}</p>
+                <div className="mt-auto border-t border-white/25 pt-3">{matches.length?matches.map(section=>{const exam=selectedStageExams.find(e=>e.id===section.exam_id)!;const open=exam.status==="LIVE"&&Date.now()<=new Date(exam.ends_at).getTime()&&Date.now()>=new Date(exam.starts_at).getTime();return <div key={section.id}><p className="text-xs">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id+"?section="+section.id} className="mt-2 flex min-h-10 items-center justify-between text-sm font-bold">Start Practice <ArrowUpRight size={16}/></a>:<p className="mt-2 text-xs">غير متاح حاليا</p>}</div>}):<p className="text-xs">بانتظار المحتوى المعتمد</p>}</div>
+              </article>
+            })}
           </section>
         ) : isFoundationThreeStage && intensiveStage !== "QUIZ 2" ? (
           <section aria-live="polite" className="mt-6 grid gap-4 md:grid-cols-2">
