@@ -282,7 +282,12 @@ export default function IntensivePortal() {
   const examsByCourse = useMemo(() => {
     const map = new Map<string, Dashboard["exams"]>();
     for (const exam of data?.exams ?? []) {
-      map.set(exam.course_id, [...(map.get(exam.course_id) ?? []), exam]);
+      const group = map.get(exam.course_id);
+      if (group) {
+        group.push(exam);
+      } else {
+        map.set(exam.course_id, [exam]);
+      }
     }
     return map;
   }, [data]);
@@ -291,9 +296,15 @@ export default function IntensivePortal() {
     if (!data) return null;
 
     const now = Date.now();
+    const attemptsByExam = new Map<string, Dashboard["attempts"]>();
+    for (const attempt of data.attempts) {
+      const group = attemptsByExam.get(attempt.exam_id);
+      if (group) group.push(attempt);
+      else attemptsByExam.set(attempt.exam_id, [attempt]);
+    }
     const candidates = data.exams
       .map((exam) => {
-        const attempts = data.attempts.filter((item) => item.exam_id === exam.id);
+        const attempts = attemptsByExam.get(exam.id) ?? [];
         const inProgress = attempts.find((item) => item.status === "IN_PROGRESS");
         const isOpen =
           now >= new Date(exam.starts_at).getTime() &&

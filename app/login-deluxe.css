@@ -63,7 +63,6 @@
     inset 0 1px 0 rgba(255,255,255,.98);
   transform-origin:50% 55%;
   backface-visibility:hidden;
-  will-change:transform;
   animation:numoLoginSway 6.8s ease-in-out infinite;
   transition:box-shadow .25s ease,filter .25s ease;
 }
@@ -314,5 +313,12 @@
     animation:none!important;
     transform:none!important;
     will-change:auto;
+  }
+}
+
+/* Limit continuous animation work to visible covers; preserve approved sway. */
+@media (hover: none) {
+  .numo-login-featured-card {
+    transition: none;
   }
 }
