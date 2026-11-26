@@ -412,7 +412,7 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
                 <div className="flex items-center justify-between"><span className="text-xs font-bold">NUMO</span><span className="text-sm text-[#f1d5c5]">0{i+1}</span></div>
                 <div className="mt-5 grid h-16 w-16 place-items-center rounded-2xl bg-white/10"><Icon size={27}/></div>
                 <h3 dir="ltr" className="mt-4 break-words text-right text-2xl font-black">{name}</h3><p dir="ltr" className="mt-2 min-h-10 text-right text-sm leading-5 text-white/90">{["Grammar Mastery","Word Mastery","Reading Skills"][i]}</p>
-                <div className="mt-auto border-t border-white/25 pt-3">{matches.length?matches.map(section=>{const exam=selectedStageExams.find(e=>e.id===section.exam_id)!;const open=exam.status==="LIVE"&&Date.now()<=new Date(exam.ends_at).getTime()&&Date.now()>=new Date(exam.starts_at).getTime();return <div key={section.id}><p className="text-xs">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id+"?section="+section.id} className="mt-2 flex min-h-10 items-center justify-between text-sm font-bold">Start Practice <ArrowUpRight size={16}/></a>:<p className="mt-2 text-xs">غير متاح حاليا</p>}</div>}):<p className="text-xs">بانتظار المحتوى المعتمد</p>}</div>
+                <div className="mt-auto border-t border-white/25 pt-3">{matches.length?matches.map(section=>{const exam=selectedStageExams.find(e=>e.id===section.exam_id)!;const open=exam.status==="LIVE"&&Date.now()<=new Date(exam.ends_at).getTime()&&Date.now()>=new Date(exam.starts_at).getTime();return <div key={section.id}><p className="text-xs">{section.question_count??0} سؤال · {section.time_limit_minutes} دقيقة</p>{open?<a href={"/exam/"+exam.id+"?section="+section.id} className="mt-3 flex min-h-14 items-center justify-between gap-2 rounded-xl border border-white/40 bg-white px-4 text-sm font-black text-[#1F2B5E] shadow-lg transition hover:bg-[#f5e8df] focus-visible:ring-4 focus-visible:ring-[#B1785C]">Start Practice <ArrowUpRight size={16}/></a>:<p className="mt-2 text-xs">غير متاح حاليا</p>}</div>}):<p className="text-xs">بانتظار المحتوى المعتمد</p>}</div>
               </article>
             })}
           </section>
@@ -693,7 +693,7 @@ isEl099Quiz2 ? (<button key={definition.category} type="button" dir="ltr" aria-e
                       </div>
                     ) : null}
                     {exam && isOpen ? (
-                      <a href={"/exam/" + exam.id + (isEl099Quiz2 ? "?section="+section.id : "")} className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1F2B5E] px-4 text-sm font-black text-white transition hover:bg-[#303f7e]">
+                      <a href={"/exam/" + exam.id + (isEl099Quiz2 ? "?section="+section.id : "")} className="mt-5 flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#1F2B5E] to-[#4548a4] px-4 text-base font-black text-white shadow-lg ring-2 ring-[#B1785C]/40 transition hover:brightness-110 focus-visible:ring-4">
                         <PlayCircle size={18} /> {isEl099Quiz2 ? "Start Practice" : "فتح الاختبار واختيار القسم"}
                       </a>
                     ) : (
