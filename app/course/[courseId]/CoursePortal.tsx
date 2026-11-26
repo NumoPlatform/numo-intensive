@@ -339,7 +339,7 @@ export default function CoursePortal() {
                 const selected = intensiveStage === definition.category;
                 const Icon = definition.Icon;
                 return (
-<NumoExamCard key={definition.category} number={definition.number} title={definition.title} course={displayCourseCode+" · "+definition.titleAr} meta={courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length+" SECTIONS"} selected={selected} locked={!activeExams.length} onSelect={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} />
+<NumoExamCard key={definition.category} number={definition.number} title={definition.title} course={isEl099Quiz2?"EL099 / LEVEL 3":displayCourseCode} meta={courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).map(section=>"• "+section.title).join("  |  ")+"\n"+courseSections.filter(section=>stageExams.some(exam=>exam.id===section.exam_id)).length+" SECTIONS"} selected={selected} locked={!activeExams.length} onSelect={()=>{setIntensiveStage(definition.category);setFoundationExplore(true);window.scrollTo(0,0)}} />
                 );
               })}
             </div>
